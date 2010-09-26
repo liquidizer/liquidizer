@@ -1,0 +1,47 @@
+<div>
+  <head>
+    <script language="javascript">
+      function setChart(type) {
+      var chart= document.getElementById('chart');
+      chart.setAttribute('src','chart.svg?'+type);
+      var newChart= document.createElement('embed');
+      newChart.src="chart.svg?"+type;
+      newChart.height="400";
+      newChart.width="640";
+      newChart.id="chart";
+      var parent= chart.parentNode;
+      parent.replaceChild(newChart, chart);
+      }
+    </script>
+  </head>
+  <div class="chart_wrapper" align="center">
+    <hr/>
+    <div class="navi">
+    <a href="javascript:setChart('axis=log')">
+      <div class="pagelink">Alles</div>
+    </a>
+    <a href="javascript:setChart('axis=y')">
+      <div class="pagelink">Letztes Jahr</div>
+    </a>
+    <a href="javascript:setChart('axis=m')">
+      <div class="pagelink">Letzter Monat</div>
+    </a>
+    <a href="javascript:setChart('axis=w')">
+      <div class="pagelink">Letzte Woche</div>
+    </a>
+    <a href="javascript:setChart('axis=d')">
+      <div class="pagelink">Tag</div>
+    </a>
+    <a href="javascript:setChart('axis=h')">
+      <div class="pagelink">Stunde</div>
+    </a>
+    <a href="/help.html#sec-5">
+      <div class="pagelink">?</div>
+    </a>
+    </div>
+    <hr/>
+    <div class="chart">
+      <embed id="chart" height="400" width="640" src="chart.svg"/>
+    </div>
+  </div>
+</div>

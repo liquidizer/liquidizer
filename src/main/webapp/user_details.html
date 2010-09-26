@@ -1,0 +1,87 @@
+<lift:surround with="default" at="content">
+  <lift:form method="post">
+    <lift:UserDetails eager_eval="true">
+      <lift:embed what="user_head"/>
+
+      <h3>Verteilung der Stimmgewichte
+      	<div class="view">
+	  <lift:UserDetails.view form="POST" eager_eval="true">
+	    <lift:embed what="sort_votes"/>
+	    <lift:embed what="search"/>
+	  </lift:UserDetails.view>
+	</div>
+      </h3>
+      <table width="100%">
+	<tr height="50">
+	  <td/>
+	  <user:itsme>
+	    <th>Deine Präferenz</th>
+	    <th>Stimmgewicht</th>
+	  </user:itsme>
+	  <lift:UserInfo.in>
+	    <user:notme>
+	      <th>Präferenz</th>
+	      <th>Deine Präferenz</th>
+	    </user:notme>
+	  </lift:UserInfo.in>
+	  <lift:UserInfo.out>
+	    <th>Präferenz</th>
+	  </lift:UserInfo.out>
+	  <th>Chart <a href="/help.html#sec-5">[?]</a></th>
+	</tr>
+	<user:votes>
+	  <tr>
+	    <td class="votable">
+	      <poll:name/>
+	    </td>
+	    <user:itsme>
+	      <td rowspan="2" nowrap="true" align="center">
+		<lift:embed what="vote"/>
+	      </td>
+	    </user:itsme>
+	    <td rowspan="2" align="center">
+	      <table class="vote"><tr><td>
+		    <user:itsme>
+		      <span class="pass">=</span>
+		      <vote:result format="decimal"/>
+		    </user:itsme>
+		    <user:notme>
+	      	      <vote:result format="numer"/>
+		    </user:notme>
+	      </td></tr></table>
+	    </td>
+	    <lift:UserInfo.in>
+	      <user:notme>
+		<td rowspan="2" align="center">
+		  <table class="vote"><tr><td>
+			<poll:notme>
+			  <me:weight format="numer"/>
+			</poll:notme>
+			<poll:itsme><span class="pass">−</span></poll:itsme>
+		  </td></tr></table>
+		</td>
+	      </user:notme>
+	    </lift:UserInfo.in>
+	    <td class="chart_thumb" rowspan="2">
+	      <vote:chart height="60" width="150" grid="off"/>
+	    </td>
+	  </tr>
+	  <tr>
+	    <div class="comment">
+	      <user:comment/>
+	    </div>
+	    <user:itsme>
+	      <div style="text-align:center">
+		<me:editButton/>
+	      </div>
+	    </user:itsme>
+	  </tr>
+	</user:votes>
+      </table>
+    </lift:UserDetails>
+  </lift:form>
+  <div align="center">
+    <lift:UserDetails.navigator/>
+  </div>
+</lift:surround>
+

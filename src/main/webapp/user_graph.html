@@ -1,0 +1,19 @@
+<lift:surround with="default" at="content">
+  <lift:form method="post">
+    <lift:UserGraphDetails eager_eval="true">
+      <lift:embed what="user_head"/>
+      <center>
+	<embed src="delegation.svg"/>
+      </center>
+      <hr/>
+      <table>
+	<user:votes>
+	  <tr>
+	    <td><poll:id/></td>
+	    <td><poll:name/></td>
+	  </tr>
+	</user:votes>
+      </table>
+    </lift:UserGraphDetails>
+  </lift:form>
+</lift:surround>

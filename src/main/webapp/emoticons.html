@@ -1,0 +1,115 @@
+<lift:surround with="default" at="content">
+  <head>
+    <link type="text/css" href="/common/css/ui-lightness/jquery-ui-1.8.1.custom.css" rel="stylesheet" />	
+    <script type="text/javascript" src="/common/js/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="/common/js/jquery-ui-1.8.1.custom.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+      $("#sliders div").slider();
+      $("#slider-valence").slider("value", 50);
+      $("#slider-arousal").slider("value", 50);
+      $("#slider-potency").slider("value", 50);
+      $("#sliders div").bind("slidechange", function(event,ui) { refresh(); });
+      refresh();
+      });
+
+      function refresh() {
+      var v= $("#slider-valence").slider("value");
+      var a= $("#slider-arousal").slider("value");
+      var p= $("#slider-potency").slider("value");
+      $("#label-valence").text(v);
+      $("#label-arousal").text(a);
+      $("#label-potency").text(p);
+
+      var emoticon= $("#emoticon");
+      emoticon.html(emoticon.html()
+      .replace(/valence=[-0-9\.]*/,"valence="+v/100.0)
+      .replace(/arousal=[-0-9\.]*/,"arousal="+a/100.0)
+      .replace(/potency=[-0-9\.]*/,"potency="+p/100.0))
+      }
+
+      function setParam(v,a,p) {
+      $("#slider-valence").slider("value", v);
+      $("#slider-arousal").slider("value", a);
+      $("#slider-potency").slider("value", p);
+      refresh();
+      }
+    </script>
+    <style type="text/css">
+      #sliders {
+      width:100%;
+      }
+      #sliders td {
+      min-width: 2em;
+      padding: 5px;
+      }
+      #emoticon {
+      text-align: center;
+      height:300px;
+      }
+      #links a {
+      text-decoration:none;
+      background-color:gray;
+      color:white;
+      margin:0px 1px 0px 1px;
+      padding:2px 3px 2px 3px;
+      }
+      #links p {
+      margin: 5px 0 0 0;
+      }
+
+    </style>
+  </head>
+
+  <div style="margin:2em">
+    <h1>Emotion Explorer</h1>
+
+    <table id="sliders">
+      <tr>
+	<td>Valence</td>
+	<td width="80%"><div id="slider-valence"/></td>
+	<td><span id="label-valence">0</span></td>
+      </tr>
+      <tr>
+	<td>Arousal</td>
+	<td width="80%"><div id="slider-arousal"/></td>
+	<td><span id="label-arousal">0</span></td>
+      </tr>
+      <tr>
+	<td>Potency</td>
+	<td width="80%"><div id="slider-potency"/></td>
+	<td><span id="label-potency">0</span></td>
+      </tr>
+    </table>
+    <div id="emoticon">
+      <embed src="/emotions/front.svg?valence=0.5&amp;arousal=0.5&amp;potency=0.5" 
+	     width="250" height="250"/>
+    </div>
+    <div id="links">
+      <p>
+      <a href="javascript:setParam(50,50,50)">Normal</a>
+      </p>
+      <p>
+      <a href="javascript:setParam(50,100,50)">Surprised</a>
+      <a href="javascript:setParam(50,0,50)">Drowsy</a>
+      <a href="javascript:setParam(100,50,50)">Happy</a>
+      <a href="javascript:setParam(0,50,50)">Unhappy</a>
+      <a href="javascript:setParam(50,50,100)">Determined</a>
+      <a href="javascript:setParam(50,50,0)">Unsecure</a>
+      </p>
+      <p>
+      <a href="javascript:setParam(0,0,0)">Sad</a>
+      <a href="javascript:setParam(0,0,100)">Grumpy</a>
+      <a href="javascript:setParam(0,100,0)">Scared</a>
+      <a href="javascript:setParam(100,100,100)">Excited</a>
+      <a href="javascript:setParam(100,0,100)">Content</a>
+      <a href="javascript:setParam(0,100,100)">Angry</a>
+      <a href="javascript:setParam(100,100,0)">Embarrassed</a>
+      <a href="javascript:setParam(100,0,0)">Sceptical</a>
+      </p>
+    </div>
+  </div>
+</lift:surround>
+
+

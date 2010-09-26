@@ -1,0 +1,68 @@
+<lift:surround with="default" at="content">
+
+  <div class="keys">
+    <div>Kategorien:</div>
+    <lift:Queries.categories/>
+  </div>
+
+  <div class="head">
+    <h2>Liste aller Fragen
+      <div class="view">
+	<lift:Queries.view form="POST" eager_eval="true">
+	  <lift:embed what="sort_queries"/>
+	  <lift:embed what="search"/>
+	</lift:Queries.view>
+      </div>
+    </h2>
+  </div>
+
+  <table width="100%">
+    <tr height="50">
+      <td/>
+      <lift:UserInfo.in>
+	<th>Deine Präferenz</th>
+      </lift:UserInfo.in>
+      <th>Ergebnis</th>
+      <th>Chart <a href="/help.html#sec-5">[?]</a></th>
+    </tr>
+    <lift:Queries eager_eval="true">
+      <tr>
+	<td class="votable">
+	  <poll:name/>
+	  <div class="keys">
+	    <query:keys/>
+	  </div>
+	</td>
+	<lift:UserInfo.in>
+	  <td align="center" nowrap="true">
+	    <lift:embed what="vote"/>
+	  </td>
+	</lift:UserInfo.in>
+	<td align="center">
+	  <table class="vote"><tr><td><poll:result/></td></tr></table>
+	</td>
+	<td class="chart_thumb">
+	  <poll:chart height="60" width="150" grid="off"/>
+	</td>
+      </tr>
+    </lift:Queries>
+  </table>
+  <div align="center">
+    <lift:Queries.navigator/>
+  </div>
+
+  <lift:UserInfo.in>
+    <lift:Queries.lastpage>
+      <hr/>
+      <view:a search="true" href="add_query">
+	<table>
+	  <td><img src="/images/addquery.png" height="2em" alt="neue Frage"/></td>
+	  <td width="2em"/>
+	  <td style="vertical-align:bottom">Neue Frage hinzufügen</td>
+	</table>
+      </view:a>
+    </lift:Queries.lastpage>
+  </lift:UserInfo.in>
+
+</lift:surround>
+

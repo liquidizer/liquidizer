@@ -1,0 +1,41 @@
+<div>
+  <div class="head">
+    <h2>Pirat : <poll:name/></h2>
+  </div>
+  <table width="100%">
+    <tr height="50">
+      <lift:UserInfo.in>
+	<user:notme>
+	  <th>Deine Präferenz</th>
+	</user:notme>
+      </lift:UserInfo.in>
+      <th>Analysen</th>
+      <th>Delegationsgewicht</th>
+      <th>Chart</th>
+    </tr>
+    <tr>
+      <lift:UserInfo.in>
+	<user:notme>
+	  <td align="center">
+	    <lift:embed what="vote"/>
+	  </td>
+	</user:notme>
+      </lift:UserInfo.in>
+      <td align="center">
+	&#x2192; <a:voteOut>Stimmen</a:voteOut>
+	<br/>
+	&#x2192; <a:voteIn>Delegationen</a:voteIn>
+	<br/>
+	&#x2192; <a:graph>Delegationsgraph</a:graph>
+      </td>
+      <td align="center">
+	<poll:result/>
+      </td>
+      <td class="chart_thumb">
+	<poll:chart height="80" width="150" grid="off"/>
+      </td>
+    </tr>
+  </table>
+  <hr/>
+</div>
+

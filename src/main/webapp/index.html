@@ -1,0 +1,174 @@
+<lift:surround with="default" at="content">
+
+  <script type="text/javascript" language="JavaScript">
+    if ($(window).width()&lt;600)
+    $(document).ready(function () { $('#sidebar').hide(); })
+  </script>
+  <lift:form>
+    <lift:UserInfo.in>
+      <table>
+	<tr><td>
+	    <div class="balance">
+	      <h2 class="orange">
+		Willkommen <span class="purple"><me:name/></span>!
+	      </h2>
+	    </div>
+	    <lift:UserInfo.votes>
+	      <div class="balance">
+		<h3>Meine Bilanz</h3>
+		<table>
+		  <tr><td height="2" bgcolor="#662e91" colspan="3"/></tr>
+		  <tr>
+		    <td>Meine Unterstützer</td>
+		    <td/>
+		    <td>Meine Stimmen</td>
+		  </tr>
+		  <tr><td height="2" bgcolor="#662e91" colspan="3"/></tr>
+		  <td>
+		    <tr>
+		      <td align="right"><span class="pro">1.00</span></td>
+		      <td>Grundstimme</td>
+		    </tr>
+		    <poll:supporters>
+		      <tr class="votable">
+			<td align="right"><vote:result/></td>
+			<td><user:name/></td>
+		      </tr>
+		    </poll:supporters>
+		  </td>
+		  <td width="20px"/>
+		  <td>
+		    <user:votes>
+		      <tr>
+			<td align="right"><vote:result/></td>
+			<td><poll:name/></td>
+		      </tr>
+		    </user:votes>
+		  </td>
+		  <tr><td height="2" bgcolor="#662e91" colspan="3"/></tr>
+		  <tr>
+		    <td>
+		      <div class="navi">
+			<a href="/users/~/support">
+			  <div>... mehr</div>
+			</a>
+		      </div>
+		    </td>
+		    <td/>
+		    <td>
+		      <div class="navi">
+			<a href="/users/~">
+			  <div>... mehr</div>
+			</a>
+		      </div>
+		    </td>
+		  </tr>
+		</table>
+	      </div>
+	    </lift:UserInfo.votes>
+	    <div class="balance">
+	      <h3>Mein Profil</h3>
+	      <hr/>
+	      <table>
+		<tr>
+		  <td>Mein echter Name</td>
+		  <td><me:realname/></td>
+		  <td><me:realnameEdit/></td>
+		</tr>
+		<tr>
+		  <td>Meine Homepage</td>
+		  <td><me:homepage/></td>
+		  <td><me:homepageEdit/></td>
+		</tr>
+		<tr>
+		  <td>Meine Email Adresse</td>
+		  <td><me:email/></td>
+		  <td><me:emailEdit/></td>
+		</tr>
+	      </table>
+	    </div>
+	    <div class="balance">
+	      <h3>Verwaltung</h3>
+	      <hr/>
+	      <div class="navi">
+		<me:passwd><div>Password ändern</div></me:passwd>
+		<me:logout><div>Logout</div></me:logout>
+	      </div>
+	    </div>
+	  </td>
+	  <td id="sidebar">
+	    <div>
+	      <h3>Neue Fragen im System</h3>
+	      <lift:UserInfo.newQueries>
+		<poll:name/>
+		<hr/>
+	      </lift:UserInfo.newQueries>
+	      <div class="navi">
+		<a href="/queries.html?sort=age">
+		  <div>mehr</div>
+		</a>
+	      </div>
+	    </div>
+	    <div>
+	      <h3>Neue User im System</h3>
+	      <lift:UserInfo.newUsers>
+		<poll:name/>
+		<hr/>
+	      </lift:UserInfo.newUsers>
+	      <div class="navi">
+		<a href="/users.html?sort=age">
+		  <div>mehr</div>
+		</a>
+	      </div>
+	    </div>
+	  </td>
+	</tr>
+      </table>
+
+    </lift:UserInfo.in>
+  </lift:form>
+  <lift:UserInfo.out form="POST">
+    <table>
+      <tr>
+	<td>
+	  <div class="head">
+	    <h2>Willkommen beim Liquidizer</h2>
+	  </div>
+	  <table>
+	    <tr>
+	      <td/><td colspan="2" style="color:red"><lift:Msgs/></td>
+	    </tr>
+	    <tr>
+      	      <th>Username</th>
+      	      <td><me:name/></td>
+	    </tr>
+	    <tr>
+      	      <th>Passwort</th>
+      	      <td><me:password/></td>
+      	      <td> <me:submit/></td>
+	    </tr>
+	    <tr>
+	      <td colspan="3"><hr/></td>
+	    </tr>
+	    <tr>
+	      <td colspan="3"><a href="/signup.html">Neu Anmelden</a></td>
+	    </tr>
+	  </table>
+	</td>
+	<td width="10%"/>
+	<td>
+	  <div class="example">
+	    <h3>Das erste mal hier?</h3>
+	    <ol>
+	      <li><a href="/queries">Fragen im System ansehen</a></li>
+	      <li><a href="/users">Andere Piraten im System</a></li>
+	      <li><a href="/help">Erkärung lesen</a></li>
+	      <li><a href="/signup.html">Anmelden</a></li>
+	    </ol>
+	  </div>
+	</td>
+      </tr>
+    </table>
+  </lift:UserInfo.out>
+</lift:surround>
+

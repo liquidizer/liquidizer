@@ -1,0 +1,32 @@
+<lift:surround with="default" at="content">
+  <lift:UserInfo.in>
+
+    <lift:AddQuery.create form="POST">
+      <div class="head">
+	<h2>Neue Frage stellen:</h2>
+      </div>
+      
+      <hr class="none"/>
+      
+      <p>
+	Die Frage lautet:
+	<br/>
+	<addquery:what/>
+      </p>
+      <p>
+	Stichworte für die Suchfunktion
+	<br/>
+	<addquery:keys/>
+      </p>
+      <p>
+	<addquery:submit/>
+      </p>
+    </lift:AddQuery.create>
+
+  </lift:UserInfo.in>
+  <lift:UserInfo:out>
+    Du musst angemeldet sein um Neue Fragen hinzufügen zu können
+  </lift:UserInfo:out>
+
+</lift:surround>
+

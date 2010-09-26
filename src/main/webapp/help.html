@@ -1,0 +1,424 @@
+<lift:surround with="default" at="content">
+<head>
+  <title>Liquidizer User Guide</title>
+</head>
+<div class="help">
+<h1 class="title">Liquidizer User Guide</h1>
+
+<p>The Liquidizer is a highly interactive online platform for political discussion and ongoing opinion polling. Its focus lies in the simplicity of the voting system and the rich visual feedback displaying current interests, trends and interdependencies. The system provides swift and precise feedback to the users expression of preferences. Optimizing their impact on the polling result users must allocate a limited total voting weight. This leads to a game like experience where the formation of allys and coordinated voting tactics can reveal the innate structure of rivalling political fractions along side each participant's political profile.
+</p>
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#sec-1">Casting votes </a></li>
+<li><a href="#sec-2">Delegating votes </a></li>
+<li><a href="#sec-3">Understanding the comment compilation </a></li>
+<li><a href="#sec-4">Understanding the voting system </a></li>
+<li><a href="#sec-5">Understanding the poll charts </a></li>
+<li><a href="#sec-6">Links</a></li>
+</ol>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Casting votes </h2>
+<div class="outline-text-2" id="text-1">
+
+
+<p>
+The main purpose of the Liquidizer system is polling the acceptance for certain propositions and suggestions. In the query section <img src="/images/queries.png" height="29"/> you can find a complete list of all topics that are open for discussion. By default they are arranged according to current relevance, placing contentious questions with high fluctuations in their voter base on top of the list. Obviously, you can search the list by key words, if you wish to find any questions matching a specific topic of interest.
+</p>
+<p>
+Once you logged into the system voting controls are shown next to the questions and their current voting result. Before digging into the numberwang at the core of the Liquidizer's voting algorithm let us proceed casting our first vote. Basically, you must either agree or oppose to a question's very content. Assuming you want to express agreement you press +, otherwise you press -. You can press each button multiple times to show relative preferences, in case a very topic is of special importance to you.
+</p>
+<div class="example">
+  <h3>Example 1: Voting in favor of question</h3>
+  <table width="100%">
+    <tr>
+      <td/><td/>
+      <th>Your Preference</th>
+      <th>Result</th>
+      <th>Chart</th>
+    </tr>
+    <tr>
+      <td width="5%"/>
+      <td class="votable">
+	<a href="#">Permanent moon base by 2020?</a>
+	<div class="keys">
+	  <a href="#"><div>Space</div></a>
+	  <a href="#"><div>Future</div></a>
+	</div>
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><img src="/images/yayvote_state2.png" alt="+"/></td>
+	    <td width="5"/>
+	    <td><span class="pro">+1</span></td>
+	    <td width="5"/>
+	    <td><img src="/images/nayvote_state1.png" alt="-"/></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><span class="pro">12.83</span></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center"><img src="/images/charts/chart1.png"/></td>
+      <td width="5%"/>
+    </tr>
+  </table>
+</div>
+<p/>
+<div class="example">
+  <h3>Example 2: Voting against a question</h3>
+  <table width="100%">
+    <tr>
+      <td width="5%"/>
+      <td class="votable">
+	<a href="#">Permanent moon base by 2020?</a>
+	<div class="keys">
+	  <a href="#"><div>Space</div></a>
+	  <a href="#"><div>Future</div></a>
+	</div>
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><img src="/images/yayvote_state1.png" alt="+"/></td>
+	    <td width="5"/>
+	    <td><span class="contra">-1</span></td>
+	    <td width="5"/>
+	    <td><img src="/images/nayvote_state2.png" alt="-"/></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><span class="pro">10.83</span></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center"><img src="/images/charts/chart1.png"/></td>
+      <td width="5%"/>
+    </tr>
+  </table>
+</div>
+
+
+<p>
+After you pressed the button according to your preference the voting result is updated in real time. You must keep in mind, that your overall voting weight is limited. Hence, participating in a huge number of individual questions dilutes each vote's influence on the overall result. Therefore it might at times make sense to remove a vote by pressing the opposite button, - for removing an approving vote and + for removing an opposing vote.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Delegating votes </h2>
+<div class="outline-text-2" id="text-2">
+
+<p>
+There are many reasons why you might want to delegate a part of your voting rights to fellow users of the Liquidizer system. One, for sure, is your wish to express support for your political idol, making them appear high up in the delegation statistics. Casting your vote indirectly also increases the visibility of any comments placed by the elected candidate, because you're handing over your comment space along side the allocated voting weight. To sum things up, the system awards the delegation of voting rights, since that is how political visibility is created in real life too.
+</p>
+<p>
+Vote delegations can be performed in the user section <img src="/images/users.png" height="30"/>, where all users and thus potential candidates are listed. You can press + to turn a candidate into your delegate, and press - for the reverse effect. Since you can only transfer a positive voting weight this mechanism does not allow you to denounce other candidates.
+</p>
+
+<div class="example">
+  <h3>Example 3: A delageted user</h3>
+  <table width="100%">
+    <tr>
+      <td width="15%"/>
+      <td class="votable">
+	<a href="#">Luke Skywalker</a>
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><img src="/images/yayvote_state1.png" alt="+"/></td>
+	    <td width="5"/>
+	    <td><span class="pro">+3</span></td>
+	    <td width="5"/>
+	    <td><img src="/images/nayvote_state1.png" alt="-"/></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><span class="pro">2.45</span></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center"><img src="/images/charts/chart3.png"/></td>
+      <td width="15%"/>
+    </tr>
+  </table>
+</div>
+
+<p>
+By now you have learned the two mechanisms that influence the displayed results. All you have to do is presssing + and - on questions and candidates. Although these two controls will reappear in different contexts of the Liquidizer system their functionality always remains unchanged. 
+</p>
+<p>
+After you have cast a number of votes you might want to press [My Votes] to get a quick overview over all your active votes. Here, you can also readjust voting weights or withdraw votes eventually. The section [My delegations] shows all other users that have delegated their votes to you.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Understanding the comment compilation </h2>
+<div class="outline-text-2" id="text-3">
+
+
+<p>
+Obviously, the effect of vote casting would be without any effect on the real world, if it did not convince anyone to take real world actions. Assuming that you are lacking the executive authority necessary to enforce a voting decision, your only way of creating real impact is to make compelling arguments that convince others to join your political campaign. Alternatively, you may be hinted to some unfavorable side effects of your proposed belief system. This may be of great advantage, as it allows you to concentrate your real world political efforts onto more achievable goals.
+</p>
+<p>
+Either way, your goal must be to place your arguments visibly onto the discussion page. Whenever you see the text of a question on the screen you can click it to reach the associated discussion page, where each voter is listed together with the comment and a visualization of their voting history. 
+</p>
+<p>
+First, you should check if you can delegate a skillful commentor with whom you can identify. Gathering support behind a single delegate is definitely the most effective form of making the arguments of your side heard. We have already seen vote delegation in the previous section. For convenience the delegation controls are shown again next to each contribution to the discussion.
+</p>
+
+<div class="example">
+  <h3>Example 4: A delegated user in the query details view</h3>
+  <table width="100%">
+    <tr>
+      <td class="votable">
+	<a href="#">Luke Skywalker</a>
+	<div class="comment">
+	  <p>
+	    A moon base just makes sense in the long run, although I'm a bit doubtful about actually getting together a mission on that scale in a peaceful manner. Anyway I give it a thumbs up. After all, it's just a quick click for me, but a big click for mankind.
+	  </p>
+	</div>
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><img src="/images/yayvote_state1.png" alt="+"/></td>
+	    <td width="5"/>
+	    <td><span class="pro">+3</span></td>
+	    <td width="5"/>
+	    <td><img src="/images/nayvote_state1.png" alt="-"/></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><span class="pro">0.83</span></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center"><img src="/images/charts/chart5.png"/></td>
+    </tr>
+  </table>
+</div>
+
+<p>
+In any case you might be eager to place your own comment. Before you can do this, you must first vote in favor or against the question. You can not comment without disclosing your opinion, even if it is just your first impression. Casting votes has been discussed previously. For convinience the discussion page shows voting controls in the page's upper area. 
+</p>
+<p>
+Once you have cast your vote it will be visible in the voters list. The position of your vote and your comment space depend on the assigned voting weight and the assortment. Next to your own vote an edit button [Edit] is displayed. Clicking it opens a text input area. Saving your comment with the save button [Save] makes your remarks visible to others.
+</p>
+
+<div class="example">
+  <h3>Example 5: Adding your own comment</h3>
+  <table width="100%">
+    <tr>
+      <td class="votable">
+	<a href="#">JustMe</a>
+	<div class="comment">
+	  <div style="background-color:white; font-family: courier; width:80%;">
+	    How's that gonna work. I just checked my calendar to see the moon will disappear end of this month.|
+	    <p/>
+	  </div>
+	</div>
+      </td>
+      <td align="center">
+      </td>
+      <td align="center">
+	<table class="vote">
+	  <tr>
+	    <td><span class="contra">-0.20</span></td>
+	  </tr>
+	</table>
+      </td>
+      <td align="center"><img src="/images/charts/chart0.png"/></td>
+    </tr>
+  </table>
+</div>
+
+<p>
+Since the default sort order places votes and comments according to their voting weight it does not make sense to participate in too many discussions at the same time, unless your comments attract a significant number of delegations. If you join many discussions, but are unable to gain any supportive delegations you are considered to be a troll.
+</p>
+<p>
+After removing your vote you will no longer contribute to the election result, but your voting history and your comments will still be visible for a while. Depending on the length and the time passed since your voting activity, your vote and comments will eventually disappear from the discussion page and your voting profile.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Understanding the voting system </h2>
+<div class="outline-text-2" id="text-4">
+
+
+<p>
+In most cases voting results are of indicative character. At times, however, it might make sense to attach specific actions to a vote prior to these results becoming observable. Such a procedure would turn the Liquidizer into a voting platform, where the consequences of an election are well-defined and participant cast their vote fully aware of what is at stake. In such situations it is of utmost importance to obtain a detailed understanding of the voting system's precise internals.
+</p>
+<p>
+In case you expect the system to tell you straight "what the group wants" then you should better sit back and take a deep breath. Deriving group preferences out of individual indications is an extremely difficult scientific field in itself. It involves mathematical paradoxa, economics of decision making, and technical accessibility aspects. The Liquidizer can not possibly resolve these issues, but it can produce a lot of statistics from which precise election criterea can be chosen. The Liquidizer does not prevent the installation of tresholds and veto powers for designated roles. All it does is providing the data.
+</p>
+<p>
+Although the Liquidizer produces various statistics, it uses the summed voting weight as a main result number which it quotes on every occasion and which is the basis for all visualizations. It is highly recommended that you consider this number in your result analysis.
+</p>
+<p>
+The summed voting weight ensures equal influence on the final outcome. Whatever you are voting for you are implicitely demanding a change of the status quo. Since, each of such changes is connected with time and costs the Liquidizer does not give you the voting right to demand changes for everything at once. But, it does provide the technical platform to prioritize your demands.
+</p>
+<p>
+Initially, each participant has a voting weight of 1.00, which can be invested in positions or passed on to delegates. Your invested and your delegated voting weights are computed as fractions of your assigned preference number. No matter what value you select as your preference number, your total influence on the poll results is always 1.00, unless other users delegate their weight to you. In this case, you can also place voting weights on their behalves.
+</p>
+<p>
+Let Q be the set of all votables and P be the set of all users. Each user is a potential candidate, hence P &sub; Q. The voting preference assigned by user p &isin; P onto q &isin; Q is named v<sub>pq</sub>. Suppose R(q) be the final result for q, then it holds, that
+</p>
+<blockquote>
+
+<p>R(q) = &sum;<sub>p</sub> (1.00 + R(p)) &times; v<sub>pq</sub> / &sum;<sub>q'</sub> | v<sub>pq'</sub> | 
+</p>
+</blockquote>
+
+
+<p>
+The following example shows two users participating in a vote. One users casts three votes the other users casts five votes. Hence, each vote of the first user is worth 0.33, while each vote on the second user is worth 0.2.
+</p>
+<pre class="example">
+Example: query  p_1 p_2
+           q_1  1   -1
+           q_2  2   0
+           q_3  0   1
+           p_1  -   3
+           p_2  0   -
+</pre>
+
+
+<pre class="example">
+Delegation graph
+</pre>
+
+
+<p>
+One issue arises in the case of circular vote delegations. If you do not feel comfortable with solving the linear equation above you might be interested in a more intuitive explanation of what is going on.
+</p>
+<pre class="example">
+Cyclic delegation graph
+</pre>
+
+
+<p>
+We start by assigning weight 1.00 to each user and iteratively pass on appropriate fractions to vote targets. You can quickly see that the result converges to the solution of the linear equation. The error decreases with each iteration. 
+</p>
+<pre class="example">
+Table of iterations
+</pre>
+
+
+<p>
+In case of cyclic delegations it needs to be pointed out, that the displayed delegation wight in the Liquidizer system is not R(p), but the effective voting weight that would result when piping all voting weight into a question. In our cyclic example above that would be &hellip;
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Understanding the poll charts </h2>
+<div class="outline-text-2" id="text-5">
+
+
+<p>
+Charts are compact visualizations of the complete voting history. Getting used to them enables you to obtain a variety of information on the character of the vote at a quick glance. Not only does it tell you the current proportion between proponents and opponents, it also shows you wether the topic is of rising or falling interest, and if any major shifts in the respective support groups have taken place.
+</p>
+<p>
+By default charts show the full history on a logarithmic scale with more space allocated to the recent history while historic results become increasingly dense. You can always click on a chart to open the chart analyzer screen. There you can switch to a linear scale and see the absolute axis description. This is usefull if you wish to investigate the correlation between opinion changes and real historic events.
+</p>
+<p>
+There are three different chart types: Opinion polls on questions, delegation charts for users, and individual users' voting histories. Delegation results produce the simplest of those charts. They can only be positive at any given time and work just like price charts plotting a quantitative value over time. The next more complex charts are voting histories of individual users. The plotted support can either be positive or negative at any single point in time. For beauty reasons the areas spanned by the respective chart lines are distinguished by two different colors. Finally, poll results charts are the most complex, because approval and rejection can occur at the same time. Chart lines are plotted for summed support, summed opposition and the net result.
+</p>
+
+<div class="example">
+  <h3>Examples</h3>
+<table cellspacing="10">
+  <tr>
+    <td>
+      <center><img src="/images/charts/chart1.png"/></center>
+      Chart 1) This chart represents a relatively recent item with rapidely increasing support.
+    </td>
+    <td>
+      <center><img src="/images/charts/chart2.png"/></center>
+      Chart 2) A long standing support for this item dissolved rather abruptly.
+    </td>
+    <td>
+      <center><img src="/images/charts/chart3.png"/></center>
+      Chart 3) Starting with a strong expression of approval the item slowly gains support.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <center><img src="/images/charts/chart4.png"/></center>
+      Chart 4) An item has been rejected for a certain period in the past.
+    </td>
+    <td>
+      <center><img src="/images/charts/chart5.png"/></center>
+      Chart 5) A user changed her position from rejection to approval.
+    </td>
+    <td>
+      <center><img src="/images/charts/chart6.png"/></center>
+      Chart 6) After the support group lost interest an opposition started to form.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <center><img src="/images/charts/chart7.png"/></center>
+      Chart 7) An opposition was slowly growing, when strong support suddenly appeared, probably with heigh delegation weight.
+    </td>
+    <td>
+      <center><img src="/images/charts/chart8.png"/></center>
+      Chart 8) A more or less balanced fight was already going on for a long time.
+    </td>
+    <td>
+      <center><img src="/images/charts/chart9.png"/></center>
+      Chart 9) After a period of unanimous support sudden opposion appeared.
+    </td>
+  </tr>
+</table>
+</div>
+
+<p>
+Due to the limited total voting weight all charts are expressions of interest much more than classical opinion polls. However, the system highly encourages tactical voting where you focus your voting weight on questions that promise the greatest impact. The finite voting weight forces you to concentrate on what is really important to you and also indicates on which topics you might be open for a compromise.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Links</h2>
+<div class="outline-text-2" id="text-6">
+
+
+<ul>
+<li>
+<a href="http://piratenpad.de/UNdQDN5QKn">http://piratenpad.de/UNdQDN5QKn</a> - Bug report and feature requests
+</li>
+<li>
+<a href="http://wiki.piratenpartei.de/Liquidizer">http://wiki.piratenpartei.de/Liquidizer</a> - Basic idea and goals behind the Liquidizer project
+</li>
+</ul>
+</div>
+</div>
+</div>
+</lift:surround>

@@ -1,0 +1,54 @@
+<lift:surround with="default" at="content">
+
+  <div class="head">
+    <h2>Liste aller Piraten
+      <div class="view">
+	<lift:Users.view form="POST" eager_eval="true">
+	  <lift:embed what="sort_users"/>
+	  <lift:embed what="search"/>
+	</lift:Users.view>
+      </div>
+    </h2>
+  </div>
+
+  <table width="100%">
+    <tr height="50">
+      <td/>
+       <lift:UserInfo.in>
+	<th>Deine Präferenz</th>
+      </lift:UserInfo.in>
+      <th>Delegationsgewicht</th>
+      <th>Chart <a href="/help.html#sec-5">[?]</a></th>
+    </tr>
+    <lift:Users eager_eval="true">
+      <tr>
+	<td class="votable">
+	  <poll:name/>
+	  <div class="comment">
+	    <user:realname/>
+	  </div>
+	</td>
+	<lift:UserInfo:in>
+	  <user:itsme>
+	    <td align="center"><span class="pass">−</span></td>
+	  </user:itsme>
+	  <user:notme>
+	    <td align="center" nowrap="true">
+	      <lift:embed what="vote"/>
+	    </td>
+	  </user:notme>
+	</lift:UserInfo:in>
+	<td align="center">
+	  <table class="vote"><tr><td><poll:result/></td></tr></table>
+	</td>
+	<td class="chart_thumb">
+	  <poll:chart height="60" width="150" grid="off"/>
+	</td>
+      </tr>
+    </lift:Users>
+  </table>
+  <div align="center">
+    <lift:Users.navigator/>
+  </div>
+</lift:surround>
+

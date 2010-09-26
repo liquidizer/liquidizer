@@ -1,0 +1,34 @@
+<lift:surround with="default" at="content">
+
+  <div class="head">
+    <h2>Willkommen beim Liquidizer</h2>
+  </div>
+
+  <lift:UserSignUp form="POST">
+    <table>
+      <tr>
+	<td/><td colspan="2" style="color:red"><lift:Msgs/></td>
+      </tr>
+      <tr>
+      	<td>Username</td>
+      	<td><user:name/></td>
+      </tr>
+      <tr>
+      	<td>Email</td>
+      	<td><user:email/>(optional)</td>
+      </tr>
+      <tr>
+      	<td>Passwort</td>
+      	<td><user:passwd1/></td>
+      </tr>
+      <tr>
+      	<td>Wiederholung</td>
+      	<td><user:passwd2/></td>
+      </tr>
+      <tr>
+	<td><user:submit/></td>
+      </tr>
+    </table>
+  </lift:UserSignUp>
+</lift:surround>
+

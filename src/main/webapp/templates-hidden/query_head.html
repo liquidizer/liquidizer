@@ -1,0 +1,51 @@
+<div>
+  <div class="head">
+    <h2>Frage: <poll:name/></h2>
+  </div>
+
+  <table width="100%">
+    <tr height="50">
+      <th align="left">Stichworte</th>
+      <lift:UserInfo.in>
+	<th>Deine Präferenz</th>
+      </lift:UserInfo.in>
+      <th>Analysen</th>
+      <th>Zustimmung</th>
+      <th>Chart</th>
+    </tr>
+    <tr>
+      <td>
+	<div class="keys">
+	  <query:keys/>
+	  <me:isDelegated>
+	    <me:editButton/>
+	  </me:isDelegated>
+	</div>
+      </td>
+      <lift:UserInfo.in>
+	<td align="center">
+	  <lift:embed what="vote"/>
+	</td>
+      </lift:UserInfo.in>
+      <td align="center">
+	&#x2192; <a:voteOut>Wähler</a:voteOut>
+	<br/>
+	&#x2192; <a:graph>Delegationsgraph</a:graph>
+	<br/>
+	&#x2192; <a:hist>Histogram</a:hist>
+      </td>
+      <td align="center">
+	  <poll:result/>
+      </td>
+      <td class="chart_thumb" rowspan="2">
+	<poll:chart height="80" width="150" grid="off"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+	Author: <query:creator/>
+      </td>
+    </tr>
+  </table>
+  <hr/>
+</div>
