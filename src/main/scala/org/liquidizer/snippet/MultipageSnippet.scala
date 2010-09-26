@@ -36,7 +36,10 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def to = Math.min(pagesize * (page+1), size)
   
   def navigator(in: NodeSeq) : NodeSeq = {
-    <div class="navi">
+    if (numPages<=1)
+      <span/>
+    else
+      <div class="navi">
       {
 	link(page-1, Text("<<<"))
       }
@@ -46,10 +49,10 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	    link(index-1, Text(index.toString))
 	}
       }
-    {
-      link(page+1, Text(">>>"))
-    }
-    </div>
+      {
+	link(page+1, Text(">>>"))
+      }
+      </div>
   }
   
   private def link(targetPage:Int, text:Node):Node = {

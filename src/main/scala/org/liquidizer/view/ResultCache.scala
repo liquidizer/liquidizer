@@ -46,5 +46,7 @@ class ResultCache[T] {
     cache.put((key, options), Tick(Tick.now,value))
     value
   }
+
+  override def toString() : String = { "ResultCache"+cache.size }
 }
 

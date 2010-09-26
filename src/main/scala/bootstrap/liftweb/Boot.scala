@@ -12,6 +12,7 @@ import _root_.java.sql.{Connection, DriverManager}
 
 import _root_.org.liquidizer.view._
 import _root_.org.liquidizer.model._
+import _root_.org.liquidizer.lib._
 
 
 /**
@@ -31,8 +32,8 @@ class Boot {
 
 		  DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
 	  }
-    println("Booting")
     Schemifier.schemify(true, Schemifier.infoF _, User, Query, Vote, Comment)
+    VoteCounter.init
 
     // where to search snippet
     LiftRules.addToPackages("org.liquidizer")

@@ -85,9 +85,7 @@ object TimeseriesView {
     Query.getQuery(queryId) match {
       case Some(query) => {
 	cache.get(S.uri, options, () => {
-	  println("QueryChart requested ...")
 	  val ts= QuoteHistory.getTimeSeries(VotableQuery(query))
-	  println("TimeSeries=" +ts)
 	  val node= (new GnuplotAPI).plotTS(ts, options, true, true, true)
 	  createResponse(node.first)
 	})

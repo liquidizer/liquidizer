@@ -118,6 +118,7 @@ object QuoteHistory {
   	    List(Tick(time, quote))
   	  case None => Nil
   	}
+      case _ => Nil
     }
   }
 }
