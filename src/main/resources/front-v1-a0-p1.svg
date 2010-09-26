@@ -36,24 +36,19 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1001"
-     inkscape:window-height="544"
+     inkscape:window-width="1210"
+     inkscape:window-height="808"
      id="namedview45"
      showgrid="false"
      inkscape:zoom="0.944"
-     inkscape:cx="-72.334425"
-     inkscape:cy="126.31978"
+     inkscape:cx="195.60046"
+     inkscape:cy="81.89205"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="24"
      inkscape:window-maximized="0"
-     inkscape:current-layer="left-eye"
+     inkscape:current-layer="emoticon-front-view"
      showguides="true"
-     inkscape:guide-bbox="true">
-    <sodipodi:guide
-       orientation="0,1"
-       position="135.57874,137.8259"
-       id="guide2852" />
-  </sodipodi:namedview>
+     inkscape:guide-bbox="true" />
   <defs
      id="defs4">
     <inkscape:perspective
@@ -243,9 +238,10 @@
     </g>
   </g>
   <path
-     d="m 117.01524,95.888584 -2.06361,-1.14891 C 110.50199,85.56322 101.65952,83.251879 91.358457,81.990416 82.567365,81.488231 70.92091,83.810508 64.885089,89.418239 l -2.354991,0.607474 c 6.965884,-7.411718 19.027465,-10.021298 28.829246,-8.724305 11.646596,1.346191 19.665426,4.974496 25.655896,14.587176 z"
+     d="m 112.77795,91.916127 -0.87188,1.102149 C 106.52953,86.092881 100.90453,82.87224 91.358457,81.990416 81.812379,81.108592 70.258834,83.413262 63.560936,90.874807 l -1.030838,-0.849094 c 6.965884,-7.411718 17.867122,-11.263844 28.829246,-9.783627 10.962126,1.480217 16.453956,5.084578 21.418606,11.674041 z"
      id="left-eye-brow"
-     style="fill:#292929;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+     style="fill:#292929;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+     sodipodi:nodetypes="cczcczc" />
   <g
      transform="matrix(5.3394566,0,0,-6.0795874,109.87925,139.78513)"
      id="nose"
@@ -257,7 +253,7 @@
        sodipodi:nodetypes="ccsccsc" />
   </g>
   <use
-     transform="matrix(-0.99977181,-0.02136184,-0.02136184,0.99977181,259.63091,2.7344772)"
+     transform="matrix(-0.99977181,-0.02136184,-0.02136184,0.99977181,255.63091,2.7344772)"
      id="right-eye-brow"
      x="0"
      y="0"
