@@ -1,3 +1,4 @@
+package org.liquidizer.lib
 
 class VoteVector(
   val userID : Int,

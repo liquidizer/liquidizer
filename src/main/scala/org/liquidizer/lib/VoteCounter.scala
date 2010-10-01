@@ -65,7 +65,6 @@ object VoteCounter {
     }
     def push(vote:Vote) : Unit = {
       val time= vote.date.is
-      push(time)
       voteMap.put(vote)
 //      println(" -> "+vote)
     }
@@ -73,23 +72,11 @@ object VoteCounter {
     def updateFactors() = {
       if (voteMap.dirty) {
 	val t0= Tick.now
-	voteMap.updateFactors()
+	voteMap.update()
 	val t1= Tick.now
 	Log.info("Vote results update took "+(t1-t0)+" ms")
       }}
 
-    def push(time : Long) : Unit = {
-      if (QuoteHistory.isNew(time)) {
-	val updateTime = voteMap.latestVoteTime
-	if (updateTime > 0 && updateTime>lastPushTime) {
-//	  println("------------------------- historize "+Tick.df.format(lastPushTime))
-	  updateFactors()
-	  QuoteHistory.add(updateTime, voteMap.getUpdateMap())
-	  lastPushTime= updateTime
-	}
-      }
-    }
-  }
   
   def stop() = mapper ! 'STOP
   def refresh() = mapper !? 'PUSH

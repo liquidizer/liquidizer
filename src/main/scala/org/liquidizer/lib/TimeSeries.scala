@@ -87,38 +87,20 @@ abstract class Slice[A](val stepSize:Long, val next:Option[Slice[A]]) {
   }
 }
 
-class MapHistory(stepSize : Long, next : Option[MapHistory]) extends Slice[Map[Any,Quote]](stepSize, next) {
+class TimeSeries(stepSize : Long, next : Option[TimeSeries]) extends Slice[Quote](stepSize, next) {
   
+  val sec= 1000L
+  val min= 60*sec
+  val h= 60*min
+  def this() = this(List(10*sec, 60*sec, 5*min, 30*min, 60*min, 2*h, 4*h, 12*h, 24*h))
   def this(stepSizes : List[Long]) = {
-    this(stepSizes.head, if (stepSizes.tail.isEmpty) None else Some(new MapHistory(stepSizes.tail)))
+    this(stepSizes.head, 
+	 if (stepSizes.tail.isEmpty) None 
+	 else Some(new TimeSeries(stepSizes.tail)))
   }
   
-  def merge(a : Map[Any,Quote], b : Map[Any,Quote]) : Map[Any,Quote] = {
-    immutable.Map((a++b).toList:_*)
+  def merge(a : Quote, b : Quote) : Quote = {
+    (a+b)*0.5
   }
 }
 
-/** this object keeps track of the result history. It relies on the VoteCounter to push
- new result maps.
- */
-object QuoteHistory {
-  val sec= 1000L
-  val history = new MapHistory(List(10*sec, 60*sec, 3600*sec, 24*3600*sec))
-  
-  def isNew(time : Long) = history.isNew(time)
-  def add(time: Long, data : Map[Any,Quote]) = history.add(time, data)
-  def latestEntry = history.latestTime
-  
-  def getTimeSeries(key : Any): List[Tick[Quote]] = {
-    VoteCounter.refresh
-    history.getAll.flatMap {
-      case Tick(time, map) =>
-  	map.get(key) match {
-  	  case Some(quote:Quote) =>
-  	    List(Tick(time, quote))
-  	  case None => Nil
-  	}
-      case _ => Nil
-    }
-  }
-}
