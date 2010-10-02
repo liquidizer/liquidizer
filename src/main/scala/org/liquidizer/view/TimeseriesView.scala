@@ -72,7 +72,7 @@ object TimeseriesView {
     User.getUser(userId) match {
       case Some(user) => {
 	cache.get(S.uri, options, () => {
-	  val ts= QuoteHistory.getTimeSeries(VotableUser(user))
+	  val ts= VoteCounter.getTimeSeries(VotableUser(user))
 	  val node= (new GnuplotAPI).plotTS(ts, options, false, true, false)
 	  createResponse(node.first)
 	})
@@ -85,7 +85,7 @@ object TimeseriesView {
     Query.getQuery(queryId) match {
       case Some(query) => {
 	cache.get(S.uri, options, () => {
-	  val ts= QuoteHistory.getTimeSeries(VotableQuery(query))
+	  val ts= VoteCounter.getTimeSeries(VotableQuery(query))
 	  val node= (new GnuplotAPI).plotTS(ts, options, true, true, true)
 	  createResponse(node.first)
 	})
@@ -101,7 +101,7 @@ object TimeseriesView {
       Empty
     else
       cache.get(S.uri, options, () => {
-	val ts= QuoteHistory.getTimeSeries((user.get,VotableQuery(query.get)))
+	val ts= Nil
 	val node= (new GnuplotAPI).plotTS(ts, options, false, true, true)
 	createResponse(node.first)
       })
@@ -114,7 +114,7 @@ object TimeseriesView {
       Empty 
     else
       cache.get(S.uri, options, () => {
-	val ts= QuoteHistory.getTimeSeries((user.get,VotableUser(user2.get)))
+	val ts= Nil
 	val node= (new GnuplotAPI).plotTS(ts, options, false, true, false)
 	createResponse(node.first)
     })

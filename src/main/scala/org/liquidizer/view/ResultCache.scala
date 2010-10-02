@@ -17,7 +17,7 @@ class ResultCache[T] {
 
   def get(key:String, options:Map[String,String]) : Option[T] = {
     VoteCounter.refresh
-    val time= QuoteHistory.latestEntry
+    val time= VoteCounter.time
     if (time > cacheTime) {
       clear(time)
     }

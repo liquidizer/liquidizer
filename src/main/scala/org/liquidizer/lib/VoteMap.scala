@@ -1,13 +1,11 @@
 package org.liquidizer.lib
 
-import scala.actors.Actor
-import scala.actors.Actor._
 import scala.collection.mutable
 
 import _root_.net.liftweb.mapper._
 import _root_.org.liquidizer.model._
 
-class LinkedVote(val owner:User, val nominee:Votable) extends VoteResult {
+class LinkedVote(val owner:User, val nominee:Votable) {
   
   var preference = 0
   override def toString():String= {
@@ -43,17 +41,18 @@ class VoteMap {
     val link  = voteMap.get((owner,nominee)).getOrElse
     {
       // user has never voted for this nominee
-      val nomineeHead = nominees.get(nominee)
-      .getOrElse(nominees.put(nominee, new NomineeHead).get)
-      val userHead = users.get(owner)
-      .getOrElse(users.put(owner, new UserHead(id(owner))).get)
+      if (!nominees.contains(nominee)) nominees.put(nominee, new NomineeHead)
+      if (!users.contains(owner)) users.put(owner, new UserHead(id(owner)))
+      val nomineeHead = nominees.get(nominee).get
+      val userHead = users.get(owner).get
       val newLink= new LinkedVote(owner, nominee)
 
       userHead.votes ::= newLink
       nomineeHead.votes ::= newLink
 
       // create entries in the vote map
-      voteMap.put((owner,nominee), newLink).get
+      voteMap.put((owner,nominee), newLink)
+      newLink
     }
     link.preference= vote.weight.is
     dirty = true

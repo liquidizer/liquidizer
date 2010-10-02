@@ -37,18 +37,18 @@ object VoteCounter {
   private val voteMap= new VoteMap
   val comments= new CommentMap
   val mapper= new VoteMapper
-  var lastPushTime = 0L
+  var time = 0L
   
   class VoteMapper extends Actor {
     def act = {
       loop {
 	receive {
 	  case vote:Vote =>  {
-	    voteMap.put(vote)
+	    push(vote)
 	    var senders = sender :: Nil
 	    while (mailboxSize>0) receive {
 	      case vote:Vote => 
-		voteMap.put(vote)
+		push(vote)
 	        senders ::= sender
 	      case 'PUSH =>
 	        senders ::= sender
@@ -59,12 +59,18 @@ object VoteCounter {
 	    senders.foreach { _ ! 'FINISHED }
 	  }
 	  case 'STOP =>  exit()
-	  case 'PUSH =>
+	  case 'PUSH =>  sender ! 'FINISHED
 	}
       }
     }
 
+    def push(vote : Vote) = {
+      time= vote.date.is
+      voteMap.put(vote)
+    }
+
     def updateFactors(time : Long) = {
+      println("update factors")
       if (voteMap.dirty) {
 	val t0= Tick.now
 	voteMap.update(time)
@@ -74,7 +80,11 @@ object VoteCounter {
     }
   }
   
-  def stop() = mapper ! 'STOP
+  def stop() = {
+    println("stopping") 
+    mapper ! 'STOP
+    println("stopped")
+  }
   def refresh() = mapper !? 'PUSH
 
   def register(vote : Vote) {
@@ -87,7 +97,7 @@ object VoteCounter {
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
       vote => 
 	comments.add(vote)
-      mapper ! vote
+        mapper ! vote
 
     }
     refresh()
@@ -147,23 +157,8 @@ object VoteCounter {
   }
 
   def isDelegated(user : User, nominee : User) : Boolean = 
-    isDelegated(user, nominee, mutable.Set.empty[User])
+    getWeight(user,VotableUser(nominee))>1e-10
 
-  def isDelegated(user : User, nominee : User, visited : mutable.Set[User]) 
-  : Boolean = {
-    if (user==nominee) {
-      true
-    } 
-    else if (visited.contains(nominee)) {
-      false
-    }
-    else {
-      visited += nominee
-      var result= false;
-      getSupporters(VotableUser(nominee), false).foreach {
-	supporter => result ||= isDelegated(user, supporter, visited)
-      }
-      result
-    }
-  }
+  def getTimeSeries(nominee : Votable) : List[Tick[Quote]] =
+    voteMap.nominees.get(nominee).map { _.history.getAll }.getOrElse(Nil)
 }
