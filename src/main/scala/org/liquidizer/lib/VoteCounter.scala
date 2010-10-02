@@ -44,39 +44,35 @@ object VoteCounter {
       loop {
 	receive {
 	  case vote:Vote =>  {
-	    push(vote)
+	    voteMap.put(vote)
 	    var senders = sender :: Nil
 	    while (mailboxSize>0) receive {
 	      case vote:Vote => 
-	      push(vote)
-	      senders ::= sender
-	      case 'PUSH => 
-	      senders ::= sender
+		voteMap.put(vote)
+	        senders ::= sender
+	      case 'PUSH =>
+	        senders ::= sender
 	      case 'STOP =>
-	      exit()
+		exit()
 	    }
-	    updateFactors()
+	    updateFactors(vote.date.is)
 	    senders.foreach { _ ! 'FINISHED }
 	  }
-	  case 'PUSH => push(Tick.now); sender ! 'FINISHED
 	  case 'STOP =>  exit()
+	  case 'PUSH =>
 	}
       }
     }
-    def push(vote:Vote) : Unit = {
-      val time= vote.date.is
-      voteMap.put(vote)
-//      println(" -> "+vote)
-    }
 
-    def updateFactors() = {
+    def updateFactors(time : Long) = {
       if (voteMap.dirty) {
 	val t0= Tick.now
-	voteMap.update()
+	voteMap.update(time)
 	val t1= Tick.now
 	Log.info("Vote results update took "+(t1-t0)+" ms")
-      }}
-
+      }
+    }
+  }
   
   def stop() = mapper ! 'STOP
   def refresh() = mapper !? 'PUSH
@@ -90,7 +86,7 @@ object VoteCounter {
     mapper.start
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
       vote => 
-      comments.add(vote)
+	comments.add(vote)
       mapper ! vote
 
     }
@@ -102,38 +98,33 @@ object VoteCounter {
     voteMap.dump()
   }
   
-  def getWeight(user : Option[User]) : Int = {
-    if (user.isEmpty) 0 else getWeight(user.get)
+  def getDelegationWeight(user : User) : Double = {
+    voteMap synchronized {
+      val id= user.id.is
+      voteMap.users.map { 
+	case (key,value) => voteMap.getVoteVector(key).getDelegationWeight(user.id.is.toInt) 
+      }.reduceLeft(_+_)
+    }
   }
 
-  def getWeight(owner : User) : Int = {
-    voteMap.getDenom(owner)
-  }
-  
+  def getResult(query : Query) : Quote = getResult(VotableQuery(query))
+  def getResult(user : User) : Quote = getResult(VotableUser(user))
   def getResult(nominee : Votable) : Quote = {
     voteMap.getResult(nominee)
   }
   
-  def getResult(query : Query) : Quote = getResult(VotableQuery(query))
-  def getResult(user : User) : Quote = getResult(VotableUser(user))
-  
-  def getWeight(user : Option[User], nominee : Votable) : Int = {
-    if (user.isEmpty) 0 else getWeight(user.get, nominee)
+  def getMaxPref(user : User) : Int = 
+    voteMap.users.get(user).map { 
+      _.votes.foldLeft(0) { (a,b) =>  a max (b.preference.abs) }
+    }.getOrElse(0)
+
+  def getPreference(user : User, nominee : Votable) : Int = {
+    voteMap.getPreference(user, nominee)
   }
 
-  def getWeight(user : User, nominee : Votable) : Int = {
-    voteMap.voteMap.get(user, nominee).map { _.weight }.getOrElse(0)
+  def getWeight(user : User, nominee : Votable) : Double = {
+    voteMap.getWeight(user, nominee)
   }
-
-  def getBlurredVolume(user : User, nominee : Votable) : Double = {
-    voteMap.voteMap.get(user,nominee).map { 
-      link => link.expVolume
-    } 
-    .getOrElse(0.0)
-  }
-
-  def getResult(user : User, nominee : Votable) : Double = 
-    voteMap.getResult(user,nominee)
 
   def getComment(author : User, nominee : Votable) : Option[String] = {
     comments.get(author, nominee). map { _.content.is }
@@ -143,20 +134,15 @@ object VoteCounter {
     comments.get(author, nominee). map { _.date.is }.getOrElse( 0L )
   }
 
-  def getSwing(nominee : Votable) : Double = 
-    voteMap.getSwingFactor(nominee)
-  def getSwing(user: User, nominee : Votable) : Double = 
-    voteMap.getSwingFactor(user, nominee)
-  
   def getSupporters(nominee : Votable, includeVoid : Boolean) : List[User] = {
     voteMap.getSupporters(nominee)
-    .filter { includeVoid || _.weight!=0 }
+    .filter { includeVoid || _.preference!=0 }
     .map { link => link.owner }
   }
 
   def getVotes(user : User, includeVoid : Boolean) : List[Votable] = {
     voteMap.getVotes(user)
-    .filter { includeVoid || _.weight!=0 }
+    .filter { includeVoid || _.preference!=0 }
     .map { link => link.nominee }
   }
 

@@ -42,8 +42,8 @@ class VotingHelper {
     val style= if (weight>0) "pro" else if (weight<0) "contra" else "pass" 
     format match {
       case "fraction" => 
-	<span class={style}>{weight}<sub>{"/"+VoteCounter.getWeight(currentUser)}</sub></span>
-      case "decimal" => formatResult(VoteCounter.getResult(user,nominee))
+	<span class={style}>{weight}<sub>{"/"+VoteCounter.getMaxPref(user)}</sub></span>
+      case "decimal" => formatResult(VoteCounter.getWeight(user,nominee))
       case _ => <span class={style}>{
 	if (weight>0) "+"+weight else weight.toString}</span>
     }
@@ -53,7 +53,7 @@ class VotingHelper {
     <a href={nominee.uri }>{nominee.toString}</a>
   
   def vote(nominee : Votable, weightChange : Int) : JsCmd = {
-    val newVote= VoteCounter.getWeight(currentUser, nominee) + weightChange
+    val newVote= VoteCounter.getPreference(currentUser.get, nominee) + weightChange
 
     // users can not get negative vote
     nominee match {

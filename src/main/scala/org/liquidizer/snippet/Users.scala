@@ -25,7 +25,7 @@ class Users extends MultipageSnippet {
 
   def sortOrder() : (User,User)=> Boolean = {
     def myvote(u:User)= userVolume(User.currentUser.get, VotableUser(u))
-    def swing(u:User) = VoteCounter.getSwing(VotableUser(u))
+    def swing(u:User) = VoteCounter.getResult(VotableUser(u)).volume
     def quote(u:User) = VoteCounter.getResult(u)
     order match {
       case "pro" => (a,b) => quote(a).pro > quote(b).pro

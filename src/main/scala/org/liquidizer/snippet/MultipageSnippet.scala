@@ -152,12 +152,11 @@ abstract class MultipageSnippet extends StatefulSnippet {
   
   def voteSortOrder(nominee : Votable) : (User,User)=> Boolean = {
     def volume(u:User)  = {
-      Math.abs(VoteCounter.getResult(u, nominee)) +
-      1e-5 - 1e-5/(1+VoteCounter.getBlurredVolume(u,nominee))
+      Math.abs(VoteCounter.getWeight(u, nominee))
     }
-    def swing(u:User)   = VoteCounter.getSwing(u, nominee)
+    def swing(u:User)   = VoteCounter.getWeight(u, nominee)
     def comment(u:User) = VoteCounter.getCommentTime(u, nominee)
-    def result(u:User)  = VoteCounter.getResult(u, nominee)
+    def result(u:User)  = VoteCounter.getWeight(u, nominee)
     order match {
       case "pro" => (a,b) => result(a) > result(b)
       case "contra" => (a,b) => result(a) < result(b)
@@ -168,15 +167,14 @@ abstract class MultipageSnippet extends StatefulSnippet {
   }
 
   def userVolume(user:User, nominee:Votable): Double = {
-      Math.abs(VoteCounter.getWeight(user, nominee)) +
-      1 - 1/(1+VoteCounter.getBlurredVolume(user,nominee))
+      Math.abs(VoteCounter.getWeight(user, nominee))
   }
 
   def voteSortOrder(user:User) : (Votable,Votable)=> Boolean = {
     def volume(v:Votable)  = userVolume(user, v)
-    def swing(v:Votable)   = VoteCounter.getSwing(user, v)
+    def swing(v:Votable)   = VoteCounter.getWeight(user, v)
     def comment(v:Votable) = VoteCounter.getCommentTime(user, v)
-    def result(v:Votable)  = VoteCounter.getResult(user, v)
+    def result(v:Votable)  = VoteCounter.getWeight(user, v)
     order match {
       case "pro" => (a,b) => result(a) > result(b)
       case "contra" => (a,b) => result(a) < result(b)

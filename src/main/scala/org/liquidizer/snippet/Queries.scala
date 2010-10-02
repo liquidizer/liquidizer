@@ -19,7 +19,7 @@ class Queries extends MultipageSnippet {
 
   def sortOrder() : (Query,Query)=> Boolean = {
     def myvote(q:Query) = userVolume(User.currentUser.get, VotableQuery(q))
-    def swing(q:Query)  = VoteCounter.getSwing(VotableQuery(q))
+    def swing(q:Query)  = VoteCounter.getResult(VotableQuery(q)).volume
     def quote(q:Query)  = VoteCounter.getResult(q)
     order match {
       case "pro" => (a,b) => quote(a).value > quote(b).value

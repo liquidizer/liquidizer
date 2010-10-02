@@ -16,55 +16,13 @@ import org.liquidizer.lib._
 
 class HistogramData(val nominee:Votable, val delegation:Boolean) {
 
-  case class Entry(var weight:Int, 
+   case class Entry(var weight:Int, 
 		   var result:Double, 
 		   var isDelegated:Boolean,
 		   var primaryVote:Int)
   
-  val histMap= mutable.Map.empty[Int, Int]
   val data= mutable.Map.empty[User, Entry]
-  val visited= mutable.Set.empty[User]
-
-  extract(nominee, 1.0, 0);
-
-  def extract(nominee: Votable, pathResult:Double, primaryVote0:Int):Unit = {
-    VoteCounter.getSupporters(nominee, false)
-    .foreach {
-      user => {
-	val weight= VoteCounter.getWeight(user, nominee)
-	val result= pathResult *
-	  (if (delegation)
-	    weight.toDouble / VoteCounter.getWeight(user)
-	   else
-	     VoteCounter.getResult(user, nominee))
-
-	var primaryVote= primaryVote0
-	if (primaryVote==0)
-	  primaryVote = if (weight>0) 1 else -1
-
-	data.get(user) match {
-	  case Some(entry) =>
-	    
-	  entry.result += result
-	    if (entry.isDelegated) {
-	      if (entry.primaryVote!=primaryVote) {
-		if (entry.weight==weight)
-		  entry.primaryVote= 0
-		else if (entry.weight < weight) {
-		  entry.primaryVote= primaryVote
-		  entry.weight = weight
-	      }}
-	    }
-
-	  case _ =>
-	    data.put(user, Entry(weight, result, primaryVote0!=0, primaryVote))
-	}
-	if (delegation && !visited.contains(user)) {
-	  visited += user
-          extract(VotableUser(user), result, primaryVote)
-	}
-    }}
-  }
+  val histMap= mutable.Map.empty[Int, Int]
 
   def getData(primaryVote:Int, isDelegated:Boolean, dx:Double):List[(Double,Double)] = {
     data.foreach {

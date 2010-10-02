@@ -27,7 +27,7 @@ class DelegationGraph extends Graph{
   }
   
   def putEdge(user:User, nominee:Votable, dashed:Boolean):Unit = {
-    val weight= VoteCounter.getResult(user, nominee)
+    val weight= VoteCounter.getWeight(user, nominee)
     putEdge(user, nominee, weight, dashed)
   }
   
@@ -50,7 +50,7 @@ class DelegationGraph extends Graph{
 	  VoteCounter.getVotes(delegate, false).foreach {
 	    vote =>
 	      if (!edges.contains(delegate,vote)) {
-		val factor= VoteCounter.getResult(delegate, vote)
+		val factor= VoteCounter.getWeight(delegate, vote)
 		findIndirectRoute(start, vote, weight * factor)
 	      }
 	  }

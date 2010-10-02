@@ -24,6 +24,10 @@ object Tick {
 
   var offset= 0L
   def now = System.currentTimeMillis - offset
+
+  val sec= 1000L
+  val min= 60*sec
+  val h= 60*min
 }
 
 /** A time slice based data structure that keeps historic snapshots of values.
@@ -87,17 +91,14 @@ abstract class Slice[A](val stepSize:Long, val next:Option[Slice[A]]) {
   }
 }
 
+import Tick.{sec, min, h}
 class TimeSeries(stepSize : Long, next : Option[TimeSeries]) extends Slice[Quote](stepSize, next) {
-  
-  val sec= 1000L
-  val min= 60*sec
-  val h= 60*min
-  def this() = this(List(10*sec, 60*sec, 5*min, 30*min, 60*min, 2*h, 4*h, 12*h, 24*h))
   def this(stepSizes : List[Long]) = {
     this(stepSizes.head, 
 	 if (stepSizes.tail.isEmpty) None 
 	 else Some(new TimeSeries(stepSizes.tail)))
   }
+  def this() = this(List(10*sec, 60*sec, 5*min, 30*min, 60*min, 2*h, 4*h, 12*h, 24*h))
   
   def merge(a : Quote, b : Quote) : Quote = {
     (a+b)*0.5

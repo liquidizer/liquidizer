@@ -9,43 +9,22 @@ import _root_.org.liquidizer.model._
 
 class LinkedVote(val owner:User, val nominee:Votable) extends VoteResult {
   
-  val weight = new PoisonMemory(0.0)
-  var nextUser : Option[LinkedVote] = None
-  var nextNominee : Option[LinkedVote] = None
-  
-  def getUserVotes(): List[LinkedVote] = {
-    this :: (if (nextNominee.isEmpty) Nil else nextNominee.get.getUserVotes())
-  }
-
-  def getNomineeVotes(): List[LinkedVote] = {
-    this :: (if (nextUser.isEmpty) Nil else nextUser.get.getNomineeVotes())
-  }
-  
+  var preference = 0
   override def toString():String= {
-    "LinkedVote("+owner+" -> "+nominee+"  = "+weight+")"
+    "LinkedVote("+owner+" -> "+nominee+"  = "+preference+")"
   }
 }
 
 class NomineeHead {
   var result = Quote(0,0)
   val history = new TimeSeries()
-  var votes  : Option[LinkedVote] = None
-
-  def getVotes : List[LinkedVote] = 
-    if (votes.isEmpty) Nil else votes.get.getNomineeVotes
-
-  def setValue(time : Long, quote : Quote) = {
-    history.add(time, quote)
-    result= quote
-  }
+  var votes  : List[LinkedVote] = Nil
+  def update(time : Long) = history.add(time, result)
 }
 
-class UserHead() {
-  val vec= new VoteVector()
-  var votes : Option[LinkedVote] = None
-
-  def getVotes : List[LinkedVote] =
-    if (votes.isEmpty) Nil else votes.get.getUserVotes
+class UserHead(id : Int) {
+  val vec= new VoteVector(id)
+  var votes : List[LinkedVote] = Nil
 }
 
 class VoteMap {
@@ -54,103 +33,73 @@ class VoteMap {
   val nominees= mutable.Map.empty[Votable, NomineeHead]
   var dirty = false
 
+  def id(user : User) = user.id.is.toInt
+  def id(query : Query) = query.id.is.toInt
+
   def put(vote:Vote) = {
     val owner= vote.owner.obj.get
     val nominee= vote.getVotable
 
-    val link = voteMap.get((owner,nominee)).getOrElse
+    val link  = voteMap.get((owner,nominee)).getOrElse
     {
       // user has never voted for this nominee
-      val nomineeHead= nominees.get(nominee)
-      .getOrElse(nominees.put(nominee, new NomineeHead()))
-      val userHead= users.get(owner)
-      .getOrElse(users.put(owner, new UserHead))
+      val nomineeHead = nominees.get(nominee)
+      .getOrElse(nominees.put(nominee, new NomineeHead).get)
+      val userHead = users.get(owner)
+      .getOrElse(users.put(owner, new UserHead(id(owner))).get)
       val newLink= new LinkedVote(owner, nominee)
 
-      newLink.nextNominee= userHead.votes
-      userHead.votes= Some(newLink)
-
-      newLink.nextUser= nomineeHead.votes
-      nomineeHead.votes= Some(newLink)
+      userHead.votes ::= newLink
+      nomineeHead.votes ::= newLink
 
       // create entries in the vote map
-      voteMap.put((owner,nominee), newLink)
+      voteMap.put((owner,nominee), newLink).get
     }
-    link.weight.set(vote.weight.is, vote.time.is)
+    link.preference= vote.weight.is
     dirty = true
   }
   
   def update(time : Long) : Unit = {
     for (i <- 1 to 20) sweep()
-    for (nominee <- nominees) nominee.result= Quote(0,0)
-    for (user <- users) {
+
+    for (head <- nominees) head._2.result= Quote(0,0)
+    for (userHead <- users) {
       nominees.foreach { 
-	case (key, value) => value.result += Quote.toQuote(user.vec.get(key.id.is))
+	case (VotableUser(delegate), nomineeHead) => 
+	  nomineeHead.result = nomineeHead.result + 
+	    Tick.toQuote(userHead._2.vec.getDelegationWeight(id(delegate)))
+	case (VotableQuery(query), nomineeHead) => 
+	  nomineeHead.result = nomineeHead.result + 
+	    Tick.toQuote(userHead._2.vec.getVotingWeight(id(query)))
       }
     }
-    for (nominee <- nominees) nominee.history.add(time, nominee.result)
+    for (head <- nominees) head._2.update(time)
     dirty = false
   }
 
   /** Iterative step to solve the equation system */
   def sweep() : Unit = synchronized {
-    for (head <- users) {
+    users.foreach { case (user,head) => 
       head.vec.clear()
-      for (link <- user.getVotes) {
+      for (link <- head.votes) {
 	link.nominee match {
-	  case VotableQuery(query) => head.vec.addVote(link.weight, query.id.is)
-	  case VotableUser(user) => head.vec.addDelegate(link.weight, users.get(user.id.is).get.vec)
+	  case VotableQuery(query) => head.vec.addVote(link.preference, id(query))
+	  case VotableUser(user) => head.vec.addDelegate(link.preference, users.get(user).get.vec)
 	}
       }
-      user.normalize()
+      head.vec.normalize()
     }
   }
 
-  private def voteFilter(link : LinkedVote) : Boolean = {
-    if (link.weight.smooth < 5e-3) {
-      voteMap -= ((link.owner, link.nominee))
-      false
-    } else
-      true
-  }
+  private def voteFilter(link : LinkedVote) : Boolean = link.preference > 0
   
   /** Sort votes according to their absolute value */
   def sortVotes() : Unit = {
     nominees.foreach {
-      case (key,head) => 
-	val list= head.getVotes
-      .filter { voteFilter _ }
-      .elements
-      if (list.hasNext) {
-	var elt= list.next
-	head.votes= Some(elt)
-	while (list.hasNext) {
-	  val cur= list.next
-	  elt.nextUser= Some(cur)
-	  elt=cur
-	}
-	elt.nextUser= None
-      } else {
-	head.votes= None
-      }
+      case (key,head) => head.votes= head.votes.filter { voteFilter _}
     }
     users.foreach {
-      case (key,head) => 
-	val list= head.getVotes
-      .filter { voteFilter _ }
-      .elements
-      if (list.hasNext) {
-	var elt= list.next
-	head.votes= Some(elt)
-	while (list.hasNext) {
-	  val cur= list.next
-	  elt.nextNominee= Some(cur)
-	  elt=cur
-	}
-	elt.nextNominee= None
-      } else {
-	head.votes= None
-      }
+      case (key,head) => head.votes= head.votes.filter { voteFilter _}
     }
   }  
   
@@ -158,8 +107,8 @@ class VoteMap {
   def dump() = {
     users.foreach {
       case (user, head) => {
-	println("User: "+user+" / "+getDenom(user))
-	head.getVotes.foreach {
+	println("User: "+user)
+	head.votes.foreach {
 	  vote => println("  "+vote)
 	}
       }}
@@ -167,33 +116,34 @@ class VoteMap {
     nominees.foreach {
       case (nominee, head) => {
 	println("Query: "+nominee+" => "+getResult(nominee))
-	head.getVotes.foreach {
-	  vote => println("  "+vote.owner+":  "+vote.result)
+	head.votes.foreach {
+	  vote => println("  "+vote.owner+":  "+vote.preference)
 	}
       }}
   }
   
-  def getVotes(user : User, nominee : Votable) : VoteVector = synchronized {
-    users.get(user).map { _.vec }.getOrElse( new VoteVector(user.id.is) ) }
+  def getVoteVector(user : User) : VoteVector = synchronized {
+    users.get(user).map { _.vec }.getOrElse( new VoteVector(id(user)) )
   }
 
   def getResult(nominee : Votable) : Quote = synchronized {
     nominees.get(nominee).map{ _.result }.getOrElse(Quote(0,0))
   }
 
+  def getWeight(user : User, nominee: Votable) : Double = nominee match {
+    case VotableUser(delegate) => getVoteVector(user).getDelegationWeight(id(delegate))
+    case VotableQuery(query) => getVoteVector(user).getVotingWeight(id(query))
+  }
+
+  def getPreference(user : User, nominee : Votable) : Int = {
+    voteMap.get((user,nominee)).map { _.preference }.getOrElse(0)
+  }
+
   def getSupporters(nominee : Votable) : List[LinkedVote] = {
-    if (nominees.contains(nominee)) {
-      nominees.get(nominee).get.getVotes
-    } else {
-      Nil
-    }
+      nominees.get(nominee).map { _.votes }.getOrElse(Nil)
   }
 
   def getVotes(user : User) : List[LinkedVote] = {
-    if (users.contains(user)) {
-      users.get(user).get.getVotes
-    } else {
-      Nil
-    }
+      users.get(user).map { _.votes }.getOrElse(Nil)
   }
 }
