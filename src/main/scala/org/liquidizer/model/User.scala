@@ -17,8 +17,8 @@ object User extends User
   override def screenWrap = Full(<lift:surround with="default" at="content">
 			       <lift:bind /></lift:surround>)
   
-  override def signupFields = nick :: realname :: homepage :: email :: password :: Nil
-  override def fieldOrder = List(id, email, nick, realname, homepage, keywords, password, validated)
+  override def signupFields = nick :: email :: password :: Nil
+  override def fieldOrder = List(id, email, nick, profile, password, validated)
 
   // comment this line out to require email validations
   override def skipEmailValidation = true
@@ -29,10 +29,8 @@ class User extends LongKeyedMapper[User]
        
     def getSingleton = User // what's the "meta" server
 
-	object nick extends MappedString(this,16)
-	object realname extends MappedString(this,255) 
-	object homepage extends MappedString(this,255) 
-	object keywords extends MappedString(this,255) 
+       object nick extends MappedString(this,32)
+       object profile extends MappedText(this)
 
   
   def getUser(id : String) : Option[User] = {

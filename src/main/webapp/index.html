@@ -15,23 +15,18 @@
 	    </div>
 	    <lift:UserInfo.votes>
 	      <div class="balance">
-		<h3>Meine Bilanz</h3>
 		<table>
-		  <tr><td height="2" bgcolor="#662e91" colspan="3"/></tr>
+		  <tr><td height="3" bgcolor="#662e91" colspan="3"/></tr>
 		  <tr>
-		    <td>Meine Unterstützer</td>
+		    <td>Erhaltene Delegationen</td>
 		    <td/>
-		    <td>Meine Stimmen</td>
+		    <td>Vegebene Stimmen</td>
 		  </tr>
-		  <tr><td height="2" bgcolor="#662e91" colspan="3"/></tr>
+		  <tr><td height="3" bgcolor="#662e91" colspan="3"/></tr>
 		  <td>
-		    <tr>
-		      <td align="right"><span class="pro">1.00</span></td>
-		      <td>Grundstimme</td>
-		    </tr>
 		    <poll:supporters>
 		      <tr class="votable">
-			<td align="right"><vote:result/></td>
+			<td align="right"><vote:result format="weight"/></td>
 			<td><user:name/></td>
 		      </tr>
 		    </poll:supporters>
@@ -45,7 +40,7 @@
 		      </tr>
 		    </user:votes>
 		  </td>
-		  <tr><td height="2" bgcolor="#662e91" colspan="3"/></tr>
+		  <tr><td height="3" bgcolor="#662e91" colspan="3"/></tr>
 		  <tr>
 		    <td>
 		      <div class="navi">
@@ -69,21 +64,16 @@
 	    <div class="balance">
 	      <h3>Mein Profil</h3>
 	      <hr/>
-	      <table>
+	      <table with="100%">
 		<tr>
-		  <td>Mein echter Name</td>
-		  <td><me:realname/></td>
-		  <td><me:realnameEdit/></td>
-		</tr>
-		<tr>
-		  <td>Meine Homepage</td>
-		  <td><me:homepage/></td>
-		  <td><me:homepageEdit/></td>
-		</tr>
-		<tr>
-		  <td>Meine Email Adresse</td>
-		  <td><me:email/></td>
+		  <td>Email:</td>
+		  <td class="comment"><me:email/></td>
 		  <td><me:emailEdit/></td>
+		</tr>
+		<tr>
+		  <td>Über mich:</td>
+		  <td class="comment"><me:profile/></td>
+		  <td><me:profileEdit/></td>
 		</tr>
 	      </table>
 	    </div>
@@ -112,6 +102,7 @@
 	    <div>
 	      <h3>Neue User im System</h3>
 	      <lift:UserInfo.newUsers>
+		<user:emoticon size="20"/>
 		<poll:name/>
 		<hr/>
 	      </lift:UserInfo.newUsers>

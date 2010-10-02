@@ -55,8 +55,6 @@ class Boot {
     LiftRules.dispatch.append {
     case Req(List("queries",query,"chart.svg"),_,_) => () => TimeseriesView.queryChart(query)
       case Req(List("users",user,"chart.svg"),_,_) => () => TimeseriesView.userChart(user)
-      case Req(List("users",user,"vote","queries",query,"chart.svg"),_,_) => () => TimeseriesView.voteQueryChart(user, query)
-      case Req(List("users",user,"vote","users",user2,"chart.svg"),_,_) => () => TimeseriesView.voteUserChart(user, user2)
       case Req(List("queries",query,"delegation.svg"),_,_) => () => DelegationGraphView.queryGraph(query)
       case Req(List("users",user,"delegation.svg"),_,_) => () => DelegationGraphView.userGraph(user)
       case Req(List("queries",query,"histogram.svg"),_,_) => () => HistogramView.hist(query)

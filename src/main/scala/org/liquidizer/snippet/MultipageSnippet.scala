@@ -141,7 +141,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
   }
 
   def searchFilter(user : User) : Boolean = {
-    searchFilter(user.nick.is) || searchFilter(user.realname.is)
+    searchFilter(user.nick.is) || searchFilter(user.profile.is)
   }
 
   def searchFilter(nominee : Votable) : Boolean = nominee match {

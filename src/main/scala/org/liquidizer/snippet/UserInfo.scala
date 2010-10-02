@@ -34,16 +34,10 @@ class UserInfo {
 	case <me:passwd>{ch @ _*}</me:passwd> => 
 	  <a href={"/"+User.changePasswordPath.mkString("/")}>{ch}</a>
 	
-	case <me:realname/> => 
-	  buttonFactory.newLineRecord(() => user.realname.is, value => { user.realname(value); user.save })
+	case <me:profile/> => 
+	  buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
 	  buttonFactory.toggleText
-	case <me:realnameEdit/> => 
-	  buttonFactory.toggleButton
-	
-	case <me:homepage/> => 
-	  buttonFactory.newLineRecord(() => user.homepage.is, value => { user.homepage(value); user.save })
-	  buttonFactory.toggleText
-	case <me:homepageEdit/> => 
+	case <me:profileEdit/> => 
 	  buttonFactory.toggleButton
 	
 	case <me:email/> => 

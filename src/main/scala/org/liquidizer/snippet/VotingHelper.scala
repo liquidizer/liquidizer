@@ -135,7 +135,7 @@ class VotingHelper {
 	  case VotableUser(user) => tag match {
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
-	    case "realname" => Text(user.realname.is)
+	    case "profile" => Markup.renderComment(user.profile.is)
 	    case "votes" => getVotes(user).flatMap {
 	      vote => bind(bind(children, user, vote), vote)
 	    }
@@ -249,7 +249,7 @@ class VotingHelper {
 	renderVote(() => formatWeight(user,nominee,format.text))
       }
       case Elem("vote", "chart", attribs, scope, children @ _*) => {
-	chart("/users/"+user.id+"/vote"+nominee.uri, attribs)
+	<span>Not supported</span>
       }
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children, user, nominee) : _*)

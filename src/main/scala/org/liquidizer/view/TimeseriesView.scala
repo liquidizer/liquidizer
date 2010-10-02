@@ -93,30 +93,4 @@ object TimeseriesView {
       case _ => Empty
     }
   }
-  
-  def voteQueryChart(userId : String, queryId : String) : Box[LiftResponse] = {
-    val query= Query.getQuery(queryId)
-    val user= User.getUser(userId)
-    if (query.isEmpty || user.isEmpty)
-      Empty
-    else
-      cache.get(S.uri, options, () => {
-	val ts= Nil
-	val node= (new GnuplotAPI).plotTS(ts, options, false, true, true)
-	createResponse(node.first)
-      })
-  }
-
-  def voteUserChart(userId : String, delegateId : String) : Box[LiftResponse] = {
-    val user= User.getUser(userId)
-    val user2= User.getUser(delegateId)
-    if (user.isEmpty || user2.isEmpty)
-      Empty 
-    else
-      cache.get(S.uri, options, () => {
-	val ts= Nil
-	val node= (new GnuplotAPI).plotTS(ts, options, false, true, false)
-	createResponse(node.first)
-    })
-  }
 }

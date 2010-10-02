@@ -82,7 +82,7 @@ object Markup {
   val nl= "(\\s*(\n|\r)+\\s*)+".r
  
   def renderComment(in:String) : NodeSeq = {
-    if (in.length==0) return Nil
+    if (in==null || in.length==0) return Nil
     val node:Node= Text(in)
     var text= node.toString
 
