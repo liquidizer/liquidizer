@@ -70,7 +70,6 @@ object VoteCounter {
     }
 
     def updateFactors(time : Long) = {
-      println("update factors")
       if (voteMap.dirty) {
 	val t0= Tick.now
 	voteMap.update(time)
@@ -83,7 +82,6 @@ object VoteCounter {
   def stop() = {
     println("stopping") 
     mapper ! 'STOP
-    println("stopped")
   }
   def refresh() = mapper !? 'PUSH
 
@@ -112,7 +110,7 @@ object VoteCounter {
     voteMap synchronized {
       val id= user.id.is
       voteMap.users.map { 
-	case (key,value) => voteMap.getVoteVector(key).getDelegationWeight(user.id.is.toInt) 
+	case (key,value) => voteMap.getVoteVector(key).getDelegationWeight(voteMap.id(user)) 
       }.reduceLeft(_+_)
     }
   }
@@ -161,4 +159,8 @@ object VoteCounter {
 
   def getTimeSeries(nominee : Votable) : List[Tick[Quote]] =
     voteMap.nominees.get(nominee).map { _.history.getAll }.getOrElse(Nil)
+
+  def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
+    voteMap.getEmotion(user1, user2)
+  }
 }

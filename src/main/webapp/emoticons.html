@@ -24,9 +24,9 @@
 
       var emoticon= $("#emoticon");
       emoticon.html(emoticon.html()
-      .replace(/valence=[-0-9\.]*/,"valence="+v/100.0)
-      .replace(/arousal=[-0-9\.]*/,"arousal="+a/100.0)
-      .replace(/potency=[-0-9\.]*/,"potency="+p/100.0))
+      .replace(/v=[-0-9\.]*/,"v="+v/100.0)
+      .replace(/a=[-0-9\.]*/,"a="+a/100.0)
+      .replace(/p=[-0-9\.]*/,"p="+p/100.0))
       }
 
       function setParam(v,a,p) {
@@ -83,7 +83,7 @@
       </tr>
     </table>
     <div id="emoticon">
-      <embed src="/emotions/front.svg?valence=0.5&amp;arousal=0.5&amp;potency=0.5" 
+      <embed src="/emoticons/face.svg?v=0.5&amp;a=0.5&amp;p=0.5" 
 	     width="250" height="250"/>
     </div>
     <div id="links">

@@ -20,32 +20,32 @@ class VotingHelper {
   val buttonFactory = new EditButtonToggler
   
   var displayedVotes = List[()=>Node]()
+  var displayedEmos = List[()=>Node]()
   var containsMyVote = false
   
   def renderVote(result : () => Node):Node = {
     displayedVotes ::= result
     <span id={"dynamicvote"+displayedVotes.size}>{result()}</span>
   }
+  def formatDouble(value : Double) : String =  String.format("%3.2f",double2Double(value))
   def formatResult(value : Double) : Node = {
     <span class={
-      if (value>0) "pro" else if (value<0) "contra" else "pass"
-    }>{ 
-      String.format("%3.2f",double2Double(value))
-    }</span>	  
+      if (value>=5e-3) "pro" else if (value< (-5e-3)) "contra" else "pass"
+    }>{ formatDouble(value) } </span>	  
   }
 
   def formatResult(nominee : Votable):Node = {
     formatResult(VoteCounter.getResult(nominee).value)
   }
   def formatWeight(user: User, nominee : Votable, format:String):Node = {
-    val weight= VoteCounter.getWeight(user, nominee)
-    val style= if (weight>0) "pro" else if (weight<0) "contra" else "pass" 
     format match {
-      case "fraction" => 
-	<span class={style}>{weight}<sub>{"/"+VoteCounter.getMaxPref(user)}</sub></span>
-      case "decimal" => formatResult(VoteCounter.getWeight(user,nominee))
-      case _ => <span class={style}>{
-	if (weight>0) "+"+weight else weight.toString}</span>
+      case "decimal" => 
+	formatResult(VoteCounter.getWeight(user,nominee))
+      case _ => 
+	val weight= VoteCounter.getPreference(user, nominee)
+	val style= if (weight>0) "pro" else if (weight<0) "contra" else "pass" 
+	<span class={style}>{
+	  if (weight>0) { "+" + weight } else weight.toString }</span>
     }
   }
 
@@ -66,12 +66,18 @@ class VotingHelper {
   }
   
   def ajaxUpdate(nominee : Votable) : JsCmd = {
-    var index= displayedVotes.size+1
+    var index1= displayedVotes.size+1
+    var index2= displayedEmos.size+1
     displayedVotes.map { 
-      displayedVote => { 
- 	index-= 1
- 	SetHtml("dynamicvote"+index, displayedVote())
-      }}.toList
+      displayedVote =>
+ 	index1-= 1
+ 	SetHtml("dynamicvote"+index1, displayedVote())
+      } ++
+    displayedEmos.map {
+      emoticon => 
+	index2-= 1
+	SetHtml("dynamicemo"+index2, emoticon())
+    }.toList
   }
 
   def render(in:NodeSeq, nominee:Votable) : NodeSeq = {
@@ -133,6 +139,9 @@ class VotingHelper {
 	    case "votes" => getVotes(user).flatMap {
 	      vote => bind(bind(children, user, vote), vote)
 	    }
+	    case "emoticon" => 
+	      renderVote(() => emoticon(user, attribs))
+
 	    case _ => in
 	  }
 	  case _ => tag match {
@@ -175,6 +184,28 @@ class VotingHelper {
     src={uri+"/chart.svg?"+options}
     width={attribs.get("width").getOrElse(Text("640"))}
     height={attribs.get("height").getOrElse(Text("480"))}/></a>
+  }
+
+  def emoticon(other : User, attribs:MetaData) : Node = {
+    val size={attribs.get("size").getOrElse(Text("100"))}
+    var uri= "/emoticons/face.svg" + {
+      attribs.asAttrMap ++ {
+	if (currentUser.isEmpty) {
+	  Map("view" -> "sleeping")
+	} else {
+	  val emo= VoteCounter.getEmotion(currentUser.get, other)
+	  if (!emo.isEmpty) {
+	    Map("v" -> formatDouble(emo.get.valence.value / 2.0 + 0.5),
+		"a" ->  formatDouble(emo.get.valence.swing),
+		"p" ->  formatDouble(emo.get.potency.value))
+	  }
+	  else
+	    Map("view" -> "sleeping")
+	}}
+    }.map { case (a,b) => a+"="+b }.mkString("?","&","")
+    <embed
+    alt="Emoticon"
+    src={uri} width={size} height={size}/>
   }
 
   def bind(in : NodeSeq, user:User, nominee:Votable) : NodeSeq = {

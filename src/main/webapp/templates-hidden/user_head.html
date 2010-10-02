@@ -3,15 +3,17 @@
     <h2>Pirat : <poll:name/></h2>
   </div>
   <table width="100%">
+    <td rowspan="3">
+      <user:emoticon size="120"/>
+    </td>
     <tr height="50">
       <lift:UserInfo.in>
 	<user:notme>
 	  <th>Deine Präferenz</th>
 	</user:notme>
       </lift:UserInfo.in>
+      <th>Einfluss</th>
       <th>Analysen</th>
-      <th>Delegationsgewicht</th>
-      <th>Chart</th>
     </tr>
     <tr>
       <lift:UserInfo.in>
@@ -22,17 +24,14 @@
 	</user:notme>
       </lift:UserInfo.in>
       <td align="center">
+	<poll:result/>
+      </td>
+      <td align="center">
 	&#x2192; <a:voteOut>Stimmen</a:voteOut>
 	<br/>
 	&#x2192; <a:voteIn>Delegationen</a:voteIn>
 	<br/>
 	&#x2192; <a:graph>Delegationsgraph</a:graph>
-      </td>
-      <td align="center">
-	<poll:result/>
-      </td>
-      <td class="chart_thumb">
-	<poll:chart height="80" width="150" grid="off"/>
       </td>
     </tr>
   </table>

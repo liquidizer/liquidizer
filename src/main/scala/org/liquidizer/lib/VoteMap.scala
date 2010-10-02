@@ -5,6 +5,14 @@ import scala.collection.mutable
 import _root_.net.liftweb.mapper._
 import _root_.org.liquidizer.model._
 
+class Emotion {
+  val valence= new PoisonMemory(0.0)
+  val potency= new PoisonMemory(0.0)
+  val arousal= valence.swing
+
+  override def toString() = valence.toString + " " + potency.value
+}
+
 class LinkedVote(val owner:User, val nominee:Votable) {
   
   var preference = 0
@@ -23,6 +31,7 @@ class NomineeHead {
 class UserHead(id : Int) {
   val vec= new VoteVector(id)
   var votes : List[LinkedVote] = Nil
+  val emos= mutable.Map.empty[User, Emotion]
 }
 
 class VoteMap {
@@ -144,5 +153,23 @@ class VoteMap {
 
   def getVotes(user : User) : List[LinkedVote] = {
       users.get(user).map { _.votes }.getOrElse(Nil)
+  }
+
+  def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
+    val key1= if (id(user1) < id(user2)) user1 else user2
+    val key2= if (id(user1) < id(user2)) user2 else user1
+    if (users.contains(key1) && users.contains(key2)) {
+      val head1= users.get(key1).get
+      val head2= users.get(key2).get
+
+      if (!head1.emos.contains(key2)) head1.emos.put(key2, new Emotion())
+      val emo= head1.emos.get(key2).get
+      
+      emo.valence.set(Tick.now, head1.vec.dotProd(head2.vec, false))
+      emo.potency.set(Tick.now, head1.vec.dotProd(head2.vec, true))
+      Some(emo)
+
+    } else
+      None
   }
 }

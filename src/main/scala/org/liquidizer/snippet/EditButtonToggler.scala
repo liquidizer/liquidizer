@@ -15,6 +15,9 @@ case class ToggleButtonData(
   val h:Int,
   val w:Int) {
 
+  val editNode= <img src="/images/edit.png" class="button"/>
+  val saveNode= <img src="/images/save.png" class="button"/>
+
   def textId = "toggleText"+index
   def buttonId = "toggleButton"+index
 }
@@ -52,21 +55,21 @@ class EditButtonToggler() {
   }
 
   def editButton(data : ToggleButtonData) : NodeSeq = {
-    SHtml.a(() => { dynamicForm(data) }, Text("Edit"))
+    SHtml.a(() => { dynamicForm(data) }, data.editNode)
   }
 
   def dynamicForm(data : ToggleButtonData) : JsCmd = {
     SetHtml(data.textId, 
 	    if (data.h==1) {
 	      SHtml.text(data.getText(), 
-			 { text => data.setText(text) }, 
+			 { text => {data.setText(text); println("new data: "+text)} }, 
 			 "cols"->data.w.toString)
 	    } else {
 	      SHtml.textarea(data.getText(), 
 			     { text => data.setText(text) }, 
 			     "rows"->data.h.toString, "cols"->data.w.toString)
 	    }) &
-    SetHtml(data.buttonId, SHtml.ajaxSubmit("save", () => {
+    SetHtml(data.buttonId, SHtml.ajaxSubmit("Save",() => {
       SetHtml(data.textId, data.getHtml()) &
       SetHtml(data.buttonId, editButton(data))
     }))

@@ -61,7 +61,7 @@ class Boot {
       case Req(List("users",user,"delegation.svg"),_,_) => () => DelegationGraphView.userGraph(user)
       case Req(List("queries",query,"histogram.svg"),_,_) => () => HistogramView.hist(query)
       case Req(List("graph.svg"),_,_) => () => DelegationGraphView.superGraph()
-      case Req(List("emotions","front.svg"),_,_) => () => EmotionView.front()
+      case Req(List("emoticons","face.svg"),_,_) => () => EmotionView.face()
     }
 
     LiftRules.statelessRewrite.append {
