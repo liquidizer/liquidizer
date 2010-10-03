@@ -73,12 +73,13 @@ class VoteMap {
     for (head <- nominees) head._2.result= Quote(0,0)
     for (userHead <- users) {
       nominees.foreach { 
-	case (VotableUser(delegate), nomineeHead) => 
+	case (VotableUser(delegate), nomineeHead) if (delegate!=userHead._1) => 
 	  nomineeHead.result = nomineeHead.result + 
 	    Tick.toQuote(userHead._2.vec.getDelegationWeight(id(delegate)))
 	case (VotableQuery(query), nomineeHead) => 
 	  nomineeHead.result = nomineeHead.result + 
 	    Tick.toQuote(userHead._2.vec.getVotingWeight(id(query)))
+	case _ =>
       }
     }
     for (head <- nominees) head._2.update(time)

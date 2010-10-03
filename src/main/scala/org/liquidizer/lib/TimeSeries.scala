@@ -46,31 +46,22 @@ abstract class Slice[A](val stepSize:Long, val next:Option[Slice[A]]) {
   def latestTime : Long = head.map { _.time }.getOrElse(0)
   def head : Option[Tick[A]] = {
     if (list.isEmpty)
-      if (next.isEmpty) None else next.get.head
+      None
     else
       Some(list.head)
   }
 
   /** Returns true if the next data time stamp will not be merged immideately */
   def isNew(time:Long):Boolean = {
-    if (list.isEmpty)
-      if (next.isEmpty) true else next.get.isNew(time)
-    else {
-      time > list.head.time + stepSize
-    }
+    list.isEmpty || (time > list.head.time + stepSize)
   }
   
   /** Add a new data slice to the list */
   def add(time:Long, data:A):Unit = {
-    if (list.isEmpty && !next.isEmpty && time < capTime(Tick.now)) {
-      // speed up initialial data feed
-      next.get.add(time, data)
+    if (list.isEmpty || isNew(time)) {
+      list ::= Tick(baseTime(time), data)
     } else {
-      if (list.isEmpty || isNew(time)) {
-	list ::= Tick(baseTime(time), data)
-      } else {
-	list = Tick(list.first.time, merge(list.head.value,  data)) :: list.tail
-      }
+      list = Tick(list.first.time, merge(list.head.value,  data)) :: list.tail
     }
     if (!next.isEmpty) {
       while (!list.isEmpty && list.last.time < capTime(time)) {
@@ -101,7 +92,7 @@ class TimeSeries(stepSize : Long, next : Option[TimeSeries]) extends Slice[Quote
   def this() = this(List(10*sec, 60*sec, 5*min, 30*min, 60*min, 2*h, 4*h, 12*h, 24*h))
   
   def merge(a : Quote, b : Quote) : Quote = {
-    (a+b)*0.5
+    if (stepSize<10000L) b else (a+b)*0.5
   }
 }
 

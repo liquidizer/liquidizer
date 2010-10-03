@@ -95,7 +95,7 @@ object VoteCounter {
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
       vote => 
 	comments.add(vote)
-        mapper ! vote
+        mapper !? vote
 
     }
     refresh()
@@ -106,13 +106,12 @@ object VoteCounter {
     voteMap.dump()
   }
   
-  def getDelegationWeight(user : User) : Double = {
-    voteMap synchronized {
-      val id= user.id.is
-      voteMap.users.map { 
-	case (key,value) => voteMap.getVoteVector(key).getDelegationWeight(voteMap.id(user)) 
-      }.reduceLeft(_+_)
-    }
+  def getDelegationInflow(user : User) : Double = {
+    1.0 + voteMap.getResult(VotableUser(user)).pro
+  }
+
+  def getDelegationOutflow(user : User) : Double = {
+    1.0 - voteMap.getVoteVector(user).getDelegationWeight(voteMap.id(user))
   }
 
   def getResult(query : Query) : Quote = getResult(VotableQuery(query))

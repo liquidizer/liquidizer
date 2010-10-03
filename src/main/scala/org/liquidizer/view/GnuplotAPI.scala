@@ -47,11 +47,12 @@ class GnuplotAPI {
       } 
       case _ => {
 	hasgrid= false
-	run("set tmargin 0")
-	run("set rmargin 0")
-	run("set bmargin 0")
-	run("set lmargin 0")
-	run("set border lw 2")
+	run("set tmargin at screen 0.01")
+	run("set rmargin at screen 0.99")
+	run("set bmargin at screen 0.99")
+	run("set lmargin at screen 0")
+	run("unset border")
+	run("set xzeroaxis")
 	run("unset xtics")
 	run("unset ytics")
 	run("unset grid")

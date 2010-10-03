@@ -4,7 +4,7 @@
     <meta name="description" content="" />
     <meta name="keywords" content="" />
     
-    <title>Liquidizer - Beta</title>
+    <title>Liquidizer - <lift:bind name="title"/></title>
     
     <link type="text/css" href="/style.css" rel="stylesheet"/>
     <link rel="shortcut icon" href="/images/favicon.ico"/> 
@@ -70,13 +70,20 @@
       <hr/>
 
       <div class="content">
-        <lift:bind name="content" />
+	<table>
+	  <td width="85%">
+            <lift:bind name="content" />
+	  </td>
+	  <td width="10px"/>
+	  <td align="right" width="14%">
+	    <lift:bind name="sidebar"/>
+	  </td>
+	</table>
       </div>
+
       <div style="clear:both"/>
       <hr/>
     </div>
-    <div class="content">
-      <i>Ludicrous Liquidizer - v10.6</i>
-    </div>
+    <i>Mesmerizing Liquidizer - v10.10</i>
   </body>
 </html>

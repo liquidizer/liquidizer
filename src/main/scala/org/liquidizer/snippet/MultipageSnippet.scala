@@ -73,7 +73,8 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def view(in : Node) : NodeSeq = {
     in match {
       case <search:input/> => 
-	SHtml.text(search, search = _ )
+	SHtml.text(search, search = _ , 
+		   "width" -> "15", "placeholder" -> "search")
 
       case <search:submit/> =>
 	SHtml.ajaxSubmit("Search", { () =>

@@ -1,34 +1,27 @@
-<lift:surround with="default" at="content">
-
-  <div class="head">
-    <h2>Liste aller Piraten
-      <div class="view">
-	<lift:Users.view form="POST" eager_eval="true">
-	  <lift:embed what="sort_users"/>
-	  <lift:embed what="search"/>
-	</lift:Users.view>
-      </div>
-    </h2>
-  </div>
-
+<lift:surround with="default">
+  <lift:bind-at name="title">Alle Piraten</lift:bind-at>
+  <lift:bind-at name="content">
   <table width="100%">
-    <tr height="50">
-      <td/>
-      <td/>
-       <lift:UserInfo.in>
-	<th>Deine Präferenz</th>
+    <tr>
+      <th align="left">Pirat</th>
+      <th>Match</th>
+      <th>Einfluss</th>
+      <lift:UserInfo.in>
+	<th>Stimme delegieren</th>
       </lift:UserInfo.in>
-      <th>Delegationsgewicht</th>
-      <th>Chart <a href="/help.html#sec-5">[?]</a></th>
     </tr>
+    <tr height="30"/>
     <lift:Users eager_eval="true">
       <tr>
-	<td class="emo_thumb"><user:emoticon size="60"/></td>
 	<td class="votable">
 	  <poll:name/>
 	  <div class="comment">
 	    <user:profile/>
 	  </div>
+	</td>
+	<td class="emo_thumb"><user:emoticon size="60"/></td>
+	<td align="center">
+	  <table class="vote"><tr><td><user:inflow/></td></tr></table>
 	</td>
 	<lift:UserInfo:in>
 	  <user:itsme>
@@ -40,17 +33,18 @@
 	    </td>
 	  </user:notme>
 	</lift:UserInfo:in>
-	<td align="center">
-	  <table class="vote"><tr><td><poll:result/></td></tr></table>
-	</td>
-	<td class="chart_thumb">
-	  <poll:chart height="60" width="150" grid="off"/>
-	</td>
       </tr>
     </lift:Users>
+    <div align="center">
+      <lift:Users.navigator/>
+    </div>
   </table>
-  <div align="center">
-    <lift:Users.navigator/>
-  </div>
+  </lift:bind-at>
+  <lift:bind-at name="sidebar">
+    <lift:Users.view form="POST" eager_eval="true">
+      <search:input/>
+      <lift:embed what="sort_users"/><br/>
+    </lift:Users.view>
+  </lift:bind-at>
 </lift:surround>
 

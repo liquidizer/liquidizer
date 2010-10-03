@@ -34,9 +34,6 @@ class VotingHelper {
     }>{ formatDouble(value) } </span>	  
   }
 
-  def formatResult(nominee : Votable):Node = {
-    formatResult(VoteCounter.getResult(nominee).value)
-  }
   def formatWeight(user: User, nominee : Votable, format:String):Node = {
     format match {
       case "decimal" => 
@@ -92,7 +89,8 @@ class VotingHelper {
     in match {
       case <poll:name/> => formatNominee(nominee)
       case <poll:result/> =>
-	renderVote(() => formatResult(nominee))
+	renderVote(() => formatResult(VoteCounter.getResult(nominee).value))
+      case <poll:chart/> => chart(nominee.uri, in.attributes)
 
       case Elem("me", tag, attribs, scope, children @ _*) =>
 	currentUser match {
@@ -133,12 +131,12 @@ class VotingHelper {
       case Elem("user", tag, attribs, scope, children @ _*) =>
 	nominee match {
 	  case VotableUser(user) => tag match {
+	    case "profile" => Markup.renderComment(user.profile.is)
+	    case "inflow" =>  renderVote(() => formatResult(VoteCounter.getDelegationInflow(user)))
+	    case "outflow" =>  renderVote(() => formatResult(VoteCounter.getDelegationOutflow(user)))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
-	    case "profile" => Markup.renderComment(user.profile.is)
-	    case "votes" => getVotes(user).flatMap {
-	      vote => bind(bind(children, user, vote), vote)
-	    }
+	    case "votes" => getVotes(user).flatMap { vote => bind(bind(children, user, vote), vote) }
 	    case "emoticon" => 
 	      renderVote(() => emoticon(user, attribs))
 
@@ -150,9 +148,7 @@ class VotingHelper {
 	    case _ => in
 	  }
 	}
-      case Elem("poll", "chart", attribs, scope, children @ _*) => {
-	chart(nominee.uri, attribs)
-      }
+
       case Elem("a", tag, attribs, scope, children @ _*) => 
 	val uri=tag match {
 	  case "graph" => nominee.uri+"/delegation"
@@ -196,7 +192,7 @@ class VotingHelper {
 	  val emo= VoteCounter.getEmotion(currentUser.get, other)
 	  if (!emo.isEmpty) {
 	    Map("v" -> formatDouble(emo.get.valence.value / 2.0 + 0.5),
-		"a" ->  formatDouble(emo.get.valence.swing),
+		"a" ->  formatDouble(emo.get.valence.swing min 1.0),
 		"p" ->  formatDouble(emo.get.potency.value))
 	  }
 	  else
