@@ -95,8 +95,9 @@ object VoteCounter {
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
       vote => 
 	comments.add(vote)
-        mapper !? vote
-
+        mapper ! vote
+        if (vote.date.is -time > 10*Tick.min) 
+	   refresh()
     }
     refresh()
   }
@@ -119,6 +120,12 @@ object VoteCounter {
   def getResult(nominee : Votable) : Quote = {
     voteMap.getResult(nominee)
   }
+
+  def getTurnOut(nominee : Votable) : (Int,Int) = {
+    voteMap synchronized {
+      voteMap.nominees.get(nominee).map { h=> (h.numPro, h.numContra) }
+      .getOrElse((0,0))
+  }}
   
   def getMaxPref(user : User) : Int = 
     voteMap.users.get(user).map { 

@@ -23,6 +23,8 @@ class LinkedVote(val owner:User, val nominee:Votable) {
 
 class NomineeHead {
   var result = Quote(0,0)
+  var numPro = 0
+  var numContra = 0
   val history = new TimeSeries()
   var votes  : List[LinkedVote] = Nil
   def update(time : Long) = history.add(time, result)
@@ -70,15 +72,21 @@ class VoteMap {
   def update(time : Long) : Unit = {
     for (i <- 1 to 20) sweep()
 
-    for (head <- nominees) head._2.result= Quote(0,0)
+    for (head <- nominees) {
+      head._2.result= Quote(0,0)
+      head._2.numPro= 0
+      head._2.numContra= 0
+    }
     for (userHead <- users) {
       nominees.foreach { 
 	case (VotableUser(delegate), nomineeHead) if (delegate!=userHead._1) => 
 	  nomineeHead.result = nomineeHead.result + 
 	    Tick.toQuote(userHead._2.vec.getDelegationWeight(id(delegate)))
 	case (VotableQuery(query), nomineeHead) => 
-	  nomineeHead.result = nomineeHead.result + 
-	    Tick.toQuote(userHead._2.vec.getVotingWeight(id(query)))
+	  val v=userHead._2.vec.getVotingWeight(id(query))
+	  nomineeHead.result = nomineeHead.result + Tick.toQuote(v)
+	  if (v>= 5e-3) nomineeHead.numPro += 1
+	  if (v< -5e-3) nomineeHead.numContra +=1
 	case _ =>
       }
     }

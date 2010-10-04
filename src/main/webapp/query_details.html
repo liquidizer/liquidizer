@@ -1,26 +1,30 @@
-<lift:surround with="query_head" at="content">
-  <lift:QueryDetails>
+<lift:surround with="query_head">
+  <lift:bind-at name="details">
+  <lift:QueryDetails eager_eval="true">
     <table width="100%">
       <tr height="50">
-	<td/>
+	<th/><th/>
+	<th>Gewicht</th>
 	<lift:UserInfo.in>
-	  <th>Deine Delegationen</th>
+	  <th>Delegieren</th>
 	</lift:UserInfo.in>
-	<th>Stimmgewicht</th>
-	<th>Beziehung</th>
       </tr>
       <poll:supporters>
 	<tr>
+	  <td class="emo_thumb">
+	    <user:emoticon size="60"/>
+	  </td>
 	  <td class="votable">
 	    <user:name/>
 	    <div class="comment">
 	      <user:comment/>
-	    </div>
-	    <user:itsme>
-	      <div style="text-align:center">
+	      <user:itsme>
 		<me:editButton/>
-	      </div>
-	    </user:itsme>
+	      </user:itsme>
+	    </div>
+	  </td>
+	  <td align="center">
+	    <table class="vote"><tr><td><vote:result/></td></tr></table>
 	  </td>
 	  <lift:UserInfo.in>
 	    <td nowrap="true" align="center">
@@ -29,15 +33,16 @@
 	      </user:notme>
 	    </td>
 	  </lift:UserInfo.in>
-	  <td align="center">
-	    <table class="vote"><tr><td><vote:result/></td></tr></table>
-	  </td>
-	  <td class="emo_thumb">
-	    <user:emoticon size="60"/>
-	  </td>
 	</tr>
       </poll:supporters>
     </table>
   </lift:QueryDetails>
+  </lift:bind-at>
+  <lift:bind-at name="selection">
+    <lift:QueryDetails.view form="POST" eager_eval="true">
+      <search:input/>
+      <lift:embed what="sort_votes"/>
+    </lift:QueryDetails.view>
+  </lift:bind-at>
 </lift:surround>
 

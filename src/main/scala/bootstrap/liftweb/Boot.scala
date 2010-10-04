@@ -64,16 +64,16 @@ class Boot {
 
     LiftRules.statelessRewrite.append {
       case RewriteRequest(
-        ParsePath(List("queries",query),_,_,_),_,_) =>
+        ParsePath(List("queries",query,"index"),_,_,_),_,_) =>
         RewriteResponse("query_details" :: Nil, Map("query" -> query))
       case RewriteRequest(
-        ParsePath(List("queries",query,"delegation"),_,_,_),_,_) =>
+        ParsePath(List("queries",query,"graph"),_,_,_),_,_) =>
         RewriteResponse("query_graph" :: Nil, Map("query" -> query))
       case RewriteRequest(
         ParsePath(List("queries",query,"histogram"),_,_,_),_,_) =>
         RewriteResponse("query_hist" :: Nil, Map("query" -> query))
       case RewriteRequest(
-        ParsePath(List("users",user),_,_,_),_,_) =>
+        ParsePath(List("users",user,"index"),_,_,_),_,_) =>
         RewriteResponse("user_details" :: Nil, Map("user" -> user))
       case RewriteRequest(
         ParsePath(List("queries",query,"analyzer"),_,_,_),_,_) =>
@@ -85,7 +85,7 @@ class Boot {
         ParsePath(List("users",user,"support"),_,_,_),_,_) =>
         RewriteResponse("user_support" :: Nil, Map("user" -> user))
       case RewriteRequest(
-        ParsePath(List("users",user,"delegation"),_,_,_),_,_) =>
+        ParsePath(List("users",user,"graph"),_,_,_),_,_) =>
         RewriteResponse("user_graph" :: Nil, Map("user" -> user))
       case RewriteRequest(
         ParsePath(List("users",user,"vote","queries",query,"analyzer"),_,_,_),_,_) =>

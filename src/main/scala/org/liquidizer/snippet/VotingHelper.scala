@@ -47,7 +47,7 @@ class VotingHelper {
   }
 
   def formatNominee(nominee : Votable):Node = 
-    <a href={nominee.uri }>{nominee.toString}</a>
+    <a href={nominee.uri+"/index.html" }>{nominee.toString}</a>
   
   def vote(nominee : Votable, weightChange : Int) : JsCmd = {
     val newVote= VoteCounter.getPreference(currentUser.get, nominee) + weightChange
@@ -90,6 +90,10 @@ class VotingHelper {
       case <poll:name/> => formatNominee(nominee)
       case <poll:result/> =>
 	renderVote(() => formatResult(VoteCounter.getResult(nominee).value))
+      case <poll:numPro/> => 
+	renderVote(() => Text(VoteCounter.getTurnOut(nominee)._1.toString))
+      case <poll:numContra/> => 
+	renderVote(() => Text(VoteCounter.getTurnOut(nominee)._2.toString))
       case <poll:chart/> => chart(nominee.uri, in.attributes)
 
       case Elem("me", tag, attribs, scope, children @ _*) =>
@@ -100,6 +104,7 @@ class VotingHelper {
 		val format= attribs.get("format").getOrElse(Text("numer"))
 		formatWeight(me, nominee, format.text)} )
 	    case "up" =>
+	      println("up on "+nominee)
 	      SHtml.a(() => vote(nominee,1), children)
 	    case "down" =>
 	      SHtml.a(() => vote(nominee, -1), children)
@@ -149,23 +154,16 @@ class VotingHelper {
 	  }
 	}
 
-      case Elem("a", tag, attribs, scope, children @ _*) => 
-	val uri=tag match {
-	  case "graph" => nominee.uri+"/delegation"
-	  case "hist" => nominee.uri+"/histogram"
-	  case "voteIn" => nominee.uri+"/support"
-	  case "voteOut" => nominee.uri
-	}
-        if (uri!=S.uri)
-	  <a href={uri}>{children}</a>
-        else
-	  {children}
-
-      case Elem("poll", "supporters", attribs, scope, children @ _*) =>
+      case Elem("poll", "supporters", attribs, scope, children @ _*) => {
 	getSupporters(nominee).flatMap {
-	  user => bind(bind(children, user, nominee), VotableUser(user))
+	  user =>
+	    println("binding supporters "+VotableUser(user))
+	    val res= bind(bind(children, user, nominee), VotableUser(user))
+	    println("finished binding supporters "+VotableUser(user))
+	  res
 	}
-      
+      }
+
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children, nominee) : _*)
 
@@ -213,7 +211,7 @@ class VotingHelper {
       case <user:name/> => formatNominee(VotableUser(user))
       case <poll:id/> => Text(nominee.id.toString)
       case <poll:name/> => {
-	<a href={nominee.uri}>{
+	<a href={nominee.uri+"/index.html"}>{
 	  nominee match {
 	    case VotableUser(_) => "\u2192 "+ nominee.toString
 	    case _ => nominee.toString
@@ -226,11 +224,12 @@ class VotingHelper {
 	if (currentUser==Full(user)) bind(children, user, nominee) else NodeSeq.Empty
       
       case <poll:notme>{children @ _*}</poll:notme> => 
-	if (currentUser.isEmpty ||
- 	    VotableUser(currentUser.get)!=nominee) bind(children, user, nominee) else NodeSeq.Empty
+	if (currentUser.isEmpty || VotableUser(currentUser.get)!=nominee)
+	  bind(children, user, nominee) else NodeSeq.Empty
+
       case <poll:itsme>{children @ _*}</poll:itsme> => 
-	if (!currentUser.isEmpty &&
- 	    VotableUser(currentUser.get)==nominee) bind(children, user, nominee) else NodeSeq.Empty
+	if (!currentUser.isEmpty && VotableUser(currentUser.get)==nominee) 
+	  bind(children, user, nominee) else NodeSeq.Empty
 
       case <user:comment/> => {
 	buttonFactory.newCommentRecord(

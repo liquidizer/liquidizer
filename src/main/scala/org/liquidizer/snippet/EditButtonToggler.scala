@@ -41,7 +41,7 @@ class EditButtonToggler() {
     newRecord(ToggleButtonData(index, 
 			       () => keys().mkString("\n"), 
 			       () => Markup.renderTagList(keys()),
-			       text => update(text), 4, 25))
+			       text => update(text), 1, 48))
 
   def toggleText() : NodeSeq = {
     <span id={current.textId}>{current.getHtml()}</span>
