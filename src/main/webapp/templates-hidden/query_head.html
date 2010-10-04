@@ -1,51 +1,81 @@
-<div>
-  <div class="head">
-    <h2>Frage: <poll:name/></h2>
-  </div>
+<lift:surround with="default">
+  <lift:bind-at name="title">Detailsicht Frage</lift:bind-at>
+  <lift:bind-at name="content">
+    <lift:form method="post">
+      <lift:QueryDetails eager_eval="true">
+	<div>
+	  <div class="head">
+	    <table>
+	      <td>
+		<h2>Frage: <poll:name/></h2>
+		<query:keys/>
+		<me:isDelegated>
+		  <me:editButton/>
+		</me:isDelegated>
+	      </td>
+	      <td align="right">
+		Author: <query:creator/>
+	      </td>
+	    </table>
+	  </div>
 
-  <table width="100%">
-    <tr height="50">
-      <th align="left">Stichworte</th>
-      <lift:UserInfo.in>
-	<th>Deine Präferenz</th>
-      </lift:UserInfo.in>
-      <th>Analysen</th>
-      <th>Zustimmung</th>
-      <th>Chart</th>
-    </tr>
-    <tr>
-      <td>
-	<div class="keys">
-	  <query:keys/>
-	  <me:isDelegated>
-	    <me:editButton/>
-	  </me:isDelegated>
+	  <table width="100%">
+	    <tr height="20"/>
+	    <tr>
+	      <td class="chart_thumb" rowspan="2">
+		<poll:chart height="80" width="150" grid="off"/>
+	      </td>
+	      <th>Zustimmung</th>
+	      <lift:UserInfo.in>
+		<th>Deine Präferenz</th>
+	      </lift:UserInfo.in>
+	      <th>Chart</th>
+	    </tr>
+	    <tr>
+	      <td>
+		<div class="keys">
+		</div>
+	      </td>
+	      <td align="center">
+		<poll:result/>
+	      </td>
+	      <lift:UserInfo.in>
+		<td align="center">
+		  <lift:embed what="vote"/>
+		</td>
+	      </lift:UserInfo.in>
+	    </tr>
+	  </table>
+	  <hr/>
+	  <lift:bind name="content"/>
 	</div>
-      </td>
-      <lift:UserInfo.in>
-	<td align="center">
-	  <lift:embed what="vote"/>
-	</td>
-      </lift:UserInfo.in>
-      <td align="center">
-	&#x2192; <a:voteOut>Wähler</a:voteOut>
-	<br/>
-	&#x2192; <a:graph>Delegationsgraph</a:graph>
-	<br/>
-	&#x2192; <a:hist>Histogram</a:hist>
-      </td>
-      <td align="center">
-	  <poll:result/>
-      </td>
-      <td class="chart_thumb" rowspan="2">
-	<poll:chart height="80" width="150" grid="off"/>
-      </td>
-    </tr>
-    <tr>
-      <td>
-	Author: <query:creator/>
-      </td>
-    </tr>
-  </table>
-  <hr/>
-</div>
+      </lift:QueryDetails>
+      <div align="center">
+	<lift:QueryDetails.navigator/>
+      </div>
+    </lift:form>
+  </lift:bind-at>
+  <lift:bind-at name="sidebar">
+    <lift:QueryDetails.view form="POST" eager_eval="true">
+      <view:sort>
+	<option value="">-Ordnung-</option>
+	<option value="volume">Gewicht</option>
+	<option value="pro">Zustimmung</option>
+	<option value="contra">Ablehnung</option>
+	<option value="comment">Kommentar</option>
+	<option value="swing">Swing</option>
+      </view:sort>
+      <lift:embed what="sort_votes"/>
+      <search:input/>
+    </lift:QueryDetails.view>
+
+    <div key="navi">
+      <h3>Analysen</h3>
+      <a href="index.html"><div>Wähler</div></a>
+      <p/>
+      <a href="graph.html"><div>Delegationsgraph</div></a>
+      <p/>
+      <a href="histogram.html"><div>Histogram</div></a>
+    </div>
+  </lift:bind-at>
+</lift:surround>

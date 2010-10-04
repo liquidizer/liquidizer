@@ -1,19 +1,14 @@
-<lift:surround with="default" at="content">
+<lift:surround with="query_head" at="content">
   <head>
     <script language="javascript">
-      delegation= 'false';
       dx= '0.1';
-      function setDelegation(value) { 
-      delegation= value;
-      redraw();
-      }
       function setBucketSize(value) {
       dx= value;
       redraw();
       }
       function redraw() {
       var chart= document.getElementById('chart');
-      var histUri= 'histogram.svg?delegation='+delegation+'&amp;dx='+dx;
+      var histUri= 'histogram.svg?dx='+dx;
       chart.setAttribute('src',histUri);
       var newChart= document.createElement('embed');
       newChart.src= histUri;
@@ -25,33 +20,22 @@
       }
     </script>
   </head>
-  <lift:form method="post">
-    <lift:QueryDetails eager_eval="true">
-      <lift:embed what="query_head"/>
-      <div class="chart_wrapper" align="center">
-	<div class="navi">
-	  <a href="javascript:setDelegation('false')">
-	    <div class="pagelink">Direkte Stimmen</div>
-	  </a>
-	  <a href="javascript:setDelegation('true')">
-	    <div class="pagelink">Delegierte Stimmen</div>
-	  </a>
-	  <div>Balken Breite:</div>
-	  <a href="javascript:setBucketSize('1')">
-	    <div class="pagelink">1</div>
-	  </a>
-	  <a href="javascript:setBucketSize('0.1')">
-	    <div class="pagelink">0.1</div>
-	  </a>
-	  <a href="javascript:setBucketSize('0.01')">
-	    <div class="pagelink">0.01</div>
-	  </a>
-	</div>
-	<hr/>
-	<div class="chart">
-	  <embed id="chart" height="400" width="640" src="histogram.svg"/>
-	</div>
-      </div>
-    </lift:QueryDetails>
-  </lift:form>
+  <div class="chart_wrapper" align="center">
+    <div class="navi">
+      <div>Balken Breite:</div>
+      <a href="javascript:setBucketSize('1')">
+	<div class="pagelink">1</div>
+      </a>
+      <a href="javascript:setBucketSize('0.1')">
+	<div class="pagelink">0.1</div>
+      </a>
+      <a href="javascript:setBucketSize('0.01')">
+	<div class="pagelink">0.01</div>
+      </a>
+    </div>
+    <hr/>
+    <div class="chart">
+      <embed id="chart" height="400" width="640" src="histogram.svg"/>
+    </div>
+  </div>
 </lift:surround>

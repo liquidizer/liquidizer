@@ -1,58 +1,43 @@
-<lift:surround with="default" at="content">
-  <lift:form method="post">
-    <lift:QueryDetails eager_eval="true">
-      <lift:embed what="query_head"/>
-
-      <h3>Liste der Wähler:
-	<div class="view">
-	  <lift:QueryDetails.view form="POST" eager_eval="true">
-	    <lift:embed what="sort_votes"/>
-	    <lift:embed what="search"/>
-	  </lift:QueryDetails.view>
-	</div>
-      </h3>
-      <table width="100%">
-	<tr height="50">
-	  <td/>
-	  <lift:UserInfo.in>
-	    <th>Deine Delegationen</th>
-	  </lift:UserInfo.in>
-	  <th>Stimmgewicht</th>
-	  <th>Beziehung</th>
-	</tr>
-	<poll:supporters>
-	  <tr>
-	    <td class="votable">
-	      <user:name/>
-	      <div class="comment">
-		<user:comment/>
+<lift:surround with="query_head" at="content">
+  <lift:QueryDetails>
+    <table width="100%">
+      <tr height="50">
+	<td/>
+	<lift:UserInfo.in>
+	  <th>Deine Delegationen</th>
+	</lift:UserInfo.in>
+	<th>Stimmgewicht</th>
+	<th>Beziehung</th>
+      </tr>
+      <poll:supporters>
+	<tr>
+	  <td class="votable">
+	    <user:name/>
+	    <div class="comment">
+	      <user:comment/>
+	    </div>
+	    <user:itsme>
+	      <div style="text-align:center">
+		<me:editButton/>
 	      </div>
-	      <user:itsme>
-		<div style="text-align:center">
-		  <me:editButton/>
-		</div>
-	      </user:itsme>
+	    </user:itsme>
+	  </td>
+	  <lift:UserInfo.in>
+	    <td nowrap="true" align="center">
+	      <user:notme>
+		<lift:embed what="vote"/>
+	      </user:notme>
 	    </td>
-	    <lift:UserInfo.in>
-	      <td nowrap="true" align="center">
-		<user:notme>
-		  <lift:embed what="vote"/>
-		</user:notme>
-	      </td>
-	    </lift:UserInfo.in>
-	    <td align="center">
-	      <table class="vote"><tr><td><vote:result/></td></tr></table>
-	    </td>
-	    <td class="emo_thumb">
-	      <user:emoticon size="60"/>
-	    </td>
-	  </tr>
-	</poll:supporters>
-      </table>
-    </lift:QueryDetails>
-  </lift:form>
-  <div align="center">
-    <lift:QueryDetails.navigator/>
-  </div>
+	  </lift:UserInfo.in>
+	  <td align="center">
+	    <table class="vote"><tr><td><vote:result/></td></tr></table>
+	  </td>
+	  <td class="emo_thumb">
+	    <user:emoticon size="60"/>
+	  </td>
+	</tr>
+      </poll:supporters>
+    </table>
+  </lift:QueryDetails>
 </lift:surround>
 
