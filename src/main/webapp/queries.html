@@ -41,19 +41,18 @@
     </lift:Queries.lastpage>
   </lift:UserInfo.in>
   </lift:bind-at>
+
   <lift:bind-at name="sidebar">
-
-  <div class="head">
-    <lift:Queries.view form="POST" eager_eval="true">
-      <search:input/>
-      <lift:embed what="sort_queries"/>
-    </lift:Queries.view>
-  </div>
-  <p style="margin: 50px 10px 0 0">Kategorien</p>
-  <div class="keys">
-    <lift:Queries.categories/>
-  </div>
-
+    <div class="head">
+      <lift:Queries.view form="POST" eager_eval="true">
+	<search:input/>
+	<lift:embed what="sort_queries"/>
+      </lift:Queries.view>
+    </div>
+    <p style="margin: 50px 10px 0 0">Kategorien</p>
+    <div class="keys">
+      <lift:Queries.categories/>
+    </div>
   </lift:bind-at>
 </lift:surround>
 

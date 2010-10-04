@@ -40,9 +40,9 @@
      inkscape:window-height="875"
      id="namedview50"
      showgrid="false"
-     inkscape:zoom="7.552"
-     inkscape:cx="139.80876"
-     inkscape:cy="130.02739"
+     inkscape:zoom="1.888"
+     inkscape:cx="149.9143"
+     inkscape:cy="180.05046"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="0"
@@ -146,7 +146,7 @@
      id="left-eye"
      style="stroke-width:4.35711336;stroke-miterlimit:4;stroke-dasharray:none">
     <path
-       d="m 303.44033,561.7351 c -0.19843,20.1271 -16.32828,39.01095 -28.89401,47.21967 -43.50974,28.42329 -118.22804,23.74913 -167.25136,-36.84228 -31.530657,-38.97098 -28.756012,-86.10815 5.89245,-113.32392 51.57138,-40.50844 148.46153,72.35697 190.25292,102.94653 z"
+       d="m 303.44033,561.7351 c -0.19843,20.1271 -29.58738,57.85975 -42.72484,65.11839 C 203.90149,658.24408 129.4702,657.92482 80.446882,597.33341 48.916228,558.36243 36.216803,486.59414 116.44172,440.07628 182.68635,401.66479 279.54766,536.84059 303.44033,561.7351 z"
        id="path3622"
        style="fill:#ffffff;stroke:#000000;stroke-width:6.14414215;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        sodipodi:nodetypes="csssc" />

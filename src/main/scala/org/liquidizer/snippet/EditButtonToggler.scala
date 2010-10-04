@@ -96,22 +96,45 @@ object Markup {
       case _ => Text(in)
     }
   }
+  
+  def renderTagList(in:List[String]) : Node = {
+    <span class="keys">{in.mkString(", ")}</span>
+  }
+}
+
+class CategoryView(val keys : List[String], rootLink:String) {
+
+  println(keys)
+
+  def link(node : Node, keys: List[String]) = {
+    val uri= rootLink+"?search="+keys.mkString(" ")
+    println("uri = "+uri)
+    <a href={uri}>{node}</a>
+  }
 
   def renderTag(tag : String) : Node = {
-    <a href={"/queries.html?search="+tag}><div>{tag}</div></a>
+    if (keys.contains(tag.toLowerCase)) {
+      link(<div class="active">{tag}</div>, keys.filter{ _ != tag.toLowerCase })
+    } else {
+      link(<div class="inactive">{tag}</div>, tag :: keys)
+    }
   }
 
   def renderTagList(in:List[String]) : NodeSeq = {
-    renderTagList(in, in.size+1, "tagList")
+    renderTagList(in, in.size+1)
   }
 
-  def renderTagList(in : List[String], len : Int, id : String) : NodeSeq = {
+  def renderTagList(in : List[String], len : Int) : NodeSeq = {
+    renderTagList(in, len, "tagList")
+  }
+
+  def renderTagList(in : List[String], len : Int, id: String) : NodeSeq = {
     <span>{in.slice(0, len).map { tag => renderTag(tag) }}</span>
     <span id={id}>{
       if (len < in.size)
 	SHtml.a(() => SetHtml(id, 
-			      renderTagList(in.slice(0,len).toList, len, id+"x")),
-		<div>...</div>)
+	         renderTagList(in.slice(0,len).toList, len, id+"x")),
+		<div class="inactive">...</div>)
 		   
       else 
 	NodeSeq.Empty

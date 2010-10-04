@@ -55,23 +55,28 @@ a {
 .navi a div {
     background-color: #662e91;
 }
-.votable .keys {
-    margin: 0 0 20px 2em; 
-}
 .keys { 
     display: table;
+    color: gray;
 }
 .keys div {
     padding: 4px;
     margin: 5px;
-    float: left;
+    float: right;
 }
-.keys a div {
+.keys a .inactive {
     -moz-box-shadow: 3px 3px 3px #aaa;
     -webkit-box-shadow: 3px 3px 3px #aaa;
     -moz-border-radius: 5px;
     border-radius: 5px;
     background-color: #ddd;
+}
+.keys a .active {
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #FF9933;
+    margin: 8px 5px 1px 5px;
+    color: black;
 }
 .keys a { 
     color:#444;

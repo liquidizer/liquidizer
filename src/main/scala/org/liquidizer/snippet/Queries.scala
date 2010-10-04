@@ -39,9 +39,10 @@ class Queries extends MultipageSnippet {
   }
   
   override def categories(in:NodeSeq) : NodeSeq = {
-    <span>{clearSearchButton(<div>X</div>)}</span>
+    val keys= search.split(" +").toList.map { _ toLowerCase }
+    val markup= new CategoryView(keys, "/queries.html")
     <span>{
-      Markup.renderTagList(TaggedUtils.sortedTags(queries), 5, "categories")
+      markup.renderTagList(TaggedUtils.sortedTags(queries), 5)
     }</span>
   }
 
@@ -103,7 +104,7 @@ class AddQuery extends StatefulSnippet {
   def confirm(in:NodeSeq) : NodeSeq = {
     Helpers.bind("addquery", in,
 		 "what" -> link("/add_query", {()=>}, Text(what)),
-		 "keys" -> Markup.renderTagList(Query.getTags(keys)),
+		 "keys" -> Markup.renderTagList(TaggedUtils.getTags(keys)),
 		 "cancel" -> SHtml.submit("Abbrechen", ()=>redirectTo("/add_query")),
 		 "submit" -> SHtml.submit("Absenden", ()=>saveQuery))
   }

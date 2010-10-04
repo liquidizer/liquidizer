@@ -132,7 +132,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
     val f= {
       text:String =>
 	val uText= text.toUpperCase
-      keys.isEmpty || keys.filter { key => uText.contains(key) }.size>0
+      keys.isEmpty || keys.filter { key => !uText.contains(key) }.size==0
     }
     f
   }

@@ -5,16 +5,14 @@ import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import Helpers._
 
+import _root_.org.liquidizer.lib.TaggedUtils
+
 object Query extends Query with LongKeyedMetaMapper[Query] {
 	override def dbTableName = "queries"
 	override def fieldOrder = List(what, creator, keys, creation)
   
   	def getQuery(id : String) : Option[Query] = {
 		Query.find(By(Query.id,id.toLong))
-	}
-
-	def getTags(keys : String) : List[String] = {
-	      keys.split("(\\s|,)").map { _.trim }.toList.filter { !_.isEmpty }
 	}
 }
 
@@ -31,6 +29,6 @@ class Query extends LongKeyedMapper[Query] with IdPK {
 	}
  
 	def keyList() : List[String] = {
-	       Query.getTags(keys.is)
+	       TaggedUtils.getTags(keys.is)
 	}
 }

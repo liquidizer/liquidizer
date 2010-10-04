@@ -37,6 +37,13 @@ class Users extends MultipageSnippet {
     }
   }
 
+  override def categories(in:NodeSeq) : NodeSeq = {
+    val keys= search.split(" +").toList.map { _ toLowerCase }
+    val markup= new CategoryView(keys, "/users.html")
+    <span>{
+      markup.renderTagList(TaggedUtils.sortedUserTags(users), 5)
+    }</span>
+  }
 
   def render(in: NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
