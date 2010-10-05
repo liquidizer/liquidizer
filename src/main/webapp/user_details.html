@@ -1,8 +1,6 @@
-<lift:surround with="default" at="content">
-  <lift:form method="post">
+<lift:surround with="user_head">
+  <lift:bind-at name="details">
     <lift:UserDetails eager_eval="true">
-      <lift:embed what="user_head"/>
-
       <h3>Verteilung der Stimmgewichte
       	<div class="view">
 	  <lift:UserDetails.view form="POST" eager_eval="true">
@@ -27,7 +25,6 @@
 	  <lift:UserInfo.out>
 	    <th>Präferenz</th>
 	  </lift:UserInfo.out>
-	  <th>Chart <a href="/help.html#sec-5">[?]</a></th>
 	</tr>
 	<user:votes>
 	  <tr>
@@ -62,9 +59,6 @@
 		</td>
 	      </user:notme>
 	    </lift:UserInfo.in>
-	    <td class="chart_thumb" rowspan="2">
-	      <vote:chart height="60" width="150" grid="off"/>
-	    </td>
 	  </tr>
 	  <tr>
 	    <div class="comment">
@@ -79,9 +73,6 @@
 	</user:votes>
       </table>
     </lift:UserDetails>
-  </lift:form>
-  <div align="center">
-    <lift:UserDetails.navigator/>
-  </div>
+  </lift:bind-at>
 </lift:surround>
 

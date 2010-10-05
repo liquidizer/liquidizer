@@ -1,9 +1,12 @@
 <lift:surround with="default">
-  <lift:bind-at name="title">Detailsicht Frage</lift:bind-at>
-  <lift:bind-at name="content">
+  <lift:bind-at name="title">
+    <lift:QueryDetails><poll:title/></lift:QueryDetails>
+  </lift:bind-at>
+  <lift:bind-at name="details">
     <lift:form method="post">
       <lift:QueryDetails eager_eval="true">
-	  <table width="100%">
+
+	  <table>
 	    <tr>
 	      <td colspan="4">
 		<span style="font-size:medium"><poll:name/></span>
@@ -21,8 +24,6 @@
 	    <tr>
 	      <lift:UserInfo.in><td/></lift:UserInfo.in>	      
 	      <th>Ergebnis</th>
-	      <th>Wähleranzahl</th>
-	      <th>Author: <query:creator/></th>
 	    </tr>	    
 	    <tr>
 	      <lift:UserInfo.in>
@@ -32,13 +33,6 @@
 	      </lift:UserInfo.in>
 	      <td align="center">
 		<table class="vote"><td><poll:result/></td></table>
-	      </td>
-	      <td align="center">
-		<table class="vote"><td>
-		    <span class="pro"><poll:numPro/></span>
-		    <span class="pass">:</span>
-		    <span class="contra"><poll:numContra/></span>
-		</td></table>
 	      </td>
 	    </tr>
 	  </table>
@@ -53,14 +47,16 @@
   <lift:bind-at name="sidebar">
     <div class="navi">
       <a href="index.html"><div class="right">Wähler</div></a>
-      <p/>
+      <div style="clear:both"/>
       <a href="graph.html"><div class="right">Delegationsgraph</div></a>
-      <p/>
+      <div style="clear:both"/>
       <a href="histogram.html"><div class="right">Histogram</div></a>
-      <p/>
+      <div style="clear:both"/>
       <a href="analyzer.html"><div class="right">Chart</div></a>
+      <div style="clear:both"/>
+      <a href="info.html"><div class="right">Info</div></a>
     </div>
-    <div style="margin:15px">&nbsp;</div>
+    <div style="margin:10px">&nbsp;</div>
     <lift:bind name="selection"/>
   </lift:bind-at>
 </lift:surround>

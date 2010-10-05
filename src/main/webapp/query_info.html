@@ -1,0 +1,21 @@
+<lift:surround with="query_head" at="details">
+  <table>
+    <tr>
+      <td>Author:</td>
+      <td><query:creator/></td>
+    </tr>
+    <tr>
+      <td>Erstellung:</td>
+      <td><query:time/></td>
+    </tr>
+    <tr>
+      <td>Wähler mit positivem Stimmgewicht:</td>
+      <td><poll:numPro/></td>
+    </tr>
+    <tr>
+      <td>Wähler mit negativem Stimmgewicht:</td>
+      <td><poll:numContra/></td>
+    </tr>
+  </table>
+
+</lift:surround>

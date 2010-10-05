@@ -108,7 +108,6 @@ class CategoryView(val keys : List[String], rootLink:String) {
 
   def link(node : Node, keys: List[String]) = {
     val uri= rootLink+"?search="+keys.mkString(" ")
-    println("uri = "+uri)
     <a href={uri}>{node}</a>
   }
 

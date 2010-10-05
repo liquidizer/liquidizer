@@ -87,14 +87,26 @@ class VotingHelper {
 
   def bind(in : Node, nominee:Votable) : NodeSeq = {
     in match {
-      case <poll:name/> => formatNominee(nominee)
-      case <poll:result/> =>
+      
+      case Elem("poll", tag, attribs, scope, children @ _*) => tag match {
+      case "name" => formatNominee(nominee)
+      case "title" => Text(nominee.toString)
+      case "result" =>
 	renderVote(() => formatResult(VoteCounter.getResult(nominee).value))
-      case <poll:numPro/> => 
+      case "numPro" => 
 	renderVote(() => Text(VoteCounter.getTurnOut(nominee)._1.toString))
-      case <poll:numContra/> => 
+      case "numContra" => 
 	renderVote(() => Text(VoteCounter.getTurnOut(nominee)._2.toString))
-      case <poll:chart/> => chart(nominee.uri, in.attributes)
+      case "chart" => chart(nominee.uri, in.attributes)
+      case "supporters" =>
+	getSupporters(nominee).flatMap {
+	  user =>
+	    println("binding supporters "+VotableUser(user))
+	    val res= bind(bind(children, user, nominee), VotableUser(user))
+	    println("finished binding supporters "+VotableUser(user))
+	  res
+	}
+      }
 
       case Elem("me", tag, attribs, scope, children @ _*) =>
 	currentUser match {
@@ -153,16 +165,6 @@ class VotingHelper {
 	    case _ => in
 	  }
 	}
-
-      case Elem("poll", "supporters", attribs, scope, children @ _*) => {
-	getSupporters(nominee).flatMap {
-	  user =>
-	    println("binding supporters "+VotableUser(user))
-	    val res= bind(bind(children, user, nominee), VotableUser(user))
-	    println("finished binding supporters "+VotableUser(user))
-	  res
-	}
-      }
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children, nominee) : _*)

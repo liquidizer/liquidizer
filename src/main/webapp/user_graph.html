@@ -1,11 +1,9 @@
-<lift:surround with="default" at="content">
-  <lift:form method="post">
-    <lift:UserGraphDetails eager_eval="true">
-      <lift:embed what="user_head"/>
+<lift:surround with="user_head">
+  <lift:bind-at name="details">
+    <lift:UserGraphDetails>
       <center>
 	<embed src="delegation.svg"/>
       </center>
-      <hr/>
       <table>
 	<user:votes>
 	  <tr>
@@ -15,5 +13,5 @@
 	</user:votes>
       </table>
     </lift:UserGraphDetails>
-  </lift:form>
+  </lift:bind-at>
 </lift:surround>

@@ -60,9 +60,9 @@ class GraphvizAPI {
 	val label= String.format("%1.2f",double2Double(result)).replaceAll("0\\.","\\.")
       var options= "color=\"" + {
 	if (dashed) {
-	  if (result>=0) "#c7fbb3" else "#ffc8a2"
+	  if (result>=0) "gray" else "#ffc8a2"
 	} else {
-	  if (result>=0) "darkgreen" else "red"
+	  if (result>=0) "black" else "red"
 	} } +"\""
       if (dashed) {
 	options += " weight=0"

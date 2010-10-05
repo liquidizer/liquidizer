@@ -54,10 +54,10 @@ class Boot {
 
     LiftRules.dispatch.append {
     case Req(List("queries",query,"chart.svg"),_,_) => () => TimeseriesView.queryChart(query)
-      case Req(List("users",user,"chart.svg"),_,_) => () => TimeseriesView.userChart(user)
       case Req(List("queries",query,"delegation.svg"),_,_) => () => DelegationGraphView.queryGraph(query)
-      case Req(List("users",user,"delegation.svg"),_,_) => () => DelegationGraphView.userGraph(user)
       case Req(List("queries",query,"histogram.svg"),_,_) => () => HistogramView.hist(query)
+      case Req(List("users",user,"delegation.svg"),_,_) => () => DelegationGraphView.userGraph(user)
+      case Req(List("users",user,"chart.svg"),_,_) => () => TimeseriesView.userChart(user)
       case Req(List("graph.svg"),_,_) => () => DelegationGraphView.superGraph()
       case Req(List("emoticons","face.svg"),_,_) => () => EmotionView.face()
     }
@@ -73,16 +73,22 @@ class Boot {
         ParsePath(List("queries",query,"histogram"),_,_,_),_,_) =>
         RewriteResponse("query_hist" :: Nil, Map("query" -> query))
       case RewriteRequest(
-        ParsePath(List("users",user,"index"),_,_,_),_,_) =>
-        RewriteResponse("user_details" :: Nil, Map("user" -> user))
-      case RewriteRequest(
         ParsePath(List("queries",query,"analyzer"),_,_,_),_,_) =>
         RewriteResponse("query_analyzer" :: Nil, Map("query" -> query))
+      case RewriteRequest(
+        ParsePath(List("queries",query,"info"),_,_,_),_,_) =>
+        RewriteResponse("query_info" :: Nil, Map("query" -> query))
+      case RewriteRequest(
+        ParsePath(List("users",user,"index"),_,_,_),_,_) =>
+        RewriteResponse("user_details" :: Nil, Map("user" -> user))
       case RewriteRequest(
         ParsePath(List("users",user,"analyzer"),_,_,_),_,_) =>
         RewriteResponse("user_analyzer" :: Nil, Map("user" -> user))
       case RewriteRequest(
         ParsePath(List("users",user,"support"),_,_,_),_,_) =>
+        RewriteResponse("user_support" :: Nil, Map("user" -> user))
+      case RewriteRequest(
+        ParsePath(List("users",user,"delegates"),_,_,_),_,_) =>
         RewriteResponse("user_support" :: Nil, Map("user" -> user))
       case RewriteRequest(
         ParsePath(List("users",user,"graph"),_,_,_),_,_) =>

@@ -1,40 +1,63 @@
-<div>
-  <div class="head">
-    <h2>Pirat : <poll:name/></h2>
-  </div>
-  <table width="100%">
-    <td rowspan="3">
-      <user:emoticon size="80"/>
-    </td>
-    <tr>
-      <lift:UserInfo.in>
-	<user:notme>
-	  <th>Deine Präferenz</th>
-	</user:notme>
-      </lift:UserInfo.in>
-      <th>Einfluss</th>
-      <th>Analysen</th>
-    </tr>
-    <tr>
-      <lift:UserInfo.in>
-	<user:notme>
-	  <td align="center">
-	    <lift:embed what="vote"/>
-	  </td>
-	</user:notme>
-      </lift:UserInfo.in>
-      <td align="center">
-	<poll:result/>
-      </td>
-      <td align="center">
-	&#x2192; <a href="index.html">Stimmen</a>
-	<br/>
-	&#x2192; <a href="support.html">Delegationen</a>
-	<br/>
-	&#x2192; <a href="graph.html">Delegationsgraph</a>
-      </td>
-    </tr>
-  </table>
-  <hr/>
-</div>
-
+<lift:surround with="default">
+  <lift:bind-at name="title">
+    <lift:UserDetails><poll:title/></lift:UserDetails>
+  </lift:bind-at>
+  <lift:bind-at name="content">
+    <lift:form method="post">
+      <lift:UserDetails eager_eval="true">
+	<div>
+	  <div class="head">
+	    <h2>Pirat : <poll:name/></h2>
+	  </div>
+	  <table width="100%">
+	    <td rowspan="3">
+	      <user:emoticon size="80"/>
+	    </td>
+	    <tr>
+	      <lift:UserInfo.in>
+		<user:notme>
+		  <th>Deine Präferenz</th>
+		</user:notme>
+	      </lift:UserInfo.in>
+	      <th>Einfluss</th>
+	      <th>Abfluss</th>
+	    </tr>
+	    <tr>
+	      <lift:UserInfo.in>
+		<user:notme>
+		  <td align="center">
+		    <lift:embed what="vote"/>
+		  </td>
+		</user:notme>
+	      </lift:UserInfo.in>
+	      <td align="center">
+		<user:inflow/>
+	      </td>
+	      <td align="center">
+		<user:outflow/>
+	      </td>
+	    </tr>
+	  </table>
+	  <hr/>
+	  <lift:bind name="details"/>
+	</div>
+      </lift:UserDetails>
+    </lift:form>
+    <div align="center">
+      <lift:UserDetails.navigator/>
+    </div>
+  </lift:bind-at>
+  <lift:bind-at name="sidebar">
+    <div class="navi">
+      <a href="index.html"><div class="right">Stimmen</div></a>
+      <div style="clear:both"/>
+      <a href="delegates.html"><div class="right">Delegierte</div></a>
+      <div style="clear:both"/>
+      <a href="support.html"><div class="right">Unterstützer</div></a>
+      <div style="clear:both"/>
+      <a href="graph.html"><div class="right">Delegationen</div></a>
+    </div>
+    <div style="margin:10px">&nbsp;</div>
+    <lift:bind name="selection"/>
+  </lift:bind-at>
+</lift:surround>
