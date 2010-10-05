@@ -1,5 +1,7 @@
 <lift:surround with="query_head" at="details">
-  <center>
-    <embed src="delegation.svg"/>
-  </center>
+  <div style="text-align:center">
+    <lift:QueryDetails>
+      <query:graph/>
+    </lift:QueryDetails>
+  </div>
 </lift:surround>

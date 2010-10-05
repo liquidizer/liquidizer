@@ -25,6 +25,8 @@ h3 { color: black; }
 td { vertical-align:top; }
 
 img { border:0 }
+embed { vertical-align: middle; }
+
 .button { 
     height: 25px;
     vertical-align: middle;
@@ -60,12 +62,10 @@ a {
 .keys { 
     color: gray;
 }
-.keys div {
+.keys a .inactive {
     padding: 4px;
     margin: 5px;
     float: right;
-}
-.keys a .inactive {
     -moz-box-shadow: 3px 3px 3px #aaa;
     -webkit-box-shadow: 3px 3px 3px #aaa;
     -moz-border-radius: 5px;
@@ -73,6 +73,9 @@ a {
     background-color: #ddd;
 }
 .keys a .active {
+    padding: 4px;
+    margin: 5px;
+    float: right;
     -moz-border-radius: 5px;
     border-radius: 5px;
     background-color: #FF9933;

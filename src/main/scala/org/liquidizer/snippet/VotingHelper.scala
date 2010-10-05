@@ -13,6 +13,7 @@ import Helpers._
 
 import _root_.org.liquidizer.lib._
 import _root_.org.liquidizer.model._
+import _root_.org.liquidizer.view.DelegationGraphView
 
 class VotingHelper {
   val currentUser= User.currentUser
@@ -140,6 +141,7 @@ class VotingHelper {
 	      buttonFactory.newKeyListRecord(() => query.keyList,
 					     list => query.keys(list).save )
 	      buttonFactory.toggleText
+	    case "graph" => DelegationGraphView.graphNode(query)
 	    case _ => in
 	  }
 	  case _ => in
@@ -156,7 +158,7 @@ class VotingHelper {
 	    case "votes" => getVotes(user).flatMap { vote => bind(bind(children, user, vote), vote) }
 	    case "emoticon" => 
 	      renderVote(() => emoticon(user, attribs))
-
+	    case "graph" => DelegationGraphView.graphNode(user)
 	    case _ => in
 	  }
 	  case _ => tag match {

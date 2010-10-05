@@ -9,8 +9,6 @@ import _root_.net.liftweb.mapper._
 import _root_.org.liquidizer.model._
 import _root_.org.liquidizer.lib._
 
-
-
 class Users extends MultipageSnippet {
 
   def size= users.size
@@ -56,6 +54,7 @@ class Users extends MultipageSnippet {
 }
 
 class UserDetails extends MultipageSnippet {
+
   val user= User.getUser(S.param("user").openOr("-1")).get
 
   val votes= 
@@ -71,25 +70,6 @@ class UserDetails extends MultipageSnippet {
 	votes.slice(from,to)
       }
       override def getSupporters(v:Votable) : List[User] = Nil
-    }
-    helper.render(in, VotableUser(user))
-  }
-}
-
-class UserGraphDetails {
-  val user= User.getUser(S.param("user").openOr("-1")).get
-
-  val votes= VoteCounter.getVotes(user, false)
-
-  def render(in : NodeSeq) : NodeSeq = {
-    val helper= new VotingHelper {
-      override def getVotes(user:User) : List[Votable] = 
-	votes
-        .filter {
-	  case VotableQuery(_) => true
-	  case _ => false
-	}
-        .sort { _.id < _.id }
     }
     helper.render(in, VotableUser(user))
   }
@@ -114,23 +94,5 @@ class UserSupporters extends MultipageSnippet {
 
   def render(in : NodeSeq) : NodeSeq = {
     helper.render(in, VotableUser(user.get))
-  }
-}
-
-class VoteDetails {
-  val user= User.getUser(S.param("user").openOr("-1"))
-  val helper= new VotingHelper
-
-  val nominee= {
-    if (!S.param("query").isEmpty) {
-      VotableQuery(Query.getQuery(S.param("query").get).get)
-    }
-    else {
-      VotableUser(User.getUser(S.param("user2").get).get)
-    }
-  }
-  
-  def render(in : NodeSeq) : NodeSeq = {	
-    helper.bind(in, user.get, nominee)
   }
 }

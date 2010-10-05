@@ -1,17 +1,9 @@
 <lift:surround with="user_head">
   <lift:bind-at name="details">
-    <lift:UserGraphDetails>
-      <center>
-	<embed src="delegation.svg"/>
-      </center>
-      <table>
-	<user:votes>
-	  <tr>
-	    <td><poll:id/></td>
-	    <td><poll:name/></td>
-	  </tr>
-	</user:votes>
-      </table>
-    </lift:UserGraphDetails>
+    <div style="text-align:center">
+      <lift:UserDetails>
+	<user:graph/>
+      </lift:UserDetails>
+    </div>
   </lift:bind-at>
 </lift:surround>

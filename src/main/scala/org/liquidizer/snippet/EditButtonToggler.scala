@@ -15,8 +15,8 @@ case class ToggleButtonData(
   val h:Int,
   val w:Int) {
 
-  val editNode= <img src="/images/edit.png" class="button"/>
-  val saveNode= <img src="/images/save.png" class="button"/>
+  val editNode= <img src="/images/edit.png" class="button" alt="edit"/>
+  val saveNode= <img src="/images/save.png" class="button" alt="save"/>
 
   def textId = "toggleText"+index
   def buttonId = "toggleButton"+index

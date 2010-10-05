@@ -24,7 +24,7 @@
 		    <td/>
 		    <td>Vegebene Stimmen</td>
 		  </tr>
-		  <tr><td height="3" bgcolor="#662e91" colspan="3"/></tr>
+		  <tr><td colspan="3"><hr/></td></tr>
 		  <td>
 		    <poll:supporters>
 		      <tr class="votable">
@@ -42,7 +42,7 @@
 		      </tr>
 		    </user:votes>
 		  </td>
-		  <tr><td height="3" bgcolor="#662e91" colspan="3"/></tr>
+		  <tr><td colspan="3"><hr/></td></tr>
 		  <tr>
 		    <td>
 		      <div class="navi">
@@ -54,7 +54,7 @@
 		    <td/>
 		    <td>
 		      <div class="navi">
-			<a href="/users/~">
+			<a href="/users/~/index">
 			  <div>... mehr</div>
 			</a>
 		      </div>
@@ -64,20 +64,15 @@
 	      </div>
 	    </lift:UserInfo.votes>
 	    <div class="balance">
-	      <h3>Mein Profil</h3>
+	      <h3>Email Addresse (bei Passwortverlust)</h3>
 	      <hr/>
-	      <table with="100%">
-		<tr>
-		  <td>Email:</td>
-		  <td class="comment"><me:email/></td>
-		  <td><me:emailEdit/></td>
-		</tr>
-		<tr>
-		  <td>Über mich:</td>
-		  <td class="comment"><me:profile/></td>
-		  <td><me:profileEdit/></td>
-		</tr>
-	      </table>
+	      <me:email/><me:emailEdit/>
+	    </div>
+	    <div class="balance">
+	      <h3>Öffentliches Profil</h3>
+	      <hr/>
+		  <me:profile/>
+		  <me:profileEdit/>
 	    </div>
 	    <div class="balance">
 	      <h3>Verwaltung</h3>

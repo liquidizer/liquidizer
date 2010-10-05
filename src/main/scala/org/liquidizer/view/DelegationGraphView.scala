@@ -12,7 +12,7 @@ import org.liquidizer.model._
 
 object DelegationGraphView {
 
-  val cache = new ResultCache[Box[XmlResponse]]
+  val cache = new ResultCache[Node]
 
   private def addLink(in : NodeSeq) : NodeSeq = {
     for( node <- in ) yield addLink(node)
@@ -22,8 +22,8 @@ object DelegationGraphView {
     in match {
 
       case Elem(prefix, "g", attribs, scope, children @ _*)
-      if (attribs.get("class").getOrElse("")=="node") =>
-	<a xlink:href={ (in \ "title").text} target="_parent">{
+      if (attribs.get("class").map{ _.text }.getOrElse("")=="node") =>
+	<a xlink:href={ (in \ "title").text+"/graph.html"} target="_parent">{
 	  Elem(prefix, "g", attribs, scope, addLink(children) : _*)
 	}</a>
 
@@ -41,23 +41,33 @@ object DelegationGraphView {
     val node= grapher.toGraph().first
     Full(XmlResponse(addLink(node), "image/svg+xml"))
   }
-  
+
+  def graphNode(user : User) : Node = {
+    cache.get("user"+user.id.is, Map(), () => {
+      val grapher= new GraphvizAPI
+      val node= grapher.toGraph(user).first
+      addLink(node)
+    })
+  }
+
+  def graphNode(query : Query) : Node = {
+    cache.get("query"+query.id.is, Map(), () => {
+      val grapher= new GraphvizAPI
+      val node=grapher.toGraph(VotableQuery(query)).first
+      addLink(node)
+    })
+  }
+
   def queryGraph(poll : String) : Box[LiftResponse] = {
     val query= Query.getQuery(poll).get
-    cache.get(S.uri, Map(), () => {
-      val grapher= new GraphvizAPI
-      val node= grapher.toGraph(VotableQuery(query)).first
-      Full(XmlResponse(addLink(node), "image/svg+xml"))
-    })
+    val node= graphNode(query)
+    Full(XmlResponse(node, "image/svg+xml"))
   }
 
   def userGraph(userid : String) : Box[LiftResponse] = {
     val user= User.getUser(userid).get
-    cache.get(S.uri, Map(), () => {
-      val grapher= new GraphvizAPI
-      val node= grapher.toGraph(user).first
-      Full(XmlResponse(addLink(node), "image/svg+xml"))
-    })
+    val node= graphNode(user)
+    Full(XmlResponse(node, "image/svg+xml"))
   }
 
 }
