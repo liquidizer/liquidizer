@@ -93,11 +93,22 @@ class UserInfo {
     User.currentUser match {
       case Full(me) => 
 	val helper= new VotingHelper {
-	  override def getVotes(user:User) : List[Votable] =
-	    VoteCounter.getVotes(me, false).slice(0,5)
+	  override def getVotes() : List[Votable] =
+	    VoteCounter.getActiveVotes(me)
+	    .filter {
+	      case d : VotableQuery => true
+	      case _ => false
+	    }.slice(0,5)
 
-	  override def getSupporters(nominee:Votable) : List[User] =
-	    VoteCounter.getSupporters(VotableUser(me), false).slice(0,4)
+	  override def getSupporters() : List[User] =
+	    VoteCounter.getActiveVoters(VotableUser(me)).slice(0,4)
+
+	  override def getDelegates() : List[User] =
+	    VoteCounter.getActiveVotes(me)
+	    .flatMap {
+	      case VotableUser(user) => List(user)
+	      case _ => Nil
+	    }.slice(0,5)
 	}
       helper.render(in, VotableUser(me))
       case _ => NodeSeq.Empty

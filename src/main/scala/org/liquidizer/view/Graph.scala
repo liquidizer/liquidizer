@@ -34,7 +34,7 @@ class DelegationGraph extends Graph{
   def buildFromQuery(nominee : Votable) : Unit = {
     if (!nodes.contains(nominee)) {
       nodes += nominee
-      VoteCounter.getSupporters(nominee, false).foreach {
+      VoteCounter.getActiveVoters(nominee).foreach {
 	user =>
 	  putEdge(user,nominee,false)
 	buildFromQuery(VotableUser(user))
@@ -47,7 +47,7 @@ class DelegationGraph extends Graph{
       case VotableUser(delegate) =>
 	if (!blocked.contains(nominee)) {
 	  blocked += nominee
-	  VoteCounter.getVotes(delegate, false).foreach {
+	  VoteCounter.getActiveVotes(delegate).foreach {
 	    vote =>
 	      if (!edges.contains(delegate,vote)) {
 		val factor= VoteCounter.getWeight(delegate, vote)
@@ -69,7 +69,7 @@ class DelegationGraph extends Graph{
   def buildForUser(user : User) : Unit = {
     if (!blocked.contains(VotableUser(user))) {
       blocked+= VotableUser(user)
-      VoteCounter.getVotes(user, false).foreach {
+      VoteCounter.getActiveVotes(user).foreach {
 	vote => 
 	  putEdge(user, vote, false)
 	nodes += vote

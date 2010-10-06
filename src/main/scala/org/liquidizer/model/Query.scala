@@ -11,8 +11,9 @@ object Query extends Query with LongKeyedMetaMapper[Query] {
 	override def dbTableName = "queries"
 	override def fieldOrder = List(what, creator, keys, creation)
   
-  	def getQuery(id : String) : Option[Query] = {
-		Query.find(By(Query.id,id.toLong))
+  	def getQuery(id : String) : Option[Query] = getQuery(id.toLong)
+  	def getQuery(id : Long) : Option[Query] = {
+		Query.find(By(Query.id, id))
 	}
 }
 

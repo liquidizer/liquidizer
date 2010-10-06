@@ -89,7 +89,7 @@ class Boot {
         RewriteResponse("user_support" :: Nil, Map("user" -> user))
       case RewriteRequest(
         ParsePath(List("users",user,"delegates"),_,_,_),_,_) =>
-        RewriteResponse("user_support" :: Nil, Map("user" -> user))
+        RewriteResponse("user_delegates" :: Nil, Map("user" -> user))
       case RewriteRequest(
         ParsePath(List("users",user,"graph"),_,_,_),_,_) =>
         RewriteResponse("user_graph" :: Nil, Map("user" -> user))

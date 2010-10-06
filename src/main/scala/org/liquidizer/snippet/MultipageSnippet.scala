@@ -87,19 +87,21 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	  this.unregisterThisSnippet
 	  S.redirectTo(S.uri + (if (order.length>0) "?sort="+order else "")) } )
 
-      case <view:sort>{ _* }</view:sort> => {
-	val uri= S.uri
-	val options=
-	  (in\\"option")
-	  .filter { !User.currentUser.isEmpty || 
-		   _.attribute("login").map { _.text!="true" }.getOrElse(true) }
-	  .map { node => (node.attribute("value").get.text, node.text) }
+      case <view:sort>{ _* }</view:sort> => 
+	<span/>
+      // {
+      // 	val uri= S.uri
+      // 	val options=
+      // 	  (in\\"option")
+      // 	  .filter { !User.currentUser.isEmpty || 
+      // 		   _.attribute("login").map { _.text!="true" }.getOrElse(true) }
+      // 	  .map { node => (node.attribute("value").get.text, node.text) }
       
-	SHtml.ajaxSelect(options, Full(order), option => {
-	  unregisterThisSnippet
-	  RedirectTo(uri+"?sort="+option+
-		     (if (search.length>0) "&search="+search else "")) })
-      }
+      // 	SHtml.ajaxSelect(options, Full(order), option => {
+      // 	  unregisterThisSnippet
+      // 	  RedirectTo(uri+"?sort="+option+
+      // 		     (if (search.length>0) "&search="+search else "")) })
+      // }
 
       case <view:a>{ children @ _* }</view:a> =>
 	var attrs= List[String]()
@@ -148,41 +150,6 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def searchFilter(nominee : Votable) : Boolean = nominee match {
     case VotableUser(user) => searchFilter(user)
     case VotableQuery(query) => searchFilter(query)
-  }
-
-  
-  def voteSortOrder(nominee : Votable) : (User,User)=> Boolean = {
-    def volume(u:User)  = {
-      Math.abs(VoteCounter.getWeight(u, nominee))
-    }
-    def swing(u:User)   = VoteCounter.getWeight(u, nominee)
-    def comment(u:User) = VoteCounter.getCommentTime(u, nominee)
-    def result(u:User)  = VoteCounter.getWeight(u, nominee)
-    order match {
-      case "pro" => (a,b) => result(a) > result(b)
-      case "contra" => (a,b) => result(a) < result(b)
-      case "swing" => (a,b) => swing(a) > swing(b)
-      case "comment" => (a,b) => comment(a) > comment(b)
-      case _ => (a,b) => volume(a) > volume(b)
-    }
-  }
-
-  def userVolume(user:User, nominee:Votable): Double = {
-      Math.abs(VoteCounter.getWeight(user, nominee))
-  }
-
-  def voteSortOrder(user:User) : (Votable,Votable)=> Boolean = {
-    def volume(v:Votable)  = userVolume(user, v)
-    def swing(v:Votable)   = VoteCounter.getWeight(user, v)
-    def comment(v:Votable) = VoteCounter.getCommentTime(user, v)
-    def result(v:Votable)  = VoteCounter.getWeight(user, v)
-    order match {
-      case "pro" => (a,b) => result(a) > result(b)
-      case "contra" => (a,b) => result(a) < result(b)
-      case "swing" => (a,b) => swing(a) > swing(b)
-      case "comment" => (a,b) => comment(a) > comment(b)
-      case _ => (a,b) => volume(a) > volume(b)
-    }
   }
 }
 

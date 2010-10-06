@@ -121,12 +121,6 @@ object VoteCounter {
     voteMap.getResult(nominee)
   }
 
-  def getTurnOut(nominee : Votable) : (Int,Int) = {
-    voteMap synchronized {
-      voteMap.nominees.get(nominee).map { h=> (h.numPro, h.numContra) }
-      .getOrElse((0,0))
-  }}
-  
   def getMaxPref(user : User) : Int = 
     voteMap.users.get(user).map { 
       _.votes.foldLeft(0) { (a,b) =>  a max (b.preference.abs) }
@@ -148,16 +142,42 @@ object VoteCounter {
     comments.get(author, nominee). map { _.date.is }.getOrElse( 0L )
   }
 
-  def getSupporters(nominee : Votable, includeVoid : Boolean) : List[User] = {
-    voteMap.getSupporters(nominee)
-    .filter { includeVoid || _.preference!=0 }
-    .map { link => link.owner }
+  def getAllVoters(query : Query) : List[User] = {
+    val id= voteMap.id(query)
+    voteMap synchronized {
+      voteMap.users
+      .filter { 
+	case (u,head) => 
+	  Math.abs(head.vec.getVotingWeight(id)) >= 5e-3 || 
+	  !getComment(u, VotableQuery(query)).isEmpty
+      }
+      .map { case (u,head) => u }
+      .toList
+    }
   }
 
-  def getVotes(user : User, includeVoid : Boolean) : List[Votable] = {
+  def getAllVotes(user : User) : List[Query] = {
+    voteMap synchronized {
+      voteMap.nominees
+      .flatMap {
+	case (n @ VotableQuery(query), head) 
+	  if Math.abs(getWeight(user,n)) >= 5e-3 ||
+	     !getComment(user, n).isEmpty => List(query)
+	case _ => Nil
+      }.toList
+    }
+  }
+
+  def getActiveVoters(nominee : Votable) : List[User] = {
+    voteMap.getSupporters(nominee)
+    .filter { _.preference!=0 }
+    .map { _.owner }
+  }
+
+  def getActiveVotes(user : User) : List[Votable] = {
     voteMap.getVotes(user)
-    .filter { includeVoid || _.preference!=0 }
-    .map { link => link.nominee }
+    .filter { _.preference!=0 }
+    .map { _.nominee }
   }
 
   def isDelegated(user : User, nominee : User) : Boolean = 

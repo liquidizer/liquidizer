@@ -1,14 +1,6 @@
 <lift:surround with="user_head">
   <lift:bind-at name="details">
     <lift:UserDetails eager_eval="true">
-      <h3>Verteilung der Stimmgewichte
-      	<div class="view">
-	  <lift:UserDetails.view form="POST" eager_eval="true">
-	    <lift:embed what="sort_votes"/>
-	    <lift:embed what="search"/>
-	  </lift:UserDetails.view>
-	</div>
-      </h3>
       <table width="100%">
 	<tr height="50">
 	  <td/>
@@ -63,12 +55,10 @@
 	  <tr>
 	    <div class="comment">
 	      <user:comment/>
-	    </div>
-	    <user:itsme>
-	      <div style="text-align:center">
+	      <user:itsme>
 		<me:editButton/>
-	      </div>
-	    </user:itsme>
+	      </user:itsme>
+	    </div>
 	  </tr>
 	</user:votes>
       </table>

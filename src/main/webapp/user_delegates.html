@@ -9,20 +9,20 @@
 	    <th>Delegieren</th>
 	  </lift:UserInfo.in>
 	</tr>
-	<poll:supporters>
+	<user:delegates>
 	  <tr>
 	    <td class="emo_thumb">
 	      <user:emoticon size="60"/>
 	    </td>
 	    <td class="votable">
-	      <user:name/>
+	      <poll:name/>
 	      <div class="comment">
 		<user:comment/>
-		<poll:notme>
-		  <user:itsme>
+		<user:itsme>
+		  <poll:notme>
 		    <me:editButton/>
-		  </user:itsme>
-		</poll:notme>
+		  </poll:notme>
+		</user:itsme>
 	      </div>
 	    </td>
 	    <td align="center">
@@ -41,7 +41,7 @@
 	      </td>
 	    </lift:UserInfo.in>
 	  </tr>
-	</poll:supporters>
+	</user:delegates>
       </table>
     </lift:UserDetails>
   </lift:bind-at>

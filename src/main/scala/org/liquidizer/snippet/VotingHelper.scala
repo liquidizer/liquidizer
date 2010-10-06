@@ -22,7 +22,6 @@ class VotingHelper {
   
   var displayedVotes = List[()=>Node]()
   var displayedEmos = List[()=>Node]()
-  var containsMyVote = false
   
   def renderVote(result : () => Node):Node = {
     displayedVotes ::= result
@@ -91,21 +90,14 @@ class VotingHelper {
       
       case Elem("poll", tag, attribs, scope, children @ _*) => tag match {
       case "name" => formatNominee(nominee)
+      case "id" => Text(nominee.id.toString)
       case "title" => Text(nominee.toString)
       case "result" =>
 	renderVote(() => formatResult(VoteCounter.getResult(nominee).value))
-      case "numPro" => 
-	renderVote(() => Text(VoteCounter.getTurnOut(nominee)._1.toString))
-      case "numContra" => 
-	renderVote(() => Text(VoteCounter.getTurnOut(nominee)._2.toString))
       case "chart" => chart(nominee.uri, in.attributes)
       case "supporters" =>
-	getSupporters(nominee).flatMap {
-	  user =>
-	    println("binding supporters "+VotableUser(user))
-	    val res= bind(bind(children, user, nominee), VotableUser(user))
-	    println("finished binding supporters "+VotableUser(user))
-	  res
+	getSupporters().flatMap {
+	  user => bind(bind(children, user, nominee), VotableUser(user))
 	}
       }
 
@@ -117,7 +109,6 @@ class VotingHelper {
 		val format= attribs.get("format").getOrElse(Text("numer"))
 		formatWeight(me, nominee, format.text)} )
 	    case "up" =>
-	      println("up on "+nominee)
 	      SHtml.a(() => vote(nominee,1), children)
 	    case "down" =>
 	      SHtml.a(() => vote(nominee, -1), children)
@@ -142,6 +133,9 @@ class VotingHelper {
 					     list => query.keys(list).save )
 	      buttonFactory.toggleText
 	    case "graph" => DelegationGraphView.graphNode(query)
+	    case "numVoters" => 
+	      renderVote(() => 
+		Text(VoteCounter.getAllVoters(query).size.toString))
 	    case _ => in
 	  }
 	  case _ => in
@@ -150,12 +144,15 @@ class VotingHelper {
       case Elem("user", tag, attribs, scope, children @ _*) =>
 	nominee match {
 	  case VotableUser(user) => tag match {
-	    case "profile" => Markup.renderComment(user.profile.is)
+	    case "profile" => 
+	      buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
+	      buttonFactory.toggleText
 	    case "inflow" =>  renderVote(() => formatResult(VoteCounter.getDelegationInflow(user)))
 	    case "outflow" =>  renderVote(() => formatResult(VoteCounter.getDelegationOutflow(user)))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
-	    case "votes" => getVotes(user).flatMap { vote => bind(bind(children, user, vote), vote) }
+	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
+	    case "delegates" => getDelegates().flatMap { delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate)) }
 	    case "emoticon" => 
 	      renderVote(() => emoticon(user, attribs))
 	    case "graph" => DelegationGraphView.graphNode(user)
@@ -213,15 +210,7 @@ class VotingHelper {
   def bind(in : Node, user : User, nominee : Votable): NodeSeq= {
     in match {
       case <user:name/> => formatNominee(VotableUser(user))
-      case <poll:id/> => Text(nominee.id.toString)
-      case <poll:name/> => {
-	<a href={nominee.uri+"/index.html"}>{
-	  nominee match {
-	    case VotableUser(_) => "\u2192 "+ nominee.toString
-	    case _ => nominee.toString
-	  }}</a>
-      } 
-      
+      case <poll:name/> => formatNominee(nominee)
       case <user:notme>{children @ _*}</user:notme> =>
 	if (currentUser!=Full(user)) bind(children, user, nominee) else NodeSeq.Empty
       case <user:itsme>{children @ _*}</user:itsme> =>
@@ -242,25 +231,39 @@ class VotingHelper {
 	buttonFactory.toggleText
       }
 
-      case <vote:result/> => {
-	containsMyVote |= Full(user)==currentUser
-	val format= in.attribute("format").getOrElse(Text("decimal"))
-	renderVote(() => formatWeight(user,nominee,format.text))
-      }
-      case Elem("vote", "chart", attribs, scope, children @ _*) => {
-	<span>Not supported</span>
-      }
+      case Elem("vote", label, attribs, scope, children @ _*) =>
+	label match {
+	  case "result"  => {
+	    val format= in.attribute("format").getOrElse(Text("decimal"))
+	    renderVote(() => formatWeight(user,nominee,format.text))
+	  }
+	  case "flow" => {
+	    val pref= VoteCounter.getPreference(user, nominee)
+	    var denom= VoteCounter
+	    .getActiveVotes(user)
+	    .foldLeft(0) { 
+	      (a,b) => a + Math.abs(VoteCounter.getPreference(user,b)) 
+	    }
+	    renderVote(() => formatResult(pref/Math.min(1,denom)))
+	  }
+	}
+
+
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children, user, nominee) : _*)
       case other => other
     }
   }
 
-  def getVotes(user:User) : List[Votable] = {
-    VoteCounter.getVotes(user, true)
+  def getVotes() : List[Votable] = {
+    throw new Exception("No votes for this item")
   }
 
-  def getSupporters(nominee:Votable) : List[User] = {
-    VoteCounter.getSupporters(nominee, true)
+  def getDelegates() : List[User] = {
+    throw new Exception("No delegates for this item")
+  }
+
+  def getSupporters() : List[User] = {
+    throw new Exception("No supporters for this item")
   }
 }

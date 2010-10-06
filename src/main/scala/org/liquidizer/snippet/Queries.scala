@@ -17,25 +17,10 @@ import _root_.org.liquidizer.model._
 class Queries extends MultipageSnippet {
   def size= queries.size
 
-  def sortOrder() : (Query,Query)=> Boolean = {
-    def myvote(q:Query) = userVolume(User.currentUser.get, VotableQuery(q))
-    def swing(q:Query)  = VoteCounter.getResult(VotableQuery(q)).volume
-    def quote(q:Query)  = VoteCounter.getResult(q)
-    order match {
-      case "pro" => (a,b) => quote(a).value > quote(b).value
-      case "contra" => (a,b) => quote(a).value < quote(b).value
-      case "swing" => (a,b) => swing(a) > swing(b)
-      case "age" => (a,b) => a.creation.is > b.creation.is
-      case "myvote" => (a,b) => myvote(a) > myvote(b)
-      case "volume" => (a,b) => quote(a).volume > quote(b).volume
-      case _ => (a,b) => swing(a) > swing(b)
-    }
-  }
-
   val queries= {
     Query.findAll
     .filter { searchFilter _ }
-    .sort { sortOrder() }
+//    .sort { sortOrder() }
   }
   
   override def categories(in:NodeSeq) : NodeSeq = {
@@ -58,29 +43,35 @@ class Queries extends MultipageSnippet {
 
 class QueryDetails extends MultipageSnippet {
   val query= Query.getQuery(S.param("query").openOr("-1"))
-  val nominee= VotableQuery(query.get)
+  var supporters: List[User]= Nil
 
-  val supporters= 
-    VoteCounter.getSupporters(nominee, true)
-    .filter { searchFilter _ }
-    .sort { voteSortOrder(nominee) }
+  def loadSupporters() = {
+    println("load supporters")
+    supporters= 
+      VoteCounter.getAllVoters(query.get)
+      .filter { searchFilter _ }
+      //.sort { voteSortOrder(VotableQuery(query.get))  }
+  }
 
   override def size= supporters.size
 
   val helper= new VotingHelper {
-    override def getSupporters(nominee:Votable) : List[User] = {
+    override def getSupporters() : List[User] = {
+      if (supporters.isEmpty)
+	loadSupporters()
       supporters.slice(from,to)
     }
     override def ajaxUpdate(votedNominee : Votable) : JsCmd = {
-      if (containsMyVote || votedNominee!=nominee)
-	super.ajaxUpdate(votedNominee)
-      else
-	RedirectTo(nominee.uri)
+      super.ajaxUpdate(votedNominee)
+      //TODO: RedirectTo(nominee.uri)
     }
   }
 
   def render(in : NodeSeq) : NodeSeq = {
-    helper.render(in, nominee)
+    if (query.isEmpty)
+      <div class="error">Error: query does not exist</div>
+    else
+      helper.render(in, VotableQuery(query.get))
   }
 }
 
