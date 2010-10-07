@@ -153,4 +153,33 @@ abstract class MultipageSnippet extends StatefulSnippet {
   }
 }
 
+class MenuMarker {
 
+  def bind(in :NodeSeq) : NodeSeq = {
+    in.flatMap(bind(_))
+  }
+
+  def bind(in :Node) : NodeSeq = {
+    in match {
+      case Elem("menu", "a", attribs, scope, children @ _*) =>
+	val href= attribs.get("href").map { _.text }.getOrElse("")
+        val cur= if (href.startsWith("/")) 
+	  S.uri
+        else
+	  S.uri.replaceAll(".*/","")
+	if (href==cur)
+	  <div class="active">{children}</div>
+        else
+	  <a href={href}><div class="inactive">{children}</div></a>
+
+      case Elem(prefix, label, attribs, scope, children @ _*) =>
+	Elem(prefix, label, attribs, scope, bind(children) : _*)
+
+      case _ => in
+    }
+  }
+
+  def render(in : NodeSeq) : NodeSeq = {
+    bind(in)
+  }
+}

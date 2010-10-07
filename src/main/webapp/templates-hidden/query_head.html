@@ -36,6 +36,7 @@
 	    </tr>
 	  </table>
 	  <hr/>
+	  <div style="text-align:right"><lift:bind name="selection"/></div>
 	  <lift:bind name="details"/>
       </lift:QueryDetails>
       <div align="center">
@@ -44,18 +45,19 @@
     </lift:form>
   </lift:bind-at>
   <lift:bind-at name="sidebar">
-    <div class="navi">
-      <a href="index.html"><div class="right">Wähler</div></a>
-      <div style="clear:both"/>
-      <a href="graph.html"><div class="right">Delegationsgraph</div></a>
-      <div style="clear:both"/>
-      <a href="histogram.html"><div class="right">Histogram</div></a>
-      <div style="clear:both"/>
-      <a href="analyzer.html"><div class="right">Chart</div></a>
-      <div style="clear:both"/>
-      <a href="info.html"><div class="right">Info</div></a>
-    </div>
-    <div style="margin:10px">&nbsp;</div>
-    <lift:bind name="selection"/>
+    <lift:MenuMarker>
+      <div class="keys">
+	<menu:a href="index.html">Wähler</menu:a>
+	<div style="clear:both"/>
+	<menu:a href="analyzer.html">Chart</menu:a>
+	<div style="clear:both"/>
+	<menu:a href="histogram.html">Histogram</menu:a>
+	<div style="clear:both"/>
+	<menu:a href="graph.html">Delegationsgraph</menu:a>
+	<div style="clear:both"/>
+	<menu:a href="info.html">Info</menu:a>
+      </div>
+      <div style="margin:20px">&nbsp;</div>
+    </lift:MenuMarker>
   </lift:bind-at>
 </lift:surround>

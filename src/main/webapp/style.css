@@ -53,16 +53,14 @@ a {
     margin: 2px;
     padding: 0px 10px 0px 10px;
 }
-.navi .right {
-    float:right;
-}
 .navi a div {
     background-color: #662e91;
 }
 .keys { 
     color: gray;
+    font-size: 90%;
 }
-.keys a .inactive {
+.keys .inactive {
     padding: 4px;
     margin: 5px;
     float: right;
@@ -71,8 +69,9 @@ a {
     -moz-border-radius: 5px;
     border-radius: 5px;
     background-color: #ddd;
+    color: #444;
 }
-.keys a .active {
+.keys .active {
     padding: 4px;
     margin: 5px;
     float: right;
@@ -81,11 +80,6 @@ a {
     background-color: #FF9933;
     margin: 8px 5px 1px 5px;
     color: black;
-}
-.keys a { 
-    color:#444;
-    font-size: 90%;
-    font-weight: normal;
 }
 
 #topmenu {

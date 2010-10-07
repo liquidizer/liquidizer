@@ -54,16 +54,18 @@
     </div>
   </lift:bind-at>
   <lift:bind-at name="sidebar">
-    <div class="navi">
-      <a href="index.html"><div class="right">Stimmen</div></a>
+    <lift:MenuMarker>
+    <div class="keys">
+      <menu:a href="index.html">Stimmen</menu:a>
       <div style="clear:both"/>
-      <a href="delegates.html"><div class="right">Delegiert an ...</div></a>
+      <menu:a href="delegates.html">Delegiert an ...</menu:a>
       <div style="clear:both"/>
-      <a href="support.html"><div class="right">Delegiert von ...</div></a>
+      <menu:a href="support.html">Delegiert von ...</menu:a>
       <div style="clear:both"/>
-      <a href="graph.html"><div class="right">Delegationsgraph</div></a>
+      <menu:a href="graph.html">Delegationsgraph</menu:a>
     </div>
     <div style="margin:10px">&nbsp;</div>
+    </lift:MenuMarker>
     <lift:bind name="selection"/>
   </lift:bind-at>
 </lift:surround>

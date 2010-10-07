@@ -63,12 +63,10 @@ class VotingHelper {
   
   def ajaxUpdate(nominee : Votable) : JsCmd = {
     var index1= displayedVotes.size+1
-    var index2= displayedEmos.size+1
     displayedVotes.map { 
       displayedVote =>
  	index1-= 1
  	SetHtml("dynamicvote"+index1, displayedVote())
-      } ++
     }.toList
   }
 
@@ -129,8 +127,12 @@ class VotingHelper {
 	      buttonFactory.toggleText
 	    case "graph" => DelegationGraphView.graphNode(query)
 	    case "numVoters" => 
+	      val sign= attribs.get("weight").get.text.toInt
 	      renderVote(() => 
-		Text(VoteCounter.getAllVoters(query).size.toString))
+		Text(VoteCounter
+		     .getAllVoters(query)
+		     .filter{ sign*VoteCounter.getWeight(_, nominee)>0 } 
+		     .size.toString))
 	    case _ => in
 	  }
 	  case _ => in
@@ -149,7 +151,10 @@ class VotingHelper {
 	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
 	    case "delegates" => getDelegates().flatMap { delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate)) }
 	    case "emoticon" => 
-	      renderVote(() => emoticon(user, attribs))
+	      if (Full(user)==currentUser)
+		emoticon(user, attribs)
+	      else
+		renderVote(() => emoticon(user, attribs))
 	    case "graph" => DelegationGraphView.graphNode(user)
 	    case _ => in
 	  }
@@ -219,14 +224,14 @@ class VotingHelper {
 	    text => PollingBooth.comment(user, nominee, text))
 	  buttonFactory.toggleText
 	}
-	case _ => Elem(prefix, label, attribs, scope, rec(true) : _*)
+	case _ => Elem("user", label, attribs, scope, rec(true) : _*)
       }
 
       case Elem("poll", label, attribs, scope, _*) => label match {
 	case "name" => formatNominee(nominee)
 	case "notme" => rec(currentUser.isEmpty || VotableUser(currentUser.get)!=nominee)
 	case "itsme" => rec(!currentUser.isEmpty && VotableUser(currentUser.get)==nominee) 
-	case _ =>  Elem(prefix, label, attribs, scope, rec(true) : _*)
+	case _ =>  Elem("poll", label, attribs, scope, rec(true) : _*)
 
       }
 
