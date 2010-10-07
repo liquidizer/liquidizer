@@ -91,13 +91,14 @@
     </clipPath>
     <clipPath
        id="clipPath4022">
-      <use
-         xlink:href="#use3959"
-         height="1"
-         width="1"
-         y="0"
-         x="0"
-         id="use4024" />
+    <use
+       id="use5959"
+       x="0"
+       y="0"
+       width="250"
+       height="250"
+       xlink:href="#path3622"
+       transform="matrix(-1,0,0,1,915.87,-3.77)" />
     </clipPath>
     <radialGradient
        spreadMethod="pad"

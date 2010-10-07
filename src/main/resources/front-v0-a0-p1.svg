@@ -104,13 +104,14 @@
     </linearGradient>
     <clipPath
        id="clipPath4022">
-      <use
-         id="use4024"
-         x="0"
-         y="0"
-         width="1"
-         height="1"
-         xlink:href="#use3959" />
+    <use
+       transform="matrix(-1,0,0,1,915.87172,-3.7713235)"
+       id="use5959"
+       x="0"
+       y="0"
+       width="250"
+       height="250"
+       xlink:href="#path3622" />
     </clipPath>
     <linearGradient
        x1="107.14286"
