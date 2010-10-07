@@ -32,16 +32,16 @@ class EditButtonToggler() {
   }
 
   def newCommentRecord(text : ()=> String, update : String => Unit) =
-    newRecord(ToggleButtonData(index, text, () => Markup.renderComment(text()), update, 5, 60))
+    newRecord(ToggleButtonData(index, text, () => Markup.renderComment(text()), update, 5, 50))
 
   def newLineRecord(text : ()=> String, update : String => Unit) =
-    newRecord(ToggleButtonData(index, text, () => Markup.renderComment(text()), update, 1, 48))
+    newRecord(ToggleButtonData(index, text, () => Markup.renderComment(text()), update, 1, 50))
 
   def newKeyListRecord(keys : ()=> List[String], update : String => Unit) =
     newRecord(ToggleButtonData(index, 
 			       () => keys().mkString("\n"), 
 			       () => Markup.renderTagList(keys()),
-			       text => update(text), 1, 48))
+			       text => update(text), 1, 50))
 
   def toggleText() : NodeSeq = {
     <span id={current.textId}>{current.getHtml()}</span>
@@ -63,7 +63,7 @@ class EditButtonToggler() {
 	    if (data.h==1) {
 	      SHtml.text(data.getText(), 
 			 { text => {data.setText(text); println("new data: "+text)} }, 
-			 "cols"->data.w.toString)
+			 "width"->data.w.toString)
 	    } else {
 	      SHtml.textarea(data.getText(), 
 			     { text => data.setText(text) }, 

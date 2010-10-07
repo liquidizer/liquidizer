@@ -28,6 +28,7 @@ object Tick {
   val sec= 1000L
   val min= 60*sec
   val h= 60*min
+  val day= 24*h
 }
 
 /** A time slice based data structure that keeps historic snapshots of values.

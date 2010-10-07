@@ -1,0 +1,40 @@
+<lift:surround with="default">
+  <lift:bind-at name="title">Startseite</lift:bind-at>
+  <lift:bind-at name="content">
+  <head>
+    <script type="text/javascript" language="JavaScript">
+      if ($(window).width()&lt;600)
+      $(document).ready(function () { $('#sidebar').hide(); })
+    </script>
+  </head>
+  <lift:form>
+    <lift:UserInfo.in>
+      <div class="balance">
+	<h3>Email Addresse (bei Passwortverlust)</h3>
+	<hr/>
+	<me:email/><me:emailEdit/>
+      </div>
+      <div class="balance">
+	<h3>Öffentliches Profil</h3>
+	<hr/>
+	<me:profile/>
+	<me:profileEdit/>
+      </div>
+      <div class="balance">
+	<h3>Verwaltung</h3>
+	<div class="navi">
+	  <me:passwd><div>Password ändern</div></me:passwd>
+	  <me:logout><div>Logout</div></me:logout>
+	</div>
+      </div>
+    </lift:UserInfo.in>
+  </lift:form>
+  <lift:UserInfo.out form="POST">
+    <span class="error">Nicht eingloggt</span>
+  </lift:UserInfo.out>
+  </lift:bind-at>
+  <lift:bind-at name="sidebar">
+    <lift:embed what="infopane"/>
+  </lift:bind-at>
+</lift:surround>
+

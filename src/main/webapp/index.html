@@ -9,44 +9,61 @@
   </head>
   <lift:form>
     <lift:UserInfo.in>
-      <table>
-	<tr><td>
 	    <div class="balance">
 	      <h2 class="orange">
 		Willkommen <span class="purple"><me:name/></span>!
 	      </h2>
 	    </div>
 	    <lift:UserInfo.votes>
-	      <div class="balance">
-		<table>
+	    <div class="balance">
+	      <h3>Stimmen</h3>
+	      <hr/>
+	      <table>
+		<user:votes>
 		  <tr>
-		    <td>Erhaltene Delegationen</td>
+		    <td align="right"><vote:result format="weight"/></td>
+		    <td><poll:name/></td>
+		  </tr>
+		</user:votes>
+		<tr>
+		  <div class="navi">
+		    <a href="/users/~/index.html">
+		      <div>... mehr</div>
+		    </a>
+		  </div>
+		</tr>
+	      </table>
+	    </div>
+	    <div class="balance">
+	      <h3>Delegationen</h3>
+		<table width="100%">
+		  <tr>
+		    <td>Erhalten</td>
 		    <td/>
-		    <td>Vegebene Stimmen</td>
+		    <td>Vegeben</td>
 		  </tr>
 		  <tr><td colspan="3"><hr/></td></tr>
 		  <td>
 		    <poll:supporters>
 		      <tr class="votable">
-			<td align="right"><vote:result format="weight"/></td>
-			<td><user:name/></td>
+			<td align="right"><user:emoticon size="20"/></td>
+			<td><poll:name/></td>
 		      </tr>
 		    </poll:supporters>
 		  </td>
 		  <td width="20px"/>
 		  <td>
-		    <user:votes>
+		    <user:delegates>
 		      <tr>
-			<td align="right"><vote:result/></td>
+			<td align="right"><user:emoticon size="20"/></td>
 			<td><poll:name/></td>
 		      </tr>
-		    </user:votes>
+		    </user:delegates>
 		  </td>
-		  <tr><td colspan="3"><hr/></td></tr>
 		  <tr>
 		    <td>
 		      <div class="navi">
-			<a href="/users/~/support">
+			<a href="/users/~/support.html">
 			  <div>... mehr</div>
 			</a>
 		      </div>
@@ -54,38 +71,15 @@
 		    <td/>
 		    <td>
 		      <div class="navi">
-			<a href="/users/~/index">
+			<a href="/users/~/delegates.html">
 			  <div>... mehr</div>
 			</a>
 		      </div>
 		    </td>
 		  </tr>
 		</table>
-	      </div>
+	    </div>
 	    </lift:UserInfo.votes>
-	    <div class="balance">
-	      <h3>Email Addresse (bei Passwortverlust)</h3>
-	      <hr/>
-	      <me:email/><me:emailEdit/>
-	    </div>
-	    <div class="balance">
-	      <h3>Öffentliches Profil</h3>
-	      <hr/>
-		  <me:profile/>
-		  <me:profileEdit/>
-	    </div>
-	    <div class="balance">
-	      <h3>Verwaltung</h3>
-	      <hr/>
-	      <div class="navi">
-		<me:passwd><div>Password ändern</div></me:passwd>
-		<me:logout><div>Logout</div></me:logout>
-	      </div>
-	    </div>
-	  </td>
-	</tr>
-      </table>
-
     </lift:UserInfo.in>
   </lift:form>
   <lift:UserInfo.out form="POST">
@@ -147,36 +141,7 @@
   </lift:UserInfo.out>
   </lift:bind-at>
   <lift:bind-at name="sidebar">
-    <table id="sidebar" width="200px">
-      <tr>
-	<h3>Neue Fragen</h3>
-	<hr/>
-	<lift:UserInfo.newQueries>
-	  <p><poll:name/></p>
-	</lift:UserInfo.newQueries>
-	<div class="navi">
-	  <a href="/queries.html?sort=age">
-	    <div>... mehr</div>
-	  </a>
-	</div>
-      </tr>
-      <tr height="30px"/>
-      <tr>
-	<h3>Neue User</h3>
-	<hr/>
-	<lift:UserInfo.newUsers>
-	  <p>
-	  <user:emoticon size="20"/>
-	  <poll:name/>
-	  </p>
-	</lift:UserInfo.newUsers>
-	<div class="navi">
-	  <a href="/users.html?sort=age">
-	    <div>... mehr</div>
-	  </a>
-	</div>
-      </tr>
-    </table>
+    <lift:embed what="infopane"/>
   </lift:bind-at>
 </lift:surround>
 

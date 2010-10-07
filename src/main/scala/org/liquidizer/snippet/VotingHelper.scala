@@ -21,7 +21,6 @@ class VotingHelper {
   val buttonFactory = new EditButtonToggler
   
   var displayedVotes = List[()=>Node]()
-  var displayedEmos = List[()=>Node]()
   
   def renderVote(result : () => Node):Node = {
     displayedVotes ::= result
@@ -70,10 +69,6 @@ class VotingHelper {
  	index1-= 1
  	SetHtml("dynamicvote"+index1, displayedVote())
       } ++
-    displayedEmos.map {
-      emoticon => 
-	index2-= 1
-	SetHtml("dynamicemo"+index2, emoticon())
     }.toList
   }
 
@@ -208,49 +203,55 @@ class VotingHelper {
   }
 
   def bind(in : Node, user : User, nominee : Votable): NodeSeq= {
+
+    // conditional recursive processing
+    def rec(cond:Boolean) = 
+      if (cond) bind(in.child, user, nominee) else NodeSeq.Empty
+
     in match {
-      case <user:name/> => formatNominee(VotableUser(user))
-      case <poll:name/> => formatNominee(nominee)
-      case <user:notme>{children @ _*}</user:notme> =>
-	if (currentUser!=Full(user)) bind(children, user, nominee) else NodeSeq.Empty
-      case <user:itsme>{children @ _*}</user:itsme> =>
-	if (currentUser==Full(user)) bind(children, user, nominee) else NodeSeq.Empty
-      
-      case <poll:notme>{children @ _*}</poll:notme> => 
-	if (currentUser.isEmpty || VotableUser(currentUser.get)!=nominee)
-	  bind(children, user, nominee) else NodeSeq.Empty
-
-      case <poll:itsme>{children @ _*}</poll:itsme> => 
-	if (!currentUser.isEmpty && VotableUser(currentUser.get)==nominee) 
-	  bind(children, user, nominee) else NodeSeq.Empty
-
-      case <user:comment/> => {
-	buttonFactory.newCommentRecord(
+      case Elem("user", label, attribs, scope, _*) => label match {
+	case "name" => formatNominee(VotableUser(user))
+	case "notme" => rec(currentUser!=Full(user))
+	case "itsme" => rec(currentUser==Full(user))
+	case "comment" => {
+	  buttonFactory.newCommentRecord(
 	    () => VoteCounter.getComment(user, nominee).getOrElse(""),
 	    text => PollingBooth.comment(user, nominee, text))
-	buttonFactory.toggleText
+	  buttonFactory.toggleText
+	}
+	case _ => Elem(prefix, label, attribs, scope, rec(true) : _*)
       }
 
-      case Elem("vote", label, attribs, scope, children @ _*) =>
+      case Elem("poll", label, attribs, scope, _*) => label match {
+	case "name" => formatNominee(nominee)
+	case "notme" => rec(currentUser.isEmpty || VotableUser(currentUser.get)!=nominee)
+	case "itsme" => rec(!currentUser.isEmpty && VotableUser(currentUser.get)==nominee) 
+	case _ =>  Elem(prefix, label, attribs, scope, rec(true) : _*)
+
+      }
+
+      case Elem("vote", label, attribs, scope, _*) =>
 	label match {
 	  case "result"  => {
 	    val format= in.attribute("format").getOrElse(Text("decimal"))
 	    renderVote(() => formatWeight(user,nominee,format.text))
 	  }
 	  case "flow" => {
-	    val pref= VoteCounter.getPreference(user, nominee)
-	    var denom= VoteCounter
+	    def denom= VoteCounter
 	    .getActiveVotes(user)
 	    .foldLeft(0) { 
-	      (a,b) => a + Math.abs(VoteCounter.getPreference(user,b)) 
+	      (a,b) => 
+		a + Math.abs(VoteCounter.getPreference(user,b)) 
 	    }
-	    renderVote(() => formatResult(pref/Math.min(1,denom)))
+	    renderVote(() => {
+	      val pref= VoteCounter.getPreference(user, nominee)
+	      formatResult(pref/Math.max(1.0, denom )) } ) 
 	  }
 	}
 
-
       case Elem(prefix, label, attribs, scope, children @ _*) =>
-	Elem(prefix, label, attribs, scope, bind(children, user, nominee) : _*)
+	Elem(prefix, label, attribs, scope, rec(true) : _*)
+
       case other => other
     }
   }

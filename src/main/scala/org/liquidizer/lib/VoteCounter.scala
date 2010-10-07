@@ -42,7 +42,7 @@ object VoteCounter {
   class VoteMapper extends Actor {
     def act = {
       loop {
-	receive {
+	react {
 	  case vote:Vote =>  {
 	    push(vote)
 	    var senders = sender :: Nil
@@ -55,7 +55,7 @@ object VoteCounter {
 	      case 'STOP =>
 		exit()
 	    }
-	    updateFactors(vote.date.is)
+	    updateFactors()
 	    senders.foreach { _ ! 'FINISHED }
 	  }
 	  case 'STOP =>  exit()
@@ -69,7 +69,7 @@ object VoteCounter {
       voteMap.put(vote)
     }
 
-    def updateFactors(time : Long) = {
+    def updateFactors() = {
       if (voteMap.dirty) {
 	val t0= Tick.now
 	voteMap.update(time)
@@ -93,11 +93,18 @@ object VoteCounter {
   def init() = {
     mapper.start
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
-      vote => 
+      vote =>
 	comments.add(vote)
-        mapper ! vote
-        if (vote.date.is -time > 10*Tick.min) 
-	   refresh()
+        // recompute results 
+        if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
+        if ((vote.date.is / Tick.day) > (time / Tick.day)) {
+	  println("recompute emotions")
+	  for (user1 <- voteMap.users.keySet)
+	    for (user2 <- voteMap.users.keySet)
+	      voteMap.getEmotion(user1, user2, time)
+	}
+        println(vote)
+        mapper.push(vote)
     }
     refresh()
   }
@@ -187,6 +194,6 @@ object VoteCounter {
     voteMap.nominees.get(nominee).map { _.history.getAll }.getOrElse(Nil)
 
   def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
-    voteMap.getEmotion(user1, user2)
+    voteMap.getEmotion(user1, user2, Tick.now)
   }
 }

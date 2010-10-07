@@ -1,6 +1,5 @@
 <lift:surround with="user_head">
   <lift:bind-at name="details">
-    <lift:UserDetails eager_eval="true">
       <table width="100%">
 	<tr height="50">
 	  <th/><th/>
@@ -30,19 +29,13 @@
 	    </td>
 	    <lift:UserInfo.in>
 	      <td nowrap="true" align="center">
-		<poll:notme>
-		  <user:itsme>
-		    <lift:embed what="vote"/>
-		  </user:itsme>
-		</poll:notme>
-		<user:itsme>
-		  <td align="center"><span class="pass">−</span></td>
-		</user:itsme>
+		<user:notme>
+		  <lift:embed what="vote"/>
+		</user:notme>
 	      </td>
 	    </lift:UserInfo.in>
 	  </tr>
 	</poll:supporters>
       </table>
-    </lift:UserDetails>
   </lift:bind-at>
 </lift:surround>

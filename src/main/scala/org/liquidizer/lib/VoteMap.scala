@@ -159,7 +159,7 @@ class VoteMap {
       users.get(user).map { _.votes }.getOrElse(Nil)
   }
 
-  def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
+  def getEmotion(user1 : User, user2 : User, time : Long) : Option[Emotion] = {
     val key1= if (id(user1) < id(user2)) user1 else user2
     val key2= if (id(user1) < id(user2)) user2 else user1
     if (users.contains(key1) && users.contains(key2)) {
@@ -169,8 +169,8 @@ class VoteMap {
       if (!head1.emos.contains(key2)) head1.emos.put(key2, new Emotion())
       val emo= head1.emos.get(key2).get
       
-      emo.valence.set(Tick.now, head1.vec.dotProd(head2.vec, false))
-      emo.potency.set(Tick.now, head1.vec.dotProd(head2.vec, true))
+      emo.valence.set(time, head1.vec.dotProd(head2.vec, false))
+      emo.potency.set(time, head1.vec.dotProd(head2.vec, true))
       Some(emo)
 
     } else

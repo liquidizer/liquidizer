@@ -1,6 +1,5 @@
 <lift:surround with="query_head">
   <lift:bind-at name="details">
-  <lift:QueryDetails eager_eval="true">
     <table width="100%">
       <tr height="50">
 	<th/><th/>
@@ -39,7 +38,6 @@
 	</tr>
       </poll:supporters>
     </table>
-  </lift:QueryDetails>
   </lift:bind-at>
   <lift:bind-at name="selection">
     <lift:QueryDetails.view form="POST" eager_eval="true">
