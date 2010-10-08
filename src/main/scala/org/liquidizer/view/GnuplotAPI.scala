@@ -119,7 +119,7 @@ class GnuplotAPI {
   }
 
   def run(cmd : String) = {
-    println("gnuplot> "+cmd)
+    //println("gnuplot> "+cmd)
     stdOutput.write(cmd + "\n");   
   }
 

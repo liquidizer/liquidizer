@@ -44,9 +44,12 @@ class UserInfo {
 	  buttonFactory.toggleText
 	  case "emailEdit" =>
 	    buttonFactory.toggleButton
+	  case _ => Elem("me", label, attribs, scope, bind(children) : _*)
+
 	}
 	case Elem(prefix, label, attribs, scope, children @ _*) =>
 	  Elem(prefix, label, attribs, scope, bind(children) : _*)
+
 	case _ => in
       }
       case _ =>
