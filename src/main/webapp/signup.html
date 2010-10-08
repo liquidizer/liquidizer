@@ -1,34 +1,44 @@
-<lift:surround with="default" at="content">
-
-  <div class="head">
-    <h2>Willkommen beim Liquidizer</h2>
-  </div>
-
-  <lift:UserSignUp form="POST">
-    <table>
-      <tr>
-	<td/><td colspan="2" style="color:red"><lift:Msgs/></td>
-      </tr>
-      <tr>
-      	<td>Username</td>
-      	<td><user:name/></td>
-      </tr>
-      <tr>
-      	<td>Email</td>
-      	<td><user:email/>(optional)</td>
-      </tr>
-      <tr>
-      	<td>Passwort</td>
-      	<td><user:passwd1/></td>
-      </tr>
-      <tr>
-      	<td>Wiederholung</td>
-      	<td><user:passwd2/></td>
-      </tr>
-      <tr>
-	<td><user:submit/></td>
-      </tr>
-    </table>
-  </lift:UserSignUp>
+<lift:surround with="default">
+  <lift:bind-at name="title">Neu anmelden</lift:bind-at>
+  <lift:bind-at name="content">
+    <div class="head">
+      <h2>Neuanmeldung zum Liquidizer</h2>
+    </div>
+    
+    <lift:UserInfo.in>
+      Erst ausloggen!
+    </lift:UserInfo.in>
+    <lift:UserInfo.out>
+      <lift:UserSignUp form="POST">
+	<table>
+	  <tr>
+	    <td/><td colspan="2" style="color:red"><lift:Msgs/></td>
+	  </tr>
+	  <tr>
+      	    <td>Username</td>
+      	    <td><user:name/></td>
+	  </tr>
+	  <tr>
+      	    <td>Email</td>
+      	    <td><user:email/>(optional)</td>
+	  </tr>
+	  <tr>
+      	    <td>Passwort</td>
+      	    <td><user:passwd1/></td>
+	  </tr>
+	  <tr>
+      	    <td>Wiederholung</td>
+      	    <td><user:passwd2/></td>
+	  </tr>
+	  <tr>
+	    <td><user:submit/></td>
+	  </tr>
+	</table>
+      </lift:UserSignUp>
+    </lift:UserInfo.out>
+  </lift:bind-at>
+  <lift:bind-at name="sidebar">
+    <lift:embed what="infopane"/>
+  </lift:bind-at>
 </lift:surround>
 

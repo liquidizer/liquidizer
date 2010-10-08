@@ -11,20 +11,22 @@
       </tr>
       <tr height="5"/>
       <tr>
+	<td/>
 	<td class="chart_thumb">
 	  <poll:chart height="60" width="150" grid="off"/>
 	</td>
-	<td align="right">
+	<td width="50"/>
+	<th class="vote_th">
 	  <table class="vote"><tr><td><poll:result/></td></tr></table>
-	</td>
+	</th>
 	<lift:UserInfo.in>
-	  <td align="right" nowrap="true">
+	  <th  class="vote_th">
 	    <lift:embed what="vote"/>
-	  </td>
+	  </th>
 	</lift:UserInfo.in>
       </tr>
       <tr height="5"/>
-      <tr height="1"><td colspan="3" bgcolor="lightgray"/></tr>
+      <tr height="1"><td colspan="5" bgcolor="lightgray"/></tr>
       <tr height="5"/>
     </lift:Queries>
   </table>
@@ -58,6 +60,8 @@
       <lift:Queries.view>
 	<view:a search="true" href="add_query">
 	  <p style="margin: 50px 10px 5px 0">Neue Frage hinzufügen</p>
+	</view:a>
+	<view:a search="true" href="add_query">
 	  <img src="/images/addquery.png" height="2em" alt="neue Frage"/>
 	</view:a>
       </lift:Queries.view>

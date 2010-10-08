@@ -25,27 +25,26 @@ class UserInfo {
   def bind(in : Node) : NodeSeq = {
     User.currentUser match {
       case Full(user) =>
-	val email = user.email
       in match { 
-	case <me:name/> => <span>{user.displayName}</span>
-	case <me:logout>{ch @ _*}</me:logout> => 
-	  <a href={"/"+User.logoutPath.mkString("/")}>{ch}</a>
-	
-	case <me:passwd>{ch @ _*}</me:passwd> => 
-	  <a href={"/"+User.changePasswordPath.mkString("/")}>{ch}</a>
-	
-	case <me:profile/> => 
-	  buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
-	  buttonFactory.toggleText
-	case <me:profileEdit/> => 
-	  buttonFactory.toggleButton
-	
-	case <me:email/> => 
-	  buttonFactory.newLineRecord(() => user.email.is, value => { user.email(value); user.save })
-	  buttonFactory.toggleText
-	case <me:emailEdit/> => 
-	  buttonFactory.toggleButton
+	case Elem("me", label, attribs, scope, children @ _*) => label match {
+	  case "name" => <span>{user.displayName}</span>
+	  case "logout" => SHtml.a(() => {
+	    User.logUserOut(); RedirectTo("/") }, children)
+	  case "passwd" =>
+	    <a href={"/"+User.changePasswordPath.mkString("/")}>{children}</a>
 
+	  case "profile" =>
+	    buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
+	  buttonFactory.toggleText
+	  case "profileEdit" =>
+	    buttonFactory.toggleButton
+	  
+	  case "email" =>
+	    buttonFactory.newLineRecord(() => user.email.is, value => { user.email(value); user.save })
+	  buttonFactory.toggleText
+	  case "emailEdit" =>
+	    buttonFactory.toggleButton
+	}
 	case Elem(prefix, label, attribs, scope, children @ _*) =>
 	  Elem(prefix, label, attribs, scope, bind(children) : _*)
 	case _ => in
@@ -90,6 +89,7 @@ class UserInfo {
   }
 
   def votes(in : NodeSeq) : NodeSeq = {
+    val length= 10
     User.currentUser match {
       case Full(me) => 
 	val helper= new VotingHelper {
@@ -98,17 +98,17 @@ class UserInfo {
 	    .filter {
 	      case d : VotableQuery => true
 	      case _ => false
-	    }.slice(0,5)
+	    }.slice(0,length)
 
 	  override def getSupporters() : List[User] =
-	    VoteCounter.getActiveVoters(VotableUser(me)).slice(0,4)
+	    VoteCounter.getActiveVoters(VotableUser(me)).slice(0,length)
 
 	  override def getDelegates() : List[User] =
 	    VoteCounter.getActiveVotes(me)
 	    .flatMap {
 	      case VotableUser(user) => List(user)
 	      case _ => Nil
-	    }.slice(0,5)
+	    }.slice(0,length)
 	}
       helper.render(in, VotableUser(me))
       case _ => NodeSeq.Empty

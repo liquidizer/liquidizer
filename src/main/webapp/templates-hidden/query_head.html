@@ -21,22 +21,30 @@
 	    </tr>
 	    <tr height="10"/>
 	    <tr>
-	      <lift:UserInfo.in><td/></lift:UserInfo.in>	      
-	      <th>Ergebnis</th>
+	      <th/>
+	      <th class="vote_th">Ergebnis</th>
+	      <lift:UserInfo.in>
+		<th class="vote_th">Dein Beitrag</th>
+		<th class="vote_th">Deine Präferenz</th>
+	      </lift:UserInfo.in>
 	    </tr>	    
 	    <tr>
-	      <lift:UserInfo.in>
-		<td align="left">
-		  <lift:embed what="vote"/>
-		</td>
-	      </lift:UserInfo.in>
+	      <td/>
 	      <td align="center">
 		<table class="vote"><td><poll:result/></td></table>
 	      </td>
+	      <lift:UserInfo.in>
+		<td align="center">
+		  <table class="vote"><td><me:weight format="decimal"/></td></table>
+		</td>
+		<td align="center">
+		  <lift:embed what="vote"/>
+		</td>
+	      </lift:UserInfo.in>
 	    </tr>
 	  </table>
 	  <hr/>
-	  <div style="text-align:right"><lift:bind name="selection"/></div>
+	  <div style="text-align:left"><lift:bind name="selection"/></div>
 	  <lift:bind name="details"/>
       </lift:QueryDetails>
       <div align="center">

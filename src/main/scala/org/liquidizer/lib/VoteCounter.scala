@@ -104,6 +104,7 @@ object VoteCounter {
 	}
         mapper.push(vote)
     }
+    mapper.updateFactors()
     refresh()
   }
   

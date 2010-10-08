@@ -65,7 +65,8 @@ class GnuplotAPI {
     run("set style histogram rowstacked")
     run("set style fill solid")
     run("set yrange [0:]")
-    run("set boxwidth "+options.get("dx").getOrElse("0.5"))
+    run("set xrange [-1:1]")
+    run("set boxwidth "+options.get("dx").map{ _.toDouble*0.9 }.getOrElse(0.5))
   }
 
   def setOptions(options : Map[String,String]) = {
@@ -118,7 +119,7 @@ class GnuplotAPI {
   }
 
   def run(cmd : String) = {
-    //println("gnuplot> "+cmd)
+    println("gnuplot> "+cmd)
     stdOutput.write(cmd + "\n");   
   }
 
@@ -196,22 +197,19 @@ class GnuplotAPI {
     }
   }
 
-  def hist(data : List[List[(Double,Double)]], 
+  def hist(data : List[(Double,Double)], 
 	   options : Map[String,String]) : Node = {
     try {
       setHistOptions(options)
-      run ("plot '-' with boxes title '' lt rgb '#999999', " +
-	   "'-' with boxes title '' lt rgb '"+LiquidColors.contra_light+"', " +
-	   "'-' with boxes title '' lt rgb '"+LiquidColors.pro_light+"', " +
-	   "'-' with boxes title '' lt rgb '"+LiquidColors.contra+"', " +
-	   "'-' with boxes title '' lt rgb '"+LiquidColors.pro+"'")
-      data.foreach {
-	set => 
-	  set.foreach {
-	    row => run(row._1+" "+row._2)
-	  }
-	run("e")
-      }
+      run ("plot '-' with boxes title '' lt rgb '"+LiquidColors.contra+"', " +
+	   "     '-' with boxes title '' lt rgb '"+LiquidColors.pro+"'")
+
+      data.filter { _._1 < 0 }.foreach { row => run(row._1+" "+row._2) }
+      run("e")
+
+      data.filter { _._1 > 0 }.foreach { row => run(row._1+" "+row._2) }
+      run("e")
+
       getSVG.first
     } finally {
       close

@@ -4,17 +4,17 @@
 	<tr height="50">
 	  <td/>
 	  <user:itsme>
-	    <th>Deine Präferenz</th>
-	    <th>Stimmgewicht</th>
+	    <th class="vote_th">Deine Präferenz</th>
+	    <th class="vote_th">Stimmgewicht</th>
 	  </user:itsme>
 	  <lift:UserInfo.in>
 	    <user:notme>
-	      <th>Präferenz</th>
-	      <th>Deine Präferenz</th>
+	      <th class="vote_th"><poll:title/>'s Gewicht</th>
+	      <th class="vote_th">Dein Gewicht</th>
 	    </user:notme>
 	  </lift:UserInfo.in>
 	  <lift:UserInfo.out>
-	    <th>Präferenz</th>
+	    <th class="vote_th">Stimmgewicht</th>
 	  </lift:UserInfo.out>
 	</tr>
 	<user:votes>
@@ -34,7 +34,7 @@
 		      <vote:result format="decimal"/>
 		    </user:itsme>
 		    <user:notme>
-	      	      <vote:result format="numer"/>
+	      	      <vote:result format="decimal"/>
 		    </user:notme>
 	      </td></tr></table>
 	    </td>
@@ -43,7 +43,7 @@
 		<td rowspan="2" align="center">
 		  <table class="vote"><tr><td>
 			<poll:notme>
-			  <me:weight format="numer"/>
+			  <me:weight format="decimal"/>
 			</poll:notme>
 			<poll:itsme><span class="pass">−</span></poll:itsme>
 		  </td></tr></table>

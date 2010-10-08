@@ -151,8 +151,13 @@ a {
     height: 2.5em;
     vertical-align: middle;
     padding: 0 2px 0 2px;
+    nowrap: true;
 }
 .vote img { height: 2.5em; }    
+.vote_th { 
+    width: 100px; 
+    text-align: center;
+}
 
 .chart_thumb {
     width: 150px;
