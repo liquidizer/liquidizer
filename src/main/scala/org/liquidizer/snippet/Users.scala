@@ -11,30 +11,38 @@ import _root_.org.liquidizer.lib._
 
 class Users extends MultipageSnippet {
 
-  def size= users.size
 
-  var users= getUsers()
-  def getUsers() = {
-    println("loading users")
-    User.findAll
-    .filter { searchFilter _ }
-    //.sort { sortOrder() }
+  def getData() = {
+    if (data.isEmpty) loadData()
+    data
   }
+    
+  def loadData() = {
+    data = User.findAll
+    .filter { searchFilter _ }
+    .map { VotableUser(_) }
+    sortData()
+  }
+
+  def sortData(): Unit = {
+    sortData { u=> VoteCounter.getResult(u).pro }
+  }
+
 
   override def categories(in:NodeSeq) : NodeSeq = {
     val keys= search.split(" +").toList.map { _ toLowerCase }
     val markup= new CategoryView(keys, "/users.html")
     <span>{
-      markup.renderTagList(TaggedUtils.sortedUserTags(users), 5)
+      markup.renderTagList(TaggedUtils.sortedTags(data), 5)
     }</span>
   }
 
   def render(in: NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
-    users
+    getData()
     .slice(from,to)
     .flatMap {
-      user =>  helper.render(in, VotableUser(user))
+      user =>  helper.render(in, user)
     }
   }
 }
@@ -50,14 +58,12 @@ class UserDetails extends MultipageSnippet {
     items= 
       VoteCounter.getAllVotes(user)
       .filter { searchFilter _ }
-//      .sort { voteSortOrder(user) }
       .map { VotableQuery(_) }
   }
   def loadSupporters() = {
     items= 
       VoteCounter.getActiveVoters(VotableUser(user))
       .filter { searchFilter _ }
-      //.sort { voteSortOrder(user) }
       .map { VotableUser(_) }
   }
   def loadDelegates() = {
@@ -67,7 +73,6 @@ class UserDetails extends MultipageSnippet {
 	case VotableUser(user) => searchFilter(user)
         case _ => false
       }
-      //.sort { voteSortOrder(user) }
   }
 
   def render(in : NodeSeq) : NodeSeq = {

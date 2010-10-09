@@ -15,13 +15,9 @@ import _root_.org.liquidizer.lib._
 import _root_.org.liquidizer.model._
 
 class Queries extends MultipageSnippet {
-  def size= data.size
-
-  var data : List[Votable] = Nil
   
   def getData() = {
-    if (data.isEmpty)
-      loadData()
+    if (data.isEmpty) loadData()
     data
   }
     
@@ -36,13 +32,6 @@ class Queries extends MultipageSnippet {
     sortData { q => VoteCounter.getResult(q).volume }
   }
 
-  def sortData(f : Votable => Double): Unit = {
-    data = data
-    .map { item => (f(item), item) }
-    .sort { _._1 > _._1 }
-    .map { _._2 }
-  }
-  
   override def categories(in:NodeSeq) : NodeSeq = {
     val keys= search.split(" +").toList.distinct.map { _ toLowerCase }
     val markup= new CategoryView(keys, "/queries.html")

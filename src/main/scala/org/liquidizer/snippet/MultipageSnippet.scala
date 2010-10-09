@@ -22,7 +22,9 @@ abstract class MultipageSnippet extends StatefulSnippet {
     case "addQuery" => addQuery _
   }
 
-  def size:Int
+  def size= data.size
+  var data : List[Votable] = Nil
+
   def render(in:NodeSeq) : NodeSeq
   def categories(in:NodeSeq) : NodeSeq = NodeSeq.Empty
 
@@ -36,6 +38,13 @@ abstract class MultipageSnippet extends StatefulSnippet {
   
   def from = pagesize * page
   def to = Math.min(pagesize * (page+1), size)
+  
+  def sortData(f : Votable => Double): Unit = {
+    data = data
+    .map { item => (f(item), item) }
+    .sort { _._1 > _._1 }
+    .map { _._2 }
+  }
   
   def navigator(in: NodeSeq) : NodeSeq = {
     if (numPages<=1)
