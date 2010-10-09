@@ -10,14 +10,17 @@ object TaggedUtils {
     keys.split("(\\s|,)").map { _.trim }.toList.filter { !_.isEmpty }
   }
 
-  def sortedTags(queries : List[Query]): List[String] = {
+  def sortedTags(data : List[Votable]): List[String] = {
     val map = mutable.Map.empty[String, Double]
-    var weight= queries.size+1
-    for (query <- queries) {
-      val keys= getTags(query.keys.is)
+    var weight= data.size+1
+    for (item <- data) {
+      val keys= item match {
+	case VotableQuery(query) => getTags(query.keys.is)
+	case VotableUser(user) => getTags(user.profile.is)
+      }
       for (key <- keys) {
 	map.put(key, map.get(key).getOrElse(0.0) + 
-		(weight / (queries.size+1.0)) / keys.size)
+		(weight / (data.size+1.0)) / keys.size)
       }
       weight-= 1;
     }

@@ -15,28 +15,48 @@ import _root_.org.liquidizer.lib._
 import _root_.org.liquidizer.model._
 
 class Queries extends MultipageSnippet {
-  def size= queries.size
+  def size= data.size
 
-  val queries= {
-    Query.findAll
+  var data : List[Votable] = Nil
+  
+  def getData() = {
+    if (data.isEmpty)
+      loadData()
+    data
+  }
+    
+  def loadData() = {
+    data = Query.findAll
     .filter { searchFilter _ }
-//    .sort { sortOrder() }
+    .map { VotableQuery(_) }
+    sortData()
+  }
+
+  def sortData(): Unit = {
+    sortData { q => VoteCounter.getResult(q).volume }
+  }
+
+  def sortData(f : Votable => Double): Unit = {
+    data = data
+    .map { item => (f(item), item) }
+    .sort { _._1 > _._1 }
+    .map { _._2 }
   }
   
   override def categories(in:NodeSeq) : NodeSeq = {
-    val keys= search.split(" +").toList.map { _ toLowerCase }
+    val keys= search.split(" +").toList.distinct.map { _ toLowerCase }
     val markup= new CategoryView(keys, "/queries.html")
     <span>{
-      markup.renderTagList(TaggedUtils.sortedTags(queries), 5)
+      markup.renderTagList(TaggedUtils.sortedTags(getData()), 5)
     }</span>
   }
 
   def render(in: NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
-    queries
-    .slice(from,to)
+    getData()
+    .slice(from, to)
     .flatMap {
-      query =>  helper.render(in,VotableQuery(query))
+      item =>  helper.render(in, item)
     }
   }
 }
@@ -117,7 +137,7 @@ class AddQuery extends StatefulSnippet {
     query.save
 
     unregisterThisSnippet
-    S.redirectTo("/queries/"+query.id)
+    S.redirectTo("/queries/"+query.id+"/index.html")
   }
 }
 

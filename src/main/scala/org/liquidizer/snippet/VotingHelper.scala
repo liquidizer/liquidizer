@@ -85,9 +85,18 @@ class VotingHelper {
       case "name" => formatNominee(nominee)
       case "id" => Text(nominee.id.toString)
       case "title" => Text(nominee.toString)
-      case "result" =>
+      case "result" => 	
 	renderVote(() => formatResult(VoteCounter.getResult(nominee).value))
-      case "chart" => chart(nominee.uri, in.attributes)
+      case "value" =>
+	renderVote(() => Text(formatDouble(
+	  attribs.get("measure").map { _.text }.getOrElse("") match {
+	    case "pro" => VoteCounter.getResult(nominee).pro
+	    case "contra" => VoteCounter.getResult(nominee).contra
+	    case "volume" => VoteCounter.getResult(nominee).pro
+	    case _ => VoteCounter.getResult(nominee).value
+	  })))
+      case "chart" => chart(nominee.uri, "chart", in.attributes)
+      case "hist" => chart(nominee.uri, "histogram", in.attributes)
       case "supporters" =>
 	getSupporters().flatMap {
 	  user => bind(bind(children, user, nominee), VotableUser(user))
@@ -172,13 +181,13 @@ class VotingHelper {
     }
   }
   
-  def chart(uri:String, attribs:MetaData ) : Node = {
+  def chart(uri:String, chartType:String, attribs:MetaData ) : Node = {
     val options = attribs.elements.map ( a=> a.key+"="+a.value).mkString("&")
-    <a href={uri+"/analyzer.html"}><embed
+    <embed
     alt="Chart"
-    src={uri+"/chart.svg?"+options}
+    src={uri+"/"+chartType+".svg?"+options}
     width={attribs.get("width").getOrElse(Text("640"))}
-    height={attribs.get("height").getOrElse(Text("480"))}/></a>
+    height={attribs.get("height").getOrElse(Text("480"))}/>
   }
 
   def emoticon(other : User, attribs:MetaData) : Node = {

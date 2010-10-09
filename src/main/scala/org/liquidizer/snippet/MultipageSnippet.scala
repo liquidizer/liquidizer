@@ -19,13 +19,15 @@ abstract class MultipageSnippet extends StatefulSnippet {
     case "lastpage" => lastpage _
     case "categories" => categories _
     case "view" => view _
+    case "addQuery" => addQuery _
   }
 
   def size:Int
   def render(in:NodeSeq) : NodeSeq
   def categories(in:NodeSeq) : NodeSeq = NodeSeq.Empty
 
-  val pagesize:Int = S.param("pagesize").map{ _.toInt }.getOrElse(10)
+  val defaultsize= 20
+  val pagesize:Int = S.param("pagesize").map{ _.toInt }.getOrElse(defaultsize)
   var search= S.param("search").getOrElse("")
   var order= S.param("sort").getOrElse("")
   
@@ -103,15 +105,6 @@ abstract class MultipageSnippet extends StatefulSnippet {
       // 		     (if (search.length>0) "&search="+search else "")) })
       // }
 
-      case <view:a>{ children @ _* }</view:a> =>
-	var attrs= List[String]()
-	if (!in.attribute("sort").isEmpty && order.length>0) 
-	  attrs ::= "sort="+order
-	if (!in.attribute("search").isEmpty && search.length>0)
-	  attrs ::= "search="+search
-	<a href={ in.attribute("href").get.text +
-		 (if (attrs.isEmpty) "" else attrs.mkString("?","&",""))
-	       }>{ children }</a>
 		 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, view(children) : _*)
@@ -151,35 +144,8 @@ abstract class MultipageSnippet extends StatefulSnippet {
     case VotableUser(user) => searchFilter(user)
     case VotableQuery(query) => searchFilter(query)
   }
-}
 
-class MenuMarker {
-
-  def bind(in :NodeSeq) : NodeSeq = {
-    in.flatMap(bind(_))
-  }
-
-  def bind(in :Node) : NodeSeq = {
-    in match {
-      case Elem("menu", "a", attribs, scope, children @ _*) =>
-	val href= attribs.get("href").map { _.text }.getOrElse("")
-        val cur= if (href.startsWith("/")) 
-	  S.uri
-        else
-	  S.uri.replaceAll(".*/","")
-	if (href==cur)
-	  <div class="active">{children}</div>
-        else
-	  <a href={href}><div class="inactive">{children}</div></a>
-
-      case Elem(prefix, label, attribs, scope, children @ _*) =>
-	Elem(prefix, label, attribs, scope, bind(children) : _*)
-
-      case _ => in
-    }
-  }
-
-  def render(in : NodeSeq) : NodeSeq = {
-    bind(in)
+  def addQuery(in: NodeSeq) : NodeSeq = {
+    <a href={"/add_query?search="+search}>{in}</a>
   }
 }

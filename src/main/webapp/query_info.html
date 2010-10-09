@@ -5,9 +5,10 @@
       <td><query:creator/></td>
     </tr>
     <tr>
-      <td>Datum:</td>
+      <td>Erstellt:</td>
       <td><query:time/></td>
     </tr>
+    <tr height="10"/>
     <tr>
       <td>Wähler mit positivem Stimmgewicht:</td>
       <td><query:numVoters weight="1"/></td>
@@ -15,6 +16,15 @@
     <tr>
       <td>Wähler mit negativem Stimmgewicht:</td>
       <td><query:numVoters weight="-1"/></td>
+    </tr>
+    <tr height="10"/>
+    <tr>
+      <td>Summe des positiven Stimmgewichtes:</td>
+      <td><poll:value measure="pro"/></td>
+    </tr>
+    <tr>
+      <td>Summe des negativen Stimmgewichtes:</td>
+      <td><poll:value measure="contra"/></td>
     </tr>
   </table>
 

@@ -1,21 +1,21 @@
 <lift:surround with="default">
   <lift:bind-at name="title">Alle Fragen</lift:bind-at>
   <lift:bind-at name="content">
-  <table width="90%">
+  <table width="100%">
+    <tr>
+      <td>Frage</td>
+      <th>Ergebnis</th>
+      <lift:UserInfo.in>
+	<th>Deine Präferenz</th>
+      </lift:UserInfo.in>
+    </tr>
+    <tr height="30"/>
     <lift:Queries eager_eval="true">
       <tr>
-	<td class="votable" colspan="3">
+	<td class="votable">
 	  <poll:name/><br/>
 	  <query:keys/>
 	</td>
-      </tr>
-      <tr height="5"/>
-      <tr>
-	<td/>
-	<td class="chart_thumb">
-	  <poll:chart height="60" width="150" grid="off"/>
-	</td>
-	<td width="50"/>
 	<th class="vote_th">
 	  <table class="vote"><tr><td><poll:result/></td></tr></table>
 	</th>
@@ -26,7 +26,7 @@
 	</lift:UserInfo.in>
       </tr>
       <tr height="5"/>
-      <tr height="1"><td colspan="5" bgcolor="lightgray"/></tr>
+      <tr height="1"><td colspan="4" bgcolor="lightgray"/></tr>
       <tr height="5"/>
     </lift:Queries>
   </table>
@@ -36,10 +36,10 @@
 
   <lift:UserInfo.in>
     <lift:Queries.lastpage>
-      <view:a search="true" href="add_query">
-	  <img src="/images/addquery.png" height="2em" alt="neue Frage"/>
+      <lift:Queries.addQuery>
+	  <img src="/images/addquery.png" alt="neue Frage"/>
 	  Neue Frage hinzufügen
-      </view:a>
+      </lift:Queries.addQuery>
     </lift:Queries.lastpage>
   </lift:UserInfo.in>
   </lift:bind-at>
@@ -58,12 +58,10 @@
     <div style="clear:both"/>
     <lift:UserInfo.in>
       <lift:Queries.view>
-	<view:a search="true" href="add_query">
+	<lift:Queries.addQuery>
 	  <p style="margin: 50px 10px 5px 0">Neue Frage hinzufügen</p>
-	</view:a>
-	<view:a search="true" href="add_query">
-	  <img src="/images/addquery.png" height="2em" alt="neue Frage"/>
-	</view:a>
+	  <img src="/images/addquery.png" alt="neue Frage"/>
+	</lift:Queries.addQuery>
       </lift:Queries.view>
     </lift:UserInfo.in>
   </lift:bind-at>

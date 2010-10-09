@@ -143,8 +143,7 @@ class GnuplotAPI {
 
   def formatX(x:Long) : String = {
     if (islog) {
-//      Math.exp(1e-9*(x-now).toDouble).toString
-      Math.exp(1e-8*(x-now).toDouble).toString
+      Math.exp(1e-9*(x-now).toDouble).toString
     } else {
       ((x+tzOffset)/1000).toString
     }

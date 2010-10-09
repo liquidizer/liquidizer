@@ -65,7 +65,7 @@ abstract class Slice[A](val stepSize:Long, val next:Option[Slice[A]]) {
       list = Tick(list.first.time, merge(list.head.value,  data)) :: list.tail
     }
     if (!next.isEmpty) {
-      while (!list.isEmpty && list.last.time < capTime(time)) {
+      while (list.size>1 && list.last.time < capTime(time)) {
 	next.get.add(list.last.time, list.last.value)
 	list = list.init
       }
@@ -90,10 +90,10 @@ class TimeSeries(stepSize : Long, next : Option[TimeSeries]) extends Slice[Quote
 	 if (stepSizes.tail.isEmpty) None 
 	 else Some(new TimeSeries(stepSizes.tail)))
   }
-  def this() = this(List(10*sec, 60*sec, 5*min, 30*min, 60*min, 2*h, 4*h, 12*h, 24*h))
+  def this() = this(List(1*min, 5*min, 30*min, 60*min, 2*h, 4*h, 12*h, 24*h))
   
   def merge(a : Quote, b : Quote) : Quote = {
-    if (stepSize<10000L) b else (a+b)*0.5
+    if (stepSize < 5*min) b else (a+b)*0.5
   }
 }
 

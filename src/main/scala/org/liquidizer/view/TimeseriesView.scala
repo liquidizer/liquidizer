@@ -16,47 +16,36 @@ object TimeseriesView {
 
   val cache = new ResultCache[Box[XmlResponse]]
 
-  private def addLink(in : NodeSeq, ref : String) : NodeSeq = {
-    for( node <- in ) yield addLink(node, ref)
+  private def reformat(in : NodeSeq) : NodeSeq = {
+    for( node <- in ) yield reformat(node)
   }
   
-  def addLink(in: Node, ref : String) : Node = {
+  def reformat(in: Node) : Node = {
     in match {
 
-      case Elem(prefix, "svg", attribs, scope, children @ _*) =>
-	val opts= options()
-      Elem(prefix, "svg", attribs, scope, 
-	   <a xlink:href={ref} target="_parent">
-	   <rect x="0" y="0" 
-	   width={opts.get("width").get} 
-	   height={opts.get("height").get}  fill="white"/>{
-	     addLink(children, ref)
-	   }</a>
-	 )
-
       case Elem(prefix, "path", attribs, scope, _*) =>
-	if 
-	  (attribs.get("stroke").isEmpty &&
-	   attribs.get("style").map(!_.text.matches("stroke:rgb[^;]*")).getOrElse(true))
-	  in
+  	if 
+  	  (attribs.get("stroke").isEmpty &&
+  	   attribs.get("style").map(!_.text.matches("stroke:rgb[^;]*")).getOrElse(true))
+  	  in
         else {
-	  Elem(prefix, "path",
-	       attribs
-	       .remove("stroke")
-	       .remove("style")
-	       .append(new UnprefixedAttribute("style", "stroke:#000000;stroke-width:0.5", Null)),
-	       scope)
-	}
-	       
+  	  Elem(prefix, "path",
+  	       attribs
+  	       .remove("stroke")
+  	       .remove("style")
+  	       .append(new UnprefixedAttribute("style", "stroke:#000000;stroke-width:0.5", Null)),
+  	       scope)
+  	}
+         
       case Elem(prefix, label, attribs, scope, children @ _*) =>
-	Elem(prefix, label, attribs, scope, addLink(children, ref) : _*)
+  	Elem(prefix, label, attribs, scope, reformat(children) : _*)
 
       case other => other
     }
   }
 
   def createResponse(node: Node) = {
-    Full(XmlResponse(addLink(node,S.uri.replaceAll("chart.svg","analyzer.html")), "image/svg+xml"))
+    Full(XmlResponse(reformat(node), "image/svg+xml"))
   }
   
   def options() : Map[String,String] = {
