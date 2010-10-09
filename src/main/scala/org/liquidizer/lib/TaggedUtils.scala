@@ -12,17 +12,15 @@ object TaggedUtils {
 
   def sortedTags(data : List[Votable]): List[String] = {
     val map = mutable.Map.empty[String, Double]
-    var weight= data.size+1
     for (item <- data) {
       val keys= item match {
 	case VotableQuery(query) => getTags(query.keys.is)
 	case VotableUser(user) => getTags(user.profile.is)
       }
+      val weight= VoteCounter.getResult(item).volume
       for (key <- keys) {
-	map.put(key, map.get(key).getOrElse(0.0) + 
-		(weight / (data.size+1.0)) / keys.size)
+	map.put(key, map.get(key).getOrElse(0.0) + (weight / keys.size))
       }
-      weight-= 1;
     }
     
     map
