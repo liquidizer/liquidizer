@@ -113,8 +113,8 @@ a {
     line-height: 130%;
     color: black;
 }
-.help td {
-    font-weight: normal;
+.help li {
+    margin: 5px;
 }
 .comment {
     margin: 5px 0 10px 10px;
