@@ -29,7 +29,7 @@ class Queries extends MultipageSnippet {
   }
 
   def sortData(): Unit = {
-    sortData { q => VoteCounter.getResult(q).volume }
+    sortData { q => Math.abs(VoteCounter.getResult(q).value) }
   }
 
   override def categories(in:NodeSeq) : NodeSeq = {

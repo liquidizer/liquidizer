@@ -40,9 +40,14 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def to = Math.min(pagesize * (page+1), size)
   
   def sortData(f : Votable => Double): Unit = {
+    data
+    .map { item => (f(item), item) }
+    .sort { _._1 >= _._1 }
+    .foreach { println _ }
+
     data = data
     .map { item => (f(item), item) }
-    .sort { _._1 > _._1 }
+    .sort { _._1 >= _._1 }
     .map { _._2 }
   }
   

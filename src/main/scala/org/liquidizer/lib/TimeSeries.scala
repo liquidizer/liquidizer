@@ -9,8 +9,8 @@ case class Quote(pro:Double, contra:Double) {
   def /(denom : Int):Quote = if (denom==0) Quote(0.0, 0.0) else Quote(pro/denom, contra/denom)
   def +(quote : Quote):Quote = Quote(pro+quote.pro, contra+quote.contra)
   def *(factor: Double):Quote= Quote(pro*factor, contra*factor)
-  def value : Double = pro-contra
-  def volume : Double = pro+contra
+  def value : Double = pro - contra
+  def volume : Double = pro + contra
 }
 
 case class Tick[A](time:Long, value:A) {
