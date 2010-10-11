@@ -95,8 +95,12 @@ class VoteMap {
       head.vec.clear()
       for (link <- head.votes) {
 	link.nominee match {
-	  case VotableQuery(query) => head.vec.addVote(link.preference, id(query))
-	  case VotableUser(user) => head.vec.addDelegate(link.preference, users.get(user).get.vec)
+	  case VotableQuery(query) => 
+	    head.vec.addVote(link.preference, id(query))
+	  case VotableUser(user) => 
+	    val uHead= users.get(user)
+	    if (!uHead.isEmpty)
+	      head.vec.addDelegate(link.preference, uHead.get.vec)
 	}
       }
       head.vec.normalize()
@@ -127,7 +131,7 @@ class VoteMap {
     println
     nominees.foreach {
       case (nominee, head) => {
-	println("Query: "+nominee+" => "+getResult(nominee))
+	println("Query: "+nominee+" => "+getResult(nominee).get)
 	head.votes.foreach {
 	  vote => println("  "+vote.owner+":  "+vote.preference)
 	}
@@ -138,8 +142,8 @@ class VoteMap {
     users.get(user).map { _.vec }.getOrElse( new VoteVector(id(user)) )
   }
 
-  def getResult(nominee : Votable) : Quote = synchronized {
-    nominees.get(nominee).map{ _.result }.getOrElse(Quote(0,0))
+  def getResult(nominee : Votable) : Option[Quote] = synchronized {
+    nominees.get(nominee).map{ _.result }
   }
 
   def getWeight(user : User, nominee: Votable) : Double = nominee match {

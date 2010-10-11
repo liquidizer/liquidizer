@@ -50,24 +50,22 @@ class Users extends MultipageSnippet {
 class UserDetails extends MultipageSnippet {
 
   val user= User.getUser(S.param("user").openOr("-1")).get
-  var items : List[Votable] = Nil
-
-  override def size= items.size
 
   def loadVotes() = {
-    items= 
+    data= 
       VoteCounter.getAllVotes(user)
       .filter { searchFilter _ }
       .map { VotableQuery(_) }
+    sortData( VoteCounter.getWeight(user, _).abs )
   }
   def loadSupporters() = {
-    items= 
+    data= 
       VoteCounter.getActiveVoters(VotableUser(user))
       .filter { searchFilter _ }
       .map { VotableUser(_) }
   }
   def loadDelegates() = {
-    items= 
+    data= 
       VoteCounter.getActiveVotes(user)
       .filter { 
 	case VotableUser(user) => searchFilter(user)
@@ -78,16 +76,16 @@ class UserDetails extends MultipageSnippet {
   def render(in : NodeSeq) : NodeSeq = {
     val helper= new VotingHelper {
       override def getVotes() : List[Votable] = {
-	if (items.isEmpty) loadVotes()
-	items.slice(from,to)
+	if (data.isEmpty) loadVotes()
+	data.slice(from,to)
       }
       override def getSupporters() : List[User] = {
-	if (items.isEmpty) loadSupporters()
-	items.slice(from,to).map { case VotableUser(user) => user }
+	if (data.isEmpty) loadSupporters()
+	data.slice(from,to).map { case VotableUser(user) => user }
       }
       override def getDelegates() : List[User] = {
-	if (items.isEmpty) loadDelegates()
-	items.slice(from,to).map { case VotableUser(user) => user }
+	if (data.isEmpty) loadDelegates()
+	data.slice(from,to).map { case VotableUser(user) => user }
       }
     }
     helper.render(in, VotableUser(user))

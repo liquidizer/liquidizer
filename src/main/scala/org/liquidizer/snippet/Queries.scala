@@ -52,27 +52,38 @@ class Queries extends MultipageSnippet {
 
 class QueryDetails extends MultipageSnippet {
   val query= Query.getQuery(S.param("query").openOr("-1"))
-  var supporters: List[User]= Nil
+  var hasMe= false;
 
-  def loadSupporters() = {
+  def loadData() = {
     println("load supporters")
-    supporters= 
+    data= 
       VoteCounter.getAllVoters(query.get)
       .filter { searchFilter _ }
-      //.sort { voteSortOrder(VotableQuery(query.get))  }
-  }
+      .map { VotableUser(_) }
+    
+    sortData( _ match { case VotableUser(user) => 
+      VoteCounter.getWeight(user, VotableQuery(query.get)).abs
+    })
 
-  override def size= supporters.size
+    // check if my own vote is registered. 
+    // If not a page update should show it after the first vote is cast
+    val me= User.currentUser
+    hasMe= !me.isEmpty && data.contains(VotableUser(me.get))
+  }
 
   val helper= new VotingHelper {
     override def getSupporters() : List[User] = {
-      if (supporters.isEmpty)
-	loadSupporters()
-      supporters.slice(from,to)
+      if (data.isEmpty)
+	loadData()
+      data.slice(from,to).map { case VotableUser(user) => user }
     }
     override def ajaxUpdate(votedNominee : Votable) : JsCmd = {
-      super.ajaxUpdate(votedNominee)
-      //TODO: RedirectTo(nominee.uri)
+      val update= super.ajaxUpdate(votedNominee)
+      if (!hasMe && votedNominee==VotableQuery(query.get)) {
+	hasMe= true
+	update & RedirectTo(VotableQuery(query.get).uri+"/index.html")
+      }
+      else update
     }
   }
 
