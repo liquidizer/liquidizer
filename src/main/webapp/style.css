@@ -128,13 +128,15 @@ a {
 /* user's guide */
 #table-of-contents a { text-decoration:none; }
 .example {
-    border-color: #fbb03b;
-    border-style: solid;
-    padding:1em;
-}
-.example h3 {
     text-align: center;
-    font-size: 100%;
+    margin: 10px;
+    background-color: lightgray;
+}
+.example table { float:center; }
+.example td {
+    padding: 0 10px 0 10px;
+    border-spacing: 100px;
+    text-align: center;
 }
 .balance {
     margin: 2em;

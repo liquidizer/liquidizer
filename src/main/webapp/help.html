@@ -121,30 +121,31 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
 <h2 id="sec-emos">Emoticons</h2>
 
 <p>
-  Die Berechnung der Emoticons folgt einem drei-dimensionalen
-  psychologischen Modell, mit Komponenten für Valenz, Erregung und
-  Stärke.
+  Im eingeloggten Zustand wird die Beziehung zu jedem Nutzer über ein
+  Emoticon visualisiert.  Die Berechnung folgt einem
+  drei-dimensionalen psychologischen Modell, mit Komponenten für
+  Valenz, Erregung und Stärke.
 
   <table>
     <tr>
-      <td><img src="/images/emos/face-v1.png"/></td>
-      <td><img src="/images/emos/face-v0.png"/></td>
+      <td width="100"><img src="/images/emos/face-v0.png"/></td>
+      <td width="150"><img src="/images/emos/face-v1.png"/></td>
       <td>
 	<h3>Valenz</h3>
 	Die Valenz-Dimension zeigt die Übereinstimmung mit dem angezeigten User an.
       </td>
     </tr>
     <tr>
-      <td><img src="/images/emos/face-a1.png"/></td>
       <td><img src="/images/emos/face-a0.png"/></td>
+      <td><img src="/images/emos/face-a1.png"/></td>
       <td>
 	<h3>Erregung</h3>
 	Die Erregung zeigt an, ob sich in letzter Zeit einer Veränderung der Beziehung ergeben hat.
       </td>
     </tr>
     <tr>
-      <td><img src="/images/emos/face-p1.png"/></td>
       <td><img src="/images/emos/face-p0.png"/></td>
+      <td><img src="/images/emos/face-p1.png"/></td>
       <td>
 	<h3>Stärke</h3>
 	Zweifel und Stärke zeigen die Überlappung der Interessensgebiete unabhängig von der eingenommen Position.
@@ -155,50 +156,6 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
 <p>
   Das emotionale Modell kann hier getestet
   werden: <a href="/emoticons">http://liquidizer.org/emoticons</a>
-</p>
-
-<h2 id="sec-charts">Analysefunktionen</h2>
-<p>
-  In der Detailansicht zu den Fragen sind folgende Analysefunktionen verfügbar.
-</p>
-<p>
-  <table>
-    <tr>
-      <td/><td>	<h3>Charts</h3> </td>
-    </tr>
-    <tr>
-      <td width="250"><img src="/images/charts/chart.png"/></td>
-      <td>
-	Charts zeigen den historischen Verlauf des Wahlergebnisses an.
-	Die obere Linie zeigt die Summe der positiven Stimmgewichte
-	und die untere die Summer der negativen. In der Mitte ist das
-	Gesammtergebnis je nach Zustimmung gelb oder rot eingefärbt.
-      </td>
-    </tr>
-    <tr>
-      <td/><td>	<h3>Histogram</h3> </td>
-    </tr>
-    <tr>
-      <td><img src="/images/charts/histogram.png"/></td>
-      <td>
-	Das Histogram gibt Auskunft darüber wie viele Nutzer mit
-	welcher Intensität an einer Frage beteiligt sind. Alle Stimmen
-	haben ein Gewicht zwischen 1 und -1.
-      </td>
-    </tr>
-    <tr>
-      <td/><td>	<h3>Delegationsgraph</h3> </td>
-    </tr>
-    <tr>
-      <td><img src="/images/charts/graph.png"/></td>
-      <td>
-	Der Delegationsgraph zeigt an welche Beeinflussung durch
-	Stimmdelegation zu Stande kommt. Durch die Delegation werden
-	die eigenen Stimmgewichte denen des delegiertun Nutzers
-	angeglichen.
-      </td>
-    </tr>
-  </table>
 </p>
 
 <h2 id="sec-math">Wahltaktik und Wahlverfahren</h2>
@@ -250,7 +207,7 @@ die erste davon.
   <div class="example">
     <table>
       <tr><td/><td>A's Stimmgewicht</td><td>B's Stimmgewicht</td><td>Summe</td></tr>
-      <tr><td colspan="3"><hr/></td></tr>
+      <tr><td colspan="4"><hr/></td></tr>
       <tr><td>Forderung 1</td><td> 0 </td><td> 0.83 </td><td> 0.91 </td></tr>
       <tr><td>Forderung 2</td><td> 0.95 </td><td> 0.18 </td><td> 1.13 </td></tr>
       <tr><td>Forderung 3</td><td> -0.32 </td><td> 0.37 </td><td> 0.05 </td></tr>
@@ -272,7 +229,7 @@ die erste davon.
   <div class="example">
     <table>
       <tr><td/><td>A's Stimmgewicht</td><td>B's Stimmgewicht</td><td>Summe</td></tr>
-      <tr><td colspan="3"><hr/></td></tr>
+      <tr><td colspan="4"><hr/></td></tr>
       <tr><td>Forderung 1</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
       <tr><td>Forderung 2</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
       <tr><td>Forderung 3</td><td>  0 </td><td> 0 </td><td> 0 </td></tr>
@@ -286,6 +243,51 @@ die erste davon.
   hilfreich kann es zum Beispiel sein, sich einfach mal gegenseitig zu
   delegieren und zu sehen, ob man sich noch mit seinen Stimmgewichten
   identifizieren kann.
+</p>
+
+<h2 id="sec-charts">Analysefunktionen</h2>
+<p>
+  In der Detailansicht zu den Forderungen sind folgende
+  Analysefunktionen verfügbar.
+</p>
+<p>
+  <table>
+    <tr>
+      <td/><td>	<h3>Charts</h3> </td>
+    </tr>
+    <tr>
+      <td width="250"><img src="/images/charts/chart.png"/></td>
+      <td>
+	Charts zeigen den historischen Verlauf des Wahlergebnisses an.
+	Die obere Linie zeigt die Summe der positiven Stimmgewichte
+	und die untere die Summer der negativen. In der Mitte ist das
+	Gesammtergebnis je nach Zustimmung gelb oder rot eingefärbt.
+      </td>
+    </tr>
+    <tr>
+      <td/><td>	<h3>Histogram</h3> </td>
+    </tr>
+    <tr>
+      <td><img src="/images/charts/histogram.png"/></td>
+      <td>
+	Das Histogram gibt Auskunft darüber wie viele Nutzer mit
+	welcher Intensität an einer Forderung beteiligt sind. Alle Stimmen
+	haben ein Gewicht zwischen 1 und -1.
+      </td>
+    </tr>
+    <tr>
+      <td/><td>	<h3>Delegationsgraph</h3> </td>
+    </tr>
+    <tr>
+      <td><img src="/images/charts/graph.png"/></td>
+      <td>
+	Der Delegationsgraph zeigt an welche Beeinflussung durch
+	Stimmdelegation zu Stande kommt. Durch die Delegation werden
+	die eigenen Stimmgewichte denen des delegierten Nutzers
+	angeglichen.
+      </td>
+    </tr>
+  </table>
 </p>
 
 <h2 id="sec-menu">Linksammlung</h2>
