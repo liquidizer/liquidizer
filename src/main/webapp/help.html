@@ -9,6 +9,24 @@
 Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatten zu führen und Kompromisse spielerisch zu finden.
 </p>
 
+<p>
+  <h3>Warum Liquidizer?</h3>
+
+  Weil Einigung ein sozialer Prozess ist und nicht durch ein
+  mathematisches Auszählverfahren ersetzt werden kann.
+
+  <h3>Wie funktioniert der Liquidizer?</h3>
+
+  In einem interaktiven Wahlspiel müssen die Teilnehmer kooperieren um
+  ihre Präferenzen in der Gruppe sichtbar zu machen.
+
+  <h3>Was ist der Liquidizer?</h3>
+
+  Eine webbasierte Anwendung mit zahlreichen Visualisierungen und
+  Analysemöglichkeiten.
+
+</p>
+
 
 <h2 id="sec-menu">Das Hauptmenü</h2>
 <p>
@@ -18,7 +36,9 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
 	<a href="/queries"><img height="50" src="/images/queries.png"/></a>
       </td>
       <td>
-	Eine Übersicht über alle Fragen, die im System gerade gestellt werden.
+	Eine Übersicht über alle Forderungen, die im System gestellt
+	werden.  Von hier aus gelangt man zur Detailansicht mit einer
+	Liste der Wähler und graphischen Analysefunktionen.
       </td>
     </tr>
     <tr>
@@ -26,7 +46,8 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
 	<a href="/users"><img height="50" src="/images/users.png"/></a>
       </td>
       <td>
-	Eine Übersicht über alle im System angemeldeten User.
+	Eine Übersicht über alle im System angemeldeten User. Per Klick auf den User
+	gelangt man zur Detailansicht des Users.
       </td>
     </tr>
     <tr>
@@ -42,7 +63,10 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
 	<img height="50" src="/images/home.png"/>
       </td>
       <td>
-	Dieser Menüpunkt wird nur im eingeloggten Zustand angezeigt. Er bietet direkten Zugriff auf das eigene Profil und die eigenen Stimmen, sowie ein- und ausgehende Delegationen.
+	Dieser Menüpunkt wird nur im eingeloggten Zustand
+	angezeigt. Er bietet direkten Zugriff auf das eigene Profil
+	und die eigenen Stimmen, sowie ein- und ausgehende
+	Delegationen.
       </td>
     </tr>
   </table>
@@ -50,7 +74,11 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
 
 <h2 id="sec-vote">Abstimmen</h2>
 <p>
-  Das Wahlverfahren im Liquidizer arbeitet mit einem global beschränkten Stimmgewicht. Die abgegebenen <u>Stimmgewichte</u> ergeben quadriert und summiert genau eins.
+  Das Wahlverfahren im Liquidizer arbeitet mit einem global
+  beschränkten Stimmgewicht. Das maximale Gewicht, dass man in
+  eine Forderung einbringen kann ist 1.00. Es sinkt jedoch leicht,
+  sobald man sich mehreren Forderungen anschließt. Um seinen Einfluss
+  zu optimieren, muss man seine Stimmgewichtungen genau austarieren.
 </p>
 
 <p>
@@ -62,10 +90,11 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
       </td>
       <td>
 	Mit diesen Plus- und Minus-Buttons können immer die
-	eigenen <u>Präferenzen</u> gewählt
-	werden. Die <u>Päferenzen</u> sind nicht öffentlich und geben
-	das Verhältnis vor, in dem die
-	öffentlichen <u>Stimmgewichte</u> aufgeteilt werden.
+	eigenen <u>Präferenzen</u> gewählt werden. Per Plus schießt
+	man sich einer Forderung an, mit Minus lehnt man diese
+	ab. Die <u>Päferenzen</u> sind nicht öffentlich und geben das
+	Verhältnis vor, in dem die öffentlichen <u>Stimmgewichte</u>
+	aufgeteilt werden.
       </td>
     </tr>
     <tr height="10"/>
@@ -92,7 +121,9 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
 <h2 id="sec-emos">Emoticons</h2>
 
 <p>
-  Die Berechnung der Emoticons folgt einem drei-dimensionalen psychologischen Modell, mit Komponenten für Valenz, Erregung und Stärke.
+  Die Berechnung der Emoticons folgt einem drei-dimensionalen
+  psychologischen Modell, mit Komponenten für Valenz, Erregung und
+  Stärke.
 
   <table>
     <tr>
@@ -122,7 +153,8 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
   </table>
 </p>
 <p>
-  Das emotionale Modell kann hier getestet werden: <a href="/emoticons">http://liquidizer.org/emoticons</a>
+  Das emotionale Modell kann hier getestet
+  werden: <a href="/emoticons">http://liquidizer.org/emoticons</a>
 </p>
 
 <h2 id="sec-charts">Analysefunktionen</h2>
@@ -138,7 +170,9 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
       <td width="250"><img src="/images/charts/chart.png"/></td>
       <td>
 	Charts zeigen den historischen Verlauf des Wahlergebnisses an.
-	Die obere Linie zeigt die Summe der positiven Stimmgewichte und die untere die Summer der negativen. In der Mitte ist das Gesammtergebnis je nach Zustimmung gelb oder rot eingefärbt.
+	Die obere Linie zeigt die Summe der positiven Stimmgewichte
+	und die untere die Summer der negativen. In der Mitte ist das
+	Gesammtergebnis je nach Zustimmung gelb oder rot eingefärbt.
       </td>
     </tr>
     <tr>
@@ -147,7 +181,9 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
     <tr>
       <td><img src="/images/charts/histogram.png"/></td>
       <td>
-	Das Histogram gibt Auskunft darüber wie viele Nutzer mit welcher Intensität an einer Frage beteiligt sind. Alle Stimmen haben ein Gewicht zwischen 1 und -1.
+	Das Histogram gibt Auskunft darüber wie viele Nutzer mit
+	welcher Intensität an einer Frage beteiligt sind. Alle Stimmen
+	haben ein Gewicht zwischen 1 und -1.
       </td>
     </tr>
     <tr>
@@ -156,7 +192,10 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
     <tr>
       <td><img src="/images/charts/graph.png"/></td>
       <td>
-	Der Delegationsgraph zeigt an welche Beeinflussung durch Stimmdelegation zu Stande kommt. Durch die Delegation werden die eigenen Stimmgewichte denen des delegiertun Nutzers angeglichen.
+	Der Delegationsgraph zeigt an welche Beeinflussung durch
+	Stimmdelegation zu Stande kommt. Durch die Delegation werden
+	die eigenen Stimmgewichte denen des delegiertun Nutzers
+	angeglichen.
       </td>
     </tr>
   </table>
@@ -165,63 +204,88 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft politische Debatte
 <h2 id="sec-math">Wahltaktik und Wahlverfahren</h2>
 
 <p>
-Der Liquidizer arbeitet mit einem geometrisch auf eins beschränktem Stimmgewicht. Diese Art der Beschränkung führt dazu, dass es spieltheoretisch Sinn macht seine wahren Präferenzen Preis zu geben. 
+Der Liquidizer arbeitet mit einem global beschränktem
+Stimmgewicht. Alle Stimmgewichte, die ein Teilnehmer auf Forderungen
+verteilt, ergeben quadriert und summiert immer 1.  Diese Art der
+Beschränkung führt dazu, dass sich Stimmgewichte wohl überlegt
+vergeben werden müssen. Verteilt man seine Gewichte auf zu viele
+Themen, dann steigt zwar das Gesammtgewicht, gleichzeitig fällt
+aber der Einfluss auf ein einzelnes Thema.
 </p>
 
 <p>
-  <h3>Vergleich zu anderen Verfahren, am Beispiel mit zwei Fragen</h3>
-  <table>
-    <tr>
-      <td width="200"><img src="/images/charts/vote1.png"/></td>
-      <td>
-	Werden die Wahlen getrennt durchgeführt, dann kann man in
-	jeder Frage +1 oder -1 stimmen. Schon bei schwacher
-	Überzeugung muss man das volle Stimmgewicht
-	einbringen. Kompromisspotential bleibt dadurch verborgen.
-      </td>
-    </tr>
-    <tr>
-      <td><img src="/images/charts/vote2.png"/></td>
-      <td>
-	Das kumulative Wahlverfahren erlaubt die Aufteilung eines
-	summiert beschränkten Stimmgewichtes. Dies führt häufig zu
-	Stimmkonzentration auf eine oder wenige Fragen.
-      </td>
-    </tr>
-    <tr>
-      <td><img src="/images/charts/vote3.png"/></td>
-      <td>
-	Der Liquidizer nutzt ein Wahlverfahren mit quadriert
-	beschränktem Gewicht. Die Gewichte die auf einzelne Fragen
-	aufgeteilt werden, liegen geometrisch auf einem Kreis oder
-	einer Kugel mit Radius 1.  Es macht Sinn auch weiche
-	Präferenzen auszudrücken.
-      </td>
-    </tr>
-  </table>
+Im folgenden betrachten wir ein Beispiel in dem sich zwei Teilnehmer A
+und B an drei Forderungen beteiligen. Wie die nachfolgenden
+Präferenzen zeigen ist A sehr stark für Forderung 2, lehnt Forderung 3
+aber ab. B befürwortet alle drei Forderungen mit starker Präferenz auf
+die erste davon.
+
+  <div class="example">
+    <table>
+      <tr><td/><td>A's Präferenz</td><td>B's Präferens</td></tr>
+      <tr><td colspan="3"><hr/></td></tr>
+      <tr><td>Forderung 1</td><td> 0 </td><td> 5 </td></tr>
+      <tr><td>Forderung 2</td><td> 3 </td><td> 1 </td></tr>
+      <tr><td>Forderung 3</td><td> -1 </td><td> 2 </td></tr>
+    </table>
+  </div>
 </p>
 
-<h3>Wahltaktik</h3>
 <p>
-  <table>
-    <tr>
-      <td>
-	Wie jedes Wahlverfahren erlaubt der Liquidizer taktisches
-	Votieren.  In diesem Beispiel haben vier Wähler P,Q,R und S
-	unterschiedliche Meinungen zu den zwei Fragen.
-      </td>
-      <td width="30"/>
-      <td>
-	Durch Kooperation können P und S das Wahlergebnis
-	(vorübergehend) in ihre Richtung bewegen.
-      </td>
-    </tr>
-    <tr>
-      <td width="300"><img src="/images/charts/arrow1.png"/></td>
-      <td width="30"/>
-      <td width="300"><img src="/images/charts/arrow2.png"/></td>
-    </tr>
-  </table>
+  Daraus ergeben sich für A die Stimmgewichte 0, 0.95 und -0.32, denn
+
+  <div class="example">
+    0<sup>2</sup> + 0.95<sup>2</sup> + (-0.32)<sup>2</sup> = 0 + 0.9 + 0.1 = 1.
+  </div>
+
+  Für B ergeben sich die Gewichte 0.91, 0.18 und 0.37, denn
+
+  <div class="example">
+    0.91<sup>2</sup> + 0.18<sup>2</sup> + 0.37<sup>2</sup> = 0.83 + 0.033 + 0.13 = 1.
+  </div>
+
+  Es gilt zu beachten, dass die Stimmgewichte im selben Verhältnis
+  aufgeteilt werden wie die Päferenzen, allerdings sind sie wesentlich kleiner:
+
+  <div class="example">
+    <table>
+      <tr><td/><td>A's Stimmgewicht</td><td>B's Stimmgewicht</td><td>Summe</td></tr>
+      <tr><td colspan="3"><hr/></td></tr>
+      <tr><td>Forderung 1</td><td> 0 </td><td> 0.83 </td><td> 0.91 </td></tr>
+      <tr><td>Forderung 2</td><td> 0.95 </td><td> 0.18 </td><td> 1.13 </td></tr>
+      <tr><td>Forderung 3</td><td> -0.32 </td><td> 0.37 </td><td> 0.05 </td></tr>
+    </table>
+  </div>
+</p>
+
+<p>
+  In obigen Beispiel verschwenden sowohl A als auch B einen Gewissen
+  Teil ihres begrenzten Stimmgewichtes. Auf Forderung 3 haben sie so gut
+  wie keinen Einfluss und könnten diesen wesentlich besser in den Themen
+  einbringen, in denen sie sich einig sind.
+</p>
+
+<p>
+  Nehmen wir einmal an, sowohl A, als auch B würden ihre Präferenzen auf
+  0,1,1 verändern, dann ergäbe sich ein Stimmgewicht, dass beiden
+  erlaubt sich stärker im Gesammtergebnis sichtbar zu machen.
+  <div class="example">
+    <table>
+      <tr><td/><td>A's Stimmgewicht</td><td>B's Stimmgewicht</td><td>Summe</td></tr>
+      <tr><td colspan="3"><hr/></td></tr>
+      <tr><td>Forderung 1</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
+      <tr><td>Forderung 2</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
+      <tr><td>Forderung 3</td><td>  0 </td><td> 0 </td><td> 0 </td></tr>
+    </table>
+  </div>
+</p>
+
+<p>
+  Auf der Suche nach Kooperationsmöglichkeiten, lohnt es sich also
+  nach Verbündeten mit gleichen Wertvorstellungen zu suchen. Äußerst
+  hilfreich kann es zum Beispiel sein, sich einfach mal gegenseitig zu
+  delegieren und zu sehen, ob man sich noch mit seinen Stimmgewichten
+  identifizieren kann.
 </p>
 
 <h2 id="sec-menu">Linksammlung</h2>
