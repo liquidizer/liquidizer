@@ -21,13 +21,19 @@
 	  <tr>
 	    <td class="votable">
 	      <poll:name/>
+	      <div class="comment">
+		<user:comment/>
+		<user:itsme>
+		  <me:editButton/>
+		</user:itsme>
+	      </div>
 	    </td>
 	    <user:itsme>
-	      <td rowspan="2" nowrap="true" align="center">
+	      <td nowrap="true" align="center">
 		<lift:embed what="vote"/>
 	      </td>
 	    </user:itsme>
-	    <td rowspan="2" align="center">
+	    <td align="center">
 	      <table class="vote"><tr><td>
 		    <user:itsme>
 		      <span class="pass">=</span>
@@ -40,7 +46,7 @@
 	    </td>
 	    <lift:UserInfo.in>
 	      <user:notme>
-		<td rowspan="2" align="center">
+		<td align="center">
 		  <table class="vote"><tr><td>
 			<poll:notme>
 			  <me:weight format="decimal"/>
@@ -50,14 +56,6 @@
 		</td>
 	      </user:notme>
 	    </lift:UserInfo.in>
-	  </tr>
-	  <tr>
-	    <div class="comment">
-	      <user:comment/>
-	      <user:itsme>
-		<me:editButton/>
-	      </user:itsme>
-	    </div>
 	  </tr>
 	</user:votes>
       </table>
