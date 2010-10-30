@@ -114,12 +114,22 @@ object VoteCounter {
   }
   
   def getDelegationInflow(user : User) : Double = {
-    voteMap.getResult(VotableUser(user)).map { 1.0 + _.pro }
-    .getOrElse( if (voteMap.users.contains(user)) 1.0 else 0.0 )
+    voteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse {
+      if (getMaxPref(user)>0) 1.00 else 0.00 
+    }
   }
 
   def getDelegationOutflow(user : User) : Double = {
-    1.0 - voteMap.getVoteVector(user).getDelegationWeight(voteMap.id(user))
+    voteMap synchronized {
+      voteMap.users.get(user).map { uHead => 
+	uHead.votes.foldLeft (0.0) { (sum,link) => 
+	  link.nominee match {
+	  case VotableUser(user) => sum + link.preference.toDouble / uHead.denom
+	  case _ => sum
+	}} *
+	getDelegationInflow(user)
+      }.getOrElse(0.0)
+    }
   }
 
   def getResult(nominee : Votable) : Quote = {

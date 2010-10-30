@@ -153,12 +153,20 @@ class VotingHelper {
 	    case "profile" => 
 	      buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
 	      buttonFactory.toggleText
-	    case "inflow" =>  renderVote(() => formatResult(VoteCounter.getDelegationInflow(user)))
-	    case "outflow" =>  renderVote(() => formatResult(VoteCounter.getDelegationOutflow(user)))
+	    case "inflow" =>  
+	      <a href={nominee.uri+"/support.html"}>{
+		renderVote(() => formatResult(VoteCounter.getDelegationInflow(user)))
+	      }</a>
+	    case "outflow" =>  
+	      <a href={nominee.uri+"/delegates.html"}>{
+		renderVote(() => formatResult(VoteCounter.getDelegationOutflow(user)))
+	      }</a>
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
-	    case "delegates" => getDelegates().flatMap { delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate)) }
+	    case "delegates" => getDelegates().flatMap { 
+	      delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate))
+	    }
 	    case "emoticon" => 
 	      if (Full(user)==currentUser)
 		emoticon(user, attribs)
@@ -199,9 +207,10 @@ class VotingHelper {
 	} else {
 	  val emo= VoteCounter.getEmotion(currentUser.get, other)
 	  if (!emo.isEmpty) {
-	    Map("v" -> formatDouble(emo.get.valence.value / 2.0 + 0.5),
-		"a" ->  formatDouble(emo.get.valence.swing min 1.0),
-		"p" ->  formatDouble(emo.get.potency.value))
+	    val p= emo.get.potency.value
+	    val v= emo.get.valence.value / (.9*p + .1) / 2.0 + 0.5
+	    val a= (emo.get.valence.swing max emo.get.potency.swing) min 1.0 max 0.0
+	    Map("v" -> formatDouble(v), "a" -> formatDouble(a), "p" ->  formatDouble(p))
 	  }
 	  else
 	    Map("view" -> "sleeping")
@@ -249,17 +258,6 @@ class VotingHelper {
 	  case "result"  => {
 	    val format= in.attribute("format").getOrElse(Text("decimal"))
 	    renderVote(() => formatWeight(user,nominee,format.text))
-	  }
-	  case "flow" => {
-	    def denom= VoteCounter
-	    .getActiveVotes(user)
-	    .foldLeft(0) { 
-	      (a,b) => 
-		a + Math.abs(VoteCounter.getPreference(user,b)) 
-	    }
-	    renderVote(() => {
-	      val pref= VoteCounter.getPreference(user, nominee)
-	      formatResult(pref/Math.max(1.0, denom )) } ) 
 	  }
 	}
 

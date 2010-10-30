@@ -9,18 +9,29 @@ import _root_.org.liquidizer.model._
 /** This is the only class that makes write access to the votes table */
 object PollingBooth {
   
-  def comment(owner : User, nominee : Votable, comment : String):Unit = {
-    val votes=
-      Vote.findAll(
+  private getVote(owner : User, nominee : Votable) : Vote = {
+    def allVotes() = Vote.findAll(
 	By(Vote.owner, owner),
 	nominee match {
 	  case VotableQuery(query) => By(Vote.query, query)
 	  case VotableUser(user) => By(Vote.user, user)
 	},
 	OrderBy(Vote.date, Descending))
-    if (votes.isEmpty)
-      throw new Exception("You must cast a vote, before you can comment on it")
-    val vote = votes.first
+    val votes = allVotes()
+    if (votes.isEmpty) {
+      // user has not voted on this issue yet
+      vote(owner, nominee, 0)
+      allVotes().first
+    } 
+    else 
+      votes.first
+  }
+
+  def comment(owner : User, nominee : Votable, comment : String):Unit = {
+
+    // find the latest vote object
+    val vote = getVote(owner, nominee)
+
     // create and comment object
     val voteText=
       Comment.create

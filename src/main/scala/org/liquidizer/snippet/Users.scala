@@ -25,9 +25,11 @@ class Users extends MultipageSnippet {
   }
 
   def sortData(): Unit = {
-    sortData { u=> VoteCounter.getResult(u).pro }
+    sortData { 
+      case VotableUser(user) => VoteCounter.getDelegationInflow(user) 
+      case _ => 0.0
+    }
   }
-
 
   override def categories(in:NodeSeq) : NodeSeq = {
     val keys= search.split(" +").toList.map { _ toLowerCase }

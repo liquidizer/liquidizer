@@ -29,9 +29,11 @@ class NomineeHead {
 }
 
 class UserHead(id : Int) {
-  val vec= new VoteVector(id)
+  val vec = new VoteVector(id)
   var votes : List[LinkedVote] = Nil
-  val emos= mutable.Map.empty[User, Emotion]
+  val emos = mutable.Map.empty[User, Emotion]
+  var denom = 0
+  var inflow = 1.0
 }
 
 class VoteMap {
@@ -64,27 +66,34 @@ class VoteMap {
       voteMap.put((owner,nominee), newLink)
       newLink
     }
-    link.preference= vote.weight.is
+    val newPref= vote.weight.is
+    users.get(owner).get.denom += newPref.abs - link.preference.abs
+    link.preference= newPref
     dirty = true
   }
   
   def update(time : Long) : Unit = {
+    
+    // iterative matrix solving
     for (i <- 1 to 20) sweep()
 
-    for (head <- nominees) {
-      head._2.result= Quote(0,0)
-    }
+    // clear all nominee results
+    for (head <- nominees) { head._2.result= Quote(0,0) }
+
+    // collect the results for each nominee
     for (userHead <- users) {
+      // add all contributed voting weight to the results
       nominees.foreach { 
 	case (VotableUser(delegate), nomineeHead) if (delegate!=userHead._1) => 
-	  nomineeHead.result = nomineeHead.result + 
-	    Tick.toQuote(userHead._2.vec.getDelegationWeight(id(delegate)))
+          nomineeHead.result = nomineeHead.result + 
+            Tick.toQuote(userHead._2.vec.getDelegationWeight(id(delegate)))
 	case (VotableQuery(query), nomineeHead) => 
 	  val v=userHead._2.vec.getVotingWeight(id(query))
 	  nomineeHead.result = nomineeHead.result + Tick.toQuote(v)
 	case _ =>
       }
     }
+    // include the new results in the time series
     for (head <- nominees) head._2.update(time)
     dirty = false
   }
@@ -92,18 +101,41 @@ class VoteMap {
   /** Iterative step to solve the equation system */
   def sweep() : Unit = synchronized {
     users.foreach { case (user,head) => 
+      // reset the voting vector
       head.vec.clear()
+      // vor each vote cast by the user update the voting vector
       for (link <- head.votes) {
 	link.nominee match {
 	  case VotableQuery(query) => 
+	    // the vote is cast on a query
 	    head.vec.addVote(link.preference, id(query))
 	  case VotableUser(user) => 
+	    // the vote is a delegation, mix in the delegates voting weights
 	    val uHead= users.get(user)
 	    if (!uHead.isEmpty)
 	      head.vec.addDelegate(link.preference, uHead.get.vec)
 	}
       }
+      // ensure the global voting weight constraint
       head.vec.normalize()
+    }
+    // collect the delegation inflows for each nominated user
+    nominees.foreach {
+      case (VotableUser(user), nHead) =>
+	users.get(user).foreach {
+	  uHead =>
+	    // reset the inflow
+	    uHead.inflow= 1.0
+	    // for each voter, increase the inflow according to the voters inflow 
+	    // and her delegated voting weight.
+	    nHead.votes.foreach { 
+	      link => 
+		val supHead= users.get(link.owner).get
+		uHead.inflow += 
+	           supHead.inflow * (link.preference.toDouble / supHead.denom.max(1))
+	    }
+	}
+      case _ =>
     }
   }
 
@@ -119,7 +151,7 @@ class VoteMap {
     }
   }  
   
-  
+  /** dump to screen */
   def dump() = {
     users.foreach {
       case (user, head) => {
@@ -142,13 +174,15 @@ class VoteMap {
     users.get(user).map { _.vec }.getOrElse( new VoteVector(id(user)) )
   }
 
+  /** get the global voting result for the nominee */
   def getResult(nominee : Votable) : Option[Quote] = synchronized {
     nominees.get(nominee).map{ _.result }
   }
 
+  /** get the user's contribution to a vote on the nominee */
   def getWeight(user : User, nominee: Votable) : Double = nominee match {
-    case VotableUser(delegate) => getVoteVector(user).getDelegationWeight(id(delegate))
     case VotableQuery(query) => getVoteVector(user).getVotingWeight(id(query))
+    case VotableUser(delegate) => getVoteVector(user).getDelegationWeight(id(delegate))
   }
 
   def getPreference(user : User, nominee : Votable) : Int = {

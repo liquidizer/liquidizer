@@ -108,7 +108,7 @@ class AddQuery extends StatefulSnippet {
   def create(in:NodeSeq) : NodeSeq = {
     Helpers.bind("addquery", in,
 		 "what" -> SHtml.textarea(what, what = _, "rows"-> "5", "cols"-> "20"),
-		 "keys" -> SHtml.text(keys, keys = _, "cols"-> "20"),
+		 "keys" -> SHtml.text(keys, keys = _, "size"-> "20"),
 		 "submit" -> SHtml.submit("Absenden", ()=>verifyQuery))
   }
 
