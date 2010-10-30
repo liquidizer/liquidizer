@@ -42,7 +42,13 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def sortData(f : Votable => Double): Unit = {
     data = data
     .map { item => (f(item), item) }
-    .sort { _._1 >= _._1 }
+    .sort { (a,b) =>  
+      if (a._1 > b._1) 
+	true
+      else 
+	 if (a._1 < b._1) 
+	   false
+	 else a._2.id > b._2.id }
     .map { _._2 }
   }
   

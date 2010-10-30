@@ -6,20 +6,25 @@
     <lift:form method="post">
       <lift:UserDetails eager_eval="true">
 	<div>
-	  <div class="head">
-	    <h2>Pirat : <poll:name/></h2>
-	  </div>
 	  <table width="100%">
-	    <td rowspan="3" height="80" width="80">
-	      <user:emoticon size="80"/>
-	    </td>
 	    <tr>
-	      <td rowspan="2">
+	      <td colspan="4">
+		<span style="font-size:medium">Pirat : <poll:name/></span>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td colspan="4">
 		<user:profile/>
 		<user:itsme>
 		  <me:editButton/>
 		</user:itsme>
 	      </td>
+	    </tr>
+	    <td rowspan="3" height="80" width="80">
+	      <user:emoticon size="80"/>
+	    </td>
+	    <tr>
+	      <td rowspan="2"/>
 	      <lift:UserInfo.in>
 		<user:notme>
 		  <th class="vote_th">Deine Präferenz</th>

@@ -82,15 +82,17 @@ class VoteMap {
 
     // collect the results for each nominee
     for (userHead <- users) {
-      // add all contributed voting weight to the results
+      // sum all contributed voting weights to the results of queries
       nominees.foreach { 
-	case (VotableUser(delegate), nomineeHead) if (delegate!=userHead._1) => 
-          nomineeHead.result = nomineeHead.result + 
-            Tick.toQuote(userHead._2.vec.getDelegationWeight(id(delegate)))
 	case (VotableQuery(query), nomineeHead) => 
 	  val v=userHead._2.vec.getVotingWeight(id(query))
 	  nomineeHead.result = nomineeHead.result + Tick.toQuote(v)
 	case _ =>
+      }
+      // set the computed inflow as result for votable users
+      val nominee= VotableUser(userHead._1)
+      nominees.get(nominee).foreach { 
+	_.result= Tick.toQuote(userHead._2.vec.getInflow() + 1.0)
       }
     }
     // include the new results in the time series
@@ -106,36 +108,27 @@ class VoteMap {
       // vor each vote cast by the user update the voting vector
       for (link <- head.votes) {
 	link.nominee match {
+          case VotableUser(user) => 
+            // the vote is a delegation, mix in the delegates voting weights
+            val uHead= users.get(user)
+            if (!uHead.isEmpty)
+              head.vec.addDelegate(link.preference, uHead.get.vec)
 	  case VotableQuery(query) => 
 	    // the vote is cast on a query
 	    head.vec.addVote(link.preference, id(query))
-	  case VotableUser(user) => 
-	    // the vote is a delegation, mix in the delegates voting weights
-	    val uHead= users.get(user)
-	    if (!uHead.isEmpty)
-	      head.vec.addDelegate(link.preference, uHead.get.vec)
+	  case _ =>
+	}
+      }
+      // compute the inflow
+      if (nominees.contains(VotableUser(user))) {
+	for (link <- nominees.get(VotableUser(user)).get.votes) {
+	  val uHead= users.get(link.owner).get
+	  val denom= (uHead.denom.toDouble max 1.0)
+	  head.vec.addSupporter(link.preference / denom, uHead.vec)
 	}
       }
       // ensure the global voting weight constraint
       head.vec.normalize()
-    }
-    // collect the delegation inflows for each nominated user
-    nominees.foreach {
-      case (VotableUser(user), nHead) =>
-	users.get(user).foreach {
-	  uHead =>
-	    // reset the inflow
-	    uHead.inflow= 1.0
-	    // for each voter, increase the inflow according to the voters inflow 
-	    // and her delegated voting weight.
-	    nHead.votes.foreach { 
-	      link => 
-		val supHead= users.get(link.owner).get
-		uHead.inflow += 
-	           supHead.inflow * (link.preference.toDouble / supHead.denom.max(1))
-	    }
-	}
-      case _ =>
     }
   }
 
@@ -180,9 +173,11 @@ class VoteMap {
   }
 
   /** get the user's contribution to a vote on the nominee */
-  def getWeight(user : User, nominee: Votable) : Double = nominee match {
-    case VotableQuery(query) => getVoteVector(user).getVotingWeight(id(query))
-    case VotableUser(delegate) => getVoteVector(user).getDelegationWeight(id(delegate))
+  def getWeight(user : User, nominee: Votable) : Double = synchronized {
+    nominee match {
+      case VotableQuery(query) => getVoteVector(user).getVotingWeight(id(query))
+      case VotableUser(delegate) => getVoteVector(delegate).getSupportWeight(id(user))
+    }
   }
 
   def getPreference(user : User, nominee : Votable) : Int = {

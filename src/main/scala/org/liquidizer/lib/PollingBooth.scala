@@ -9,7 +9,7 @@ import _root_.org.liquidizer.model._
 /** This is the only class that makes write access to the votes table */
 object PollingBooth {
   
-  private getVote(owner : User, nominee : Votable) : Vote = {
+  private def getVote(owner : User, nominee : Votable) : Vote = {
     def allVotes() = Vote.findAll(
 	By(Vote.owner, owner),
 	nominee match {

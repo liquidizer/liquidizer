@@ -112,10 +112,13 @@ object VoteCounter {
   def dump:Unit = {
     voteMap.dump()
   }
-  
+
+  /** get the theoretical voting power, if all delegations are turned into votes */
   def getDelegationInflow(user : User) : Double = {
     voteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse {
-      if (getMaxPref(user)>0) 1.00 else 0.00 
+      voteMap.users.get(user).map { 
+	head => if (head.denom>0) 1.00 else 0.00 
+      }.getOrElse(0.00)
     }
   }
 
@@ -124,10 +127,9 @@ object VoteCounter {
       voteMap.users.get(user).map { uHead => 
 	uHead.votes.foldLeft (0.0) { (sum,link) => 
 	  link.nominee match {
-	  case VotableUser(user) => sum + link.preference.toDouble / uHead.denom
+	  case VotableUser(_) => sum + voteMap.getWeight(user, link.nominee)
 	  case _ => sum
-	}} *
-	getDelegationInflow(user)
+	}}
       }.getOrElse(0.0)
     }
   }
