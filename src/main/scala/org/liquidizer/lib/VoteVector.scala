@@ -49,8 +49,6 @@ class VoteVector(
     val circular= if (olen>userID) other.supporters(userID) else 0.0
     for (i <- 0 to olen-1)
       supporters(i) += weight * (other.supporters(i) - circular*supporters(i)).max(0)
-    for (i <- olen to supporters.length-1)
-      supporters(i) += weight * (1-circular).max(0)
   }
   
   def addVote(weight : Double, queryId : Int) = {
