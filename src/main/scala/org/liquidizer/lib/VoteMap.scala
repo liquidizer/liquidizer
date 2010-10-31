@@ -92,7 +92,7 @@ class VoteMap {
       // set the computed inflow as result for votable users
       val nominee= VotableUser(userHead._1)
       nominees.get(nominee).foreach { 
-	_.result= Tick.toQuote(userHead._2.vec.getInflow() + 1.0)
+	_.result= Tick.toQuote(userHead._2.vec.getInflow())
       }
     }
     // include the new results in the time series
@@ -180,13 +180,18 @@ class VoteMap {
     }
   }
 
+  /** Get the integer preference number */
   def getPreference(user : User, nominee : Votable) : Int = {
     voteMap.get((user,nominee)).map { _.preference }.getOrElse(0)
   }
 
+  /** Get all users who expressed a delegation */
   def getSupporters(nominee : Votable) : List[LinkedVote] = {
       nominees.get(nominee).map { _.votes }.getOrElse(Nil)
   }
+
+  def getDenom(user : User) : Int =
+    users.get(user).map { _.denom }.getOrElse(0)
 
   def getVotes(user : User) : List[LinkedVote] = {
       users.get(user).map { _.votes }.getOrElse(Nil)

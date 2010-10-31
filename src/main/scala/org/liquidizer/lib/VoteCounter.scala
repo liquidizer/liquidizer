@@ -116,23 +116,22 @@ object VoteCounter {
   /** get the theoretical voting power, if all delegations are turned into votes */
   def getDelegationInflow(user : User) : Double = {
     voteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse {
-      voteMap.users.get(user).map { 
-	head => if (head.denom>0) 1.00 else 0.00 
-      }.getOrElse(0.00)
+      if (voteMap.getDenom(user)>0) 1.00 else 0.00
     }
   }
 
   def getDelegationOutflow(user : User) : Double = {
-    voteMap synchronized {
-      voteMap.users.get(user).map { uHead => 
-	uHead.votes.foldLeft (0.0) { (sum,link) => 
-	  link.nominee match {
-	  case VotableUser(_) => sum + voteMap.getWeight(user, link.nominee)
-	  case _ => sum
-	}}
-      }.getOrElse(0.0)
-    }
+    getActiveVotes(user).foldLeft (0.0) { (sum, nominee) =>
+      nominee match {
+	case VotableUser(_) => sum + getCumulativeWeight(user, nominee)
+	case _ => sum
+      }
+    } * getDelegationInflow(user)
   }
+
+  def getCumulativeWeight(user : User, nominee : Votable) =
+    voteMap.getPreference(user, nominee).toDouble / (voteMap.getDenom(user) max 1)
+
 
   def getResult(nominee : Votable) : Quote = {
     voteMap.getResult(nominee).getOrElse(Quote(0.0, 0.0))

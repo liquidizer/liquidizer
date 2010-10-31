@@ -25,6 +25,7 @@ class VoteVector(
   def clear() : Unit = {
     clear(votes, 0.0)
     clear(supporters, 0.0)
+    supporters(userID)=1.0
   }
 
   def enlarge(vec : Array[Double], minLength : Int) = {
@@ -47,10 +48,9 @@ class VoteVector(
     // add the delegation weights for all users
     val circular= if (olen>userID) other.supporters(userID) else 0.0
     for (i <- 0 to olen-1)
-      supporters(i) += weight * (other.supporters(i) - circular).max(0)
+      supporters(i) += weight * (other.supporters(i) - circular*supporters(i)).max(0)
     for (i <- olen to supporters.length-1)
       supporters(i) += weight * (1-circular).max(0)
-    supporters(other.userID)+= weight
   }
   
   def addVote(weight : Double, queryId : Int) = {
@@ -78,7 +78,7 @@ class VoteVector(
   def getVotingWeight(queryId : Int) : Double = 
     if (queryId < votes.length) votes(queryId) else 0.0
   
-  def getSupportWeight(userId : Int) : Double =
+  def getSupportWeight(userId : Int) =
     if (userId < supporters.length) supporters(userId) else 0.0
 
   def getInflow() : Double = supporters.reduceLeft { _+_ }

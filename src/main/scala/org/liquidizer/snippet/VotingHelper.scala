@@ -27,11 +27,13 @@ class VotingHelper {
     <span id={"dynamicvote"+displayedVotes.size}>{result()}</span>
   }
   def formatDouble(value : Double) : String =  String.format("%3.2f",double2Double(value))
-  def formatResult(value : Double) : Node = {
-    <span class={
-      if (value>=5e-3) "pro" else if (value< (-5e-3)) "contra" else "pass"
-    }>{ formatDouble(value) } </span>	  
-  }
+
+  def formatResult(value : Double, style: String) : Node = 
+    <span class={style}> { formatDouble(value) } </span>
+
+  def formatResult(value : Double) : Node =
+      formatResult(value, 
+		   if (value>=5e-3) "pro" else if (value< (-5e-3)) "contra" else "pass")
 
   def formatWeight(user: User, nominee : Votable, format:String):Node = {
     format match {
@@ -159,7 +161,7 @@ class VotingHelper {
 	      }</a>
 	    case "outflow" =>  
 	      <a href={nominee.uri+"/delegates.html"}>{
-		renderVote(() => formatResult(VoteCounter.getDelegationOutflow(user)))
+		renderVote(() => formatResult(VoteCounter.getDelegationOutflow(user), "contra"))
 	      }</a>
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
@@ -258,6 +260,12 @@ class VotingHelper {
 	  case "result"  => {
 	    val format= in.attribute("format").getOrElse(Text("decimal"))
 	    renderVote(() => formatWeight(user,nominee,format.text))
+	  }
+	  case "weight" => {
+	    val style= in.attribute("style").getOrElse(Text("pro"))
+	    renderVote(() => formatResult(
+	      VoteCounter.getDelegationInflow(user) * 
+	      VoteCounter.getCumulativeWeight(user, nominee), style.text))
 	  }
 	}
 

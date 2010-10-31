@@ -7,7 +7,7 @@ import net.liftweb._
 import net.liftweb.util._
 import net.liftweb.http._
 import net.liftweb.common._
-
+import net.liftweb.util.Helpers.TheStrBindParam
 
 object EmotionView {
 
@@ -33,6 +33,11 @@ object EmotionView {
  
     node= SVGUtil.resize(node, size, size)
     
-    Full(XmlResponse(node, "image/svg+xml"))
+    Full(new XmlResponse(node, 200, "image/svg+xml", Nil) {
+      // override the cache expiry
+      override def headers = 
+	TheStrBindParam("Cache-Control", 
+			 "max-age: %d, public".format(60 * 60 * 24 * 7)) :: super.headers
+    })
  } 
 }

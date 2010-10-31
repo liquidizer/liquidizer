@@ -5,7 +5,9 @@
 	  <th/><th/>
 	  <th  class="vote_th">Abfluss</th>
 	  <lift:UserInfo.in>
-	    <th  class="vote_th">Delegieren</th>
+	    <user:itsme>
+	      <th  class="vote_th">Delegieren</th>
+	    </user:itsme>
 	  </lift:UserInfo.in>
 	</tr>
 	<user:delegates>
@@ -25,7 +27,7 @@
 	      </div>
 	    </td>
 	    <td align="center">
-	      <table class="vote"><tr><td><vote:result/></td></tr></table>
+	      <table class="vote"><tr><td><vote:weight style="contra"/></td></tr></table>
 	    </td>
 	    <lift:UserInfo.in>
 	      <td nowrap="true" align="center">
