@@ -7,6 +7,7 @@
 	  <h2 class="orange">
 	    Willkommen <span class="purple"><me:name/></span>!
 	  </h2>
+	  <div style="color:red"><lift:Msgs showAll="true"/></div>
 	</div>
 	<lift:UserInfo.votes>
 	  <div class="balance">
@@ -83,10 +84,8 @@
 	    <div class="head">
 	      <h2>Willkommen beim Liquidizer</h2>
 	    </div>
+	    <div style="color:red"><lift:Msgs showAll="true"/></div>
 	    <table>
-	      <tr>
-		<td/><td colspan="2" style="color:red"><lift:Msgs/></td>
-	      </tr>
 	      <tr>
       		<th>Username</th>
       		<td><me:name/></td>
@@ -100,7 +99,10 @@
 		<td colspan="3"><hr/></td>
 	      </tr>
 	      <tr>
-		<td colspan="3"><a href="/signup.html">Neu Anmelden</a></td>
+		<td colspan="3"><a href="/user_mgt/signup.html">Neu Anmelden</a></td>
+	      </tr>
+	      <tr>
+		<td colspan="3"><a href="/user_mgt/lost_password.html">Neues Passwort senden</a></td>
 	      </tr>
 	    </table>
 	  </td>
@@ -110,9 +112,9 @@
 	  <td>
 	    <h3>Das erste mal hier?</h3>
 	    <ol>
-	      <li><a href="/queries">Forderungen im System ansehen</a></li>
-	      <li><a href="/users">Andere Piraten im System</a></li>
 	      <li><a href="/help">Erkärung lesen</a></li>
+	      <li><a href="/queries">Forderungen im System ansehen</a></li>
+	      <li><a href="/users">Andere Piraten im System ansehen</a></li>
 	      <li><a href="/signup.html">Anmelden</a></li>
 	    </ol>
 	  </td>

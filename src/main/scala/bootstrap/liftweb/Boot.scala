@@ -12,6 +12,7 @@ import _root_.java.sql.{Connection, DriverManager}
 
 import _root_.org.liquidizer.view._
 import _root_.org.liquidizer.model._
+import _root_.org.liquidizer.snippet._
 import _root_.org.liquidizer.lib._
 
 
@@ -60,6 +61,7 @@ class Boot {
       case Req(List("users",user,"chart.svg"),_,_) => () => TimeseriesView.userChart(user)
       case Req(List("graph.svg"),_,_) => () => DelegationGraphView.superGraph()
       case Req(List("emoticons","face.svg"),_,_) => () => EmotionView.face()
+      case Req(List("user_mgt","reset_password", id),_,_) => () => UserInfo.passwordReset(id)
     }
 
     LiftRules.statelessRewrite.append {
@@ -112,3 +114,4 @@ class Boot {
     req.setCharacterEncoding("UTF-8")
   }
 }
+
