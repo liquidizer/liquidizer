@@ -37,7 +37,8 @@ object EmotionView {
       // override the cache expiry
       override def headers = 
 	TheStrBindParam("Cache-Control", 
-			 "max-age: %d, public".format(60 * 60 * 24 * 7)) :: super.headers
+			 "max-age= %d, public".format(60 * 60 * 24 * 7)) 
+			 :: super.headers
     })
  } 
 }
