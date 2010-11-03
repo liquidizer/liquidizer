@@ -184,9 +184,21 @@ class UserInfo {
 	   case Full(user) => {
              user.uniqueId.reset().save  
              val resetLink = S.hostAndPath+User.passwordResetPath.mkString("/", "/", "/")+user.uniqueId
-	     println("resetLink= " + resetLink)
 
-             val msgXml = User.passwordResetMailBody(user, resetLink)  
+             val msgXml =   (<html>  
+			     <head>  
+			     <title>{S.??("reset.password.confirmation")}</title>  
+			     </head>  
+			     <body>  
+			     <p>{S.??("dear")} {user.nick},  
+			     <br/>  
+			     {S.??("click.reset.link")}  
+			     <br/><a href={resetLink}>{resetLink}</a>  
+			     <br/>  
+			     {S.??("thank.you")}  
+			     </p>  
+			     </body>  
+			     </html>)
 
              Mailer.sendMail(From(User.emailFrom), Subject(User.passwordResetEmailSubject),  
                            To(user.email), xmlToMailBodyType(msgXml))
