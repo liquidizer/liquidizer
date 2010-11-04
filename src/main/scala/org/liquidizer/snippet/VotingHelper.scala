@@ -47,8 +47,8 @@ class VotingHelper {
     }
   }
 
-  def formatNominee(nominee : Votable):Node = 
-    <a href={nominee.uri+"/index.html" }>{nominee.toString}</a>
+  def formatNominee(nominee : Votable) : NodeSeq = 
+    Markup.renderHeader(nominee.toString, nominee.uri+"/index.html")
   
   def vote(nominee : Votable, weightChange : Int) : JsCmd = {
     val newVote= VoteCounter.getPreference(currentUser.get, nominee) + weightChange

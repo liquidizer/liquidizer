@@ -10,7 +10,7 @@ import _root_.net.liftweb.common._
 
 object Markup {
 
-  val url= "(http:/[^\\s]*[^\\s!?&.<>])".r
+  val url= "(http:/[^\\s\"]*[^\\s!?&.<>])".r
   val nl= "(\\s*(\n|\r)+\\s*)+".r
  
   def renderComment(in:String) : NodeSeq = {
@@ -18,7 +18,7 @@ object Markup {
     val node:Node= Text(in)
     var text= node.toString
 
-    text= url.replaceAllIn(text, "<a href=\"$1\">$1</a>")
+    text= url.replaceAllIn(text, "<a href=\"$1\" class=\"extern\">$1</a>")
     text= nl.replaceAllIn(text, "<br/>")
 
     try {
@@ -31,6 +31,15 @@ object Markup {
   
   def renderTagList(in:List[String]) : Node = {
     <span class="keys">{in.mkString(", ")}</span>
+  }
+
+  def renderHeader(in : String, link : String) : NodeSeq = {
+    url.findFirstMatchIn(in) match {
+      case Some(m) =>
+        <a href={link}>{m.before}</a> ++ <a href={m.matched} class="extern">LINK</a>
+      case _ =>
+	<a href={link}>{in}</a>
+    }
   }
 }
 

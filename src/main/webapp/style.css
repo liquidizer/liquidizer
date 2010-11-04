@@ -37,6 +37,10 @@ a {
     color: #662e91;
     text-decoration:none; 
 }
+a.extern {
+   color: #CC0000;
+    text-decoration:underline; 
+}
 
 .view { float: right; }
 .view form { float: right; }
@@ -119,11 +123,6 @@ a {
 .comment {
     margin: 5px 0 10px 10px;
     font-weight: normal;
-}
-.comment a { 
-    font-weight: normal;
-    color: #CC0000;
-    text-decoration: underline;
 }
 /* user's guide */
 #table-of-contents a { text-decoration:none; }

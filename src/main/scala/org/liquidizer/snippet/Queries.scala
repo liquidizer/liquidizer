@@ -61,8 +61,12 @@ class QueryDetails extends MultipageSnippet {
       .filter { searchFilter _ }
       .map { VotableUser(_) }
     
-    sortData( _ match { case VotableUser(user) => 
-      VoteCounter.getWeight(user, VotableQuery(query.get)).abs
+    sortData( _ match { 
+      case VotableUser(user) => 
+	VoteCounter.getDelegationInflow(user) *
+	VoteCounter.getWeight(user, VotableQuery(query.get)).abs + (
+	  if (VoteCounter.getComment(user, VotableQuery(query.get)).isEmpty)
+	    0 else 1000)
     })
 
     // check if my own vote is registered. 
