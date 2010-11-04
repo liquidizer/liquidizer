@@ -36,7 +36,7 @@ object Markup {
   def renderHeader(in : String, link : String) : NodeSeq = {
     url.findFirstMatchIn(in) match {
       case Some(m) =>
-        <a href={link}>{m.before}</a> ++ <a href={m.matched} class="extern">LINK</a>
+        <a href={link}>{m.before}</a> ++ <a href={m.matched} title={m.matched} class="extern">LINK</a>
       case _ =>
 	<a href={link}>{in}</a>
     }
