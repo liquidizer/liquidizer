@@ -60,5 +60,18 @@
 	</user:votes>
       </table>
   </lift:bind-at>
+  <lift:bind-at name="selection">
+    <div style="position:absolute">
+      <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
+      <lift:MenuMarker>
+	<ul class="popup" id="sort">
+	  <li><menu:a action="sort" value="weight" default="true">Gewicht</menu:a></li>
+	  <li><menu:a action="sort" value="comment_age">Kommentarzeit</menu:a></li>
+	  <li><menu:a action="sort" value="approval">Zustimmung</menu:a></li>
+	  <li><menu:a action="sort" value="objection">Ablehnung</menu:a></li>
+	</ul>
+      </lift:MenuMarker>
+    </div>
+  </lift:bind-at>
 </lift:surround>
 

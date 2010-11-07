@@ -28,10 +28,6 @@ class Queries extends MultipageSnippet {
     sortData()
   }
 
-  def sortData(): Unit = {
-    sortData { q => Math.abs(VoteCounter.getResult(q).value) }
-  }
-
   override def categories(in:NodeSeq) : NodeSeq = {
     val keys= search.split(" +").toList.distinct.map { _ toLowerCase }
     val markup= new CategoryView(keys, "/queries.html")
@@ -61,13 +57,7 @@ class QueryDetails extends MultipageSnippet {
       .filter { searchFilter _ }
       .map { VotableUser(_) }
     
-    sortData( _ match { 
-      case VotableUser(user) => 
-	VoteCounter.getDelegationInflow(user) *
-	VoteCounter.getWeight(user, VotableQuery(query.get)).abs + (
-	  if (VoteCounter.getComment(user, VotableQuery(query.get)).isEmpty)
-	    0 else 1000)
-    })
+    sortData(VotableQuery(query.get))
 
     // check if my own vote is registered. 
     // If not a page update should show it after the first vote is cast
@@ -106,13 +96,13 @@ class AddQuery extends StatefulSnippet {
     case "confirm" => confirm _
   }
 
-  var what= "Frage"
+  var what= ""
   var keys= S.param("search").getOrElse("")
 
   def create(in:NodeSeq) : NodeSeq = {
     Helpers.bind("addquery", in,
-		 "what" -> SHtml.textarea(what, what = _, "rows"-> "5", "cols"-> "20"),
-		 "keys" -> SHtml.text(keys, keys = _, "size"-> "20"),
+		 "what" -> SHtml.textarea(what, what = _, "rows"-> "3", "cols"-> "40", "placeholder" -> "Frage"),
+		 "keys" -> SHtml.text(keys, keys = _, "size"-> "40"),
 		 "submit" -> SHtml.submit("Absenden", ()=>verifyQuery))
   }
 

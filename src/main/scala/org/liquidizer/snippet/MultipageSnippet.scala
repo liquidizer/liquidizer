@@ -38,7 +38,68 @@ abstract class MultipageSnippet extends StatefulSnippet {
   
   def from = pagesize * page
   def to = Math.min(pagesize * (page+1), size)
-  
+
+  /** Create a sort ordering function for users voting on a fixed nominee */
+  def sortFunction(order: String, nominee:Votable) : (Votable => Double) = {
+    def inflow(user:User) = VoteCounter.getDelegationInflow(user)
+    def weight(user:User) = VoteCounter.getWeight(user, nominee)
+    def comment(user:User) = VoteCounter.getComment(user, nominee)
+    def bonus(user:User) = if (comment(user).isEmpty) 0 else 1000
+    def isUser(q:Votable, f:(User=>Double)) = 
+      q match { case VotableUser(u) => f(u) + bonus(u) case _ => -1e10 }
+
+    order match {
+      case "" | "weight" => isUser(_, user => inflow(user)*weight(user).abs)
+      case "approval" => isUser(_, weight(_))
+      case "objection" => isUser(_, -weight(_))
+      case "comment_age" => isUser(_, VoteCounter.getCommentTime(_, nominee))
+      case _ => 
+	val superSorter= sortFunction(order)
+	isUser(_, u => bonus(u) + superSorter(VotableUser(u)))
+    }
+  }
+
+  /** Create a sort ordering function for votes cast by a fixed user */
+  def sortFunction(order: String, user:User) : (Votable => Double) = {
+    def weight(nominee : Votable) = VoteCounter.getWeight(user, nominee)
+    order match {
+      case "" | "weight" => weight(_).abs
+      case "approval" => weight(_)
+      case "objection" => -weight(_)
+      case "comment_age" => VoteCounter.getCommentTime(user, _)
+      case _ => sortFunction(order)
+    }
+  }
+
+  /** Create a sort ordering function for users and queries */
+  def sortFunction(order : String) : (Votable => Double) = {
+    def result(q:Votable)= VoteCounter.getResult(q)
+    def isUser(q:Votable, f:(User=>Double)) = 
+      q match { case VotableUser(u) => f(u) case _ => -1e10 }
+    def emotion(q:Votable, f:(Emotion=>Double)) =
+      isUser(q, u=>
+	     User.currentUser match { 
+	       case Full(me) => VoteCounter.getEmotion(me,u).map{ f(_) }.getOrElse(-1e9)
+	       case _=> -1e10 })
+    order match {
+      case "" | "value" => result(_).value.abs
+      case "age" => q => q.id
+      case "pro" => result(_).value
+      case "contra" => -result(_).value
+      case "swing" => VoteCounter.getSwing(_)
+      case "volume" => result(_).volume
+      case "inflow" => isUser(_, VoteCounter.getDelegationInflow(_))
+      case "outflow" => isUser(_, VoteCounter.getDelegationInflow(_))
+      case "valence" => emotion(_, _.valence.value)
+      case "avalence" => emotion(_, -_.valence.value)
+      case "arrousal" => emotion(_, _.getArousal)
+    }
+  }
+
+  def sortData(): Unit = sortData(sortFunction(order))
+  def sortData(nominee: Votable): Unit = sortData(sortFunction(order, nominee))
+  def sortData(user: User): Unit = sortData(sortFunction(order, user))
+
   def sortData(f : Votable => Double): Unit = {
     data = data
     .map { item => (f(item), item) }
@@ -104,23 +165,6 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	  this.unregisterThisSnippet
 	  S.redirectTo(S.uri + (if (order.length>0) "?sort="+order else "")) } )
 
-      case <view:sort>{ _* }</view:sort> => 
-	<span/>
-      // {
-      // 	val uri= S.uri
-      // 	val options=
-      // 	  (in\\"option")
-      // 	  .filter { !User.currentUser.isEmpty || 
-      // 		   _.attribute("login").map { _.text!="true" }.getOrElse(true) }
-      // 	  .map { node => (node.attribute("value").get.text, node.text) }
-      
-      // 	SHtml.ajaxSelect(options, Full(order), option => {
-      // 	  unregisterThisSnippet
-      // 	  RedirectTo(uri+"?sort="+option+
-      // 		     (if (search.length>0) "&search="+search else "")) })
-      // }
-
-		 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, view(children) : _*)
 

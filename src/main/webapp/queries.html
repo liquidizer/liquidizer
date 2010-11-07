@@ -48,9 +48,20 @@
     <div class="head">
       <lift:Queries.view form="POST" eager_eval="true">
 	<search:input/>
-	<lift:embed what="sort_queries"/>
       </lift:Queries.view>
+      <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
+      <lift:MenuMarker>
+	<ul class="popup" id="sort">
+	  <li><menu:a action="sort" value="value" default="true">Ergebnis</menu:a></li>
+	  <li><menu:a action="sort" value="volume">Beteiligung</menu:a></li>
+	  <li><menu:a action="sort" value="age">Neuigkeit</menu:a></li>
+	  <li><menu:a action="sort" value="pro">Zustimmung</menu:a></li>
+	  <li><menu:a action="sort" value="contra">Ablehnung</menu:a></li>
+	  <li><menu:a action="sort" value="swing">Swing</menu:a></li>
+	</ul>
+      </lift:MenuMarker>
     </div>
+
     <p style="margin: 50px 10px 0 0">Kategorien</p>
     <div class="keys">
       <lift:Queries.categories/>

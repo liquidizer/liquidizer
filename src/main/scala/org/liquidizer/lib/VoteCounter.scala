@@ -115,9 +115,7 @@ object VoteCounter {
 
   /** get the theoretical voting power, if all delegations are turned into votes */
   def getDelegationInflow(user : User) : Double = {
-    voteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse {
-      if (voteMap.getDenom(user)>0) 1.00 else 0.00
-    }
+    voteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse (0.0)
   }
 
   def getDelegationOutflow(user : User) : Double = {
@@ -135,6 +133,10 @@ object VoteCounter {
 
   def getResult(nominee : Votable) : Quote = {
     voteMap.getResult(nominee).getOrElse(Quote(0.0, 0.0))
+  }
+
+  def getSwing(nominee : Votable) : Double = {
+    voteMap.nominees.get(nominee).map{ _.smooth.swing }.getOrElse(0.0)
   }
 
   def getMaxPref(user : User) : Int = 
@@ -197,7 +199,7 @@ object VoteCounter {
   }
 
   def isDelegated(user : User, nominee : User) : Boolean = 
-    getWeight(user,VotableUser(nominee))>1e-10
+    user==nominee || getWeight(user,VotableUser(nominee))>1e-10
 
   def getTimeSeries(nominee : Votable) : List[Tick[Quote]] =
     voteMap.nominees.get(nominee).map { _.history.getAll }.getOrElse(Nil)

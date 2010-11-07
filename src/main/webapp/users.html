@@ -16,7 +16,7 @@
 	<td class="votable">
 	  <poll:name/>
 	  <div class="keys">
-	    <user:profile/>
+	    <user:profile maxlen="150"/>
 	  </div>
 	</td>
 	<td class="emo_thumb"><user:emoticon size="60"/></td>
@@ -43,14 +43,20 @@
   <lift:bind-at name="sidebar">
     <lift:Users.view form="POST" eager_eval="true">
       <search:input/>
-      <lift:embed what="sort_users"/><br/>
     </lift:Users.view>
-    <!--
-    <p style="margin: 50px 10px 0 0">Tags:</p>
-    <div class="keys">
-      <lift:Users.categories/>
-    </div>
-    -->
+    <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
+    <lift:MenuMarker>
+      <ul class="popup" id="sort">
+	<li><menu:a action="sort" value="inflow" default="true">Einfluss</menu:a></li>
+	<li><menu:a action="sort" value="outflow">Abfluss</menu:a></li>
+	<li><menu:a action="sort" value="age">Neuigkeit</menu:a></li>
+	<lift:UserInfo.in>
+	  <li><menu:a action="sort" value="valence">Sympathie</menu:a></li>
+	  <li><menu:a action="sort" value="avalence">Apathie</menu:a></li>
+	  <li><menu:a action="sort" value="arousal">Erregung</menu:a></li>
+	</lift:UserInfo.in>
+      </ul>
+    </lift:MenuMarker>
   </lift:bind-at>
 </lift:surround>
 

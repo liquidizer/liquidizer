@@ -40,12 +40,22 @@
     </table>
   </lift:bind-at>
   <lift:bind-at name="selection">
-    <!--
-    <lift:QueryDetails.view form="POST" eager_eval="true">
-      <search:input/>
-      <lift:embed what="sort_votes"/>
-    </lift:QueryDetails.view>
-    -->
+    <div style="position:absolute">
+      <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
+      <lift:MenuMarker>
+	<ul class="popup" id="sort">
+	  <li><menu:a action="sort" value="weight" default="true">Gewicht</menu:a></li>
+	  <li><menu:a action="sort" value="comment_age">Kommentarzeit</menu:a></li>
+	  <li><menu:a action="sort" value="approval">Zustimmung</menu:a></li>
+	  <li><menu:a action="sort" value="objection">Ablehnung</menu:a></li>
+	  <lift:UserInfo.in>
+	    <li><menu:a action="sort" value="valence">Sympathie</menu:a></li>
+	    <li><menu:a action="sort" value="avalence">Apathie</menu:a></li>
+	    <li><menu:a action="sort" value="arousal">Erregung</menu:a></li>
+	  </lift:UserInfo.in>
+	</ul>
+      </lift:MenuMarker>
+    </div>
   </lift:bind-at>
 </lift:surround>
 

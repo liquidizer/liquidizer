@@ -85,26 +85,46 @@ a.extern {
     margin: 8px 5px 1px 5px;
     color: black;
 }
-
+#header {
+    margin: 5px 5% 30px 10%; 
+}
 #topmenu {
-    margin: 0 5% 0 10%;
-    font-size: 120%;
+    list-style-type:none;
+    display: inline;
 }
-#topmenu td { white-space: nowrap; }
+#topmenu > li {
+    float: left;
+    margin: 0 10px 0 0;
+}
 #topmenu img {
-    height: 3em;
+    height: 49px;
 }
-#usermenu {
+#loginfo {
+    float: right;
+}
+
+.popup {
     display: none;
-    position:absolute;
-    margin-left: 10em;
-}
-#usermenu table { 
+    position: absolute;
+    list-style-type: none;
+    line-height: 120%;
+    font-size: 120%;
     background-color: #662e91; 
+    padding: 0 2px 0 2px;
+    -moz-box-shadow: 3px 3px 3px #aaa;
+    -webkit-box-shadow: 3px 3px 3px #aaa;
 }
-#usermenu td { 
-    padding: 0.2em;
-    background-color: white; 
+.popup li {
+    float: none;
+    margin: 2px 0 2px 0;
+    padding: 0px;
+    background-color: white;
+}
+.popup div {
+    padding: 5px;
+}
+.popup .active {
+    background-color: orange;
 }
 
 .content { 

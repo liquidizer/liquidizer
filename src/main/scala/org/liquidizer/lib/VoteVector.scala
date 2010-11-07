@@ -14,7 +14,7 @@ class VoteVector(
   def normalize() : Unit = {
     val norm= votes.foldLeft(0.0) { (a,b) => a+b*b }
     if (norm > 1e-8) {
-      normalize(votes, Math.sqrt(norm))
+      normalize(votes, Math.sqrt(norm) / supporters(userID))
     }
   }
   
@@ -22,10 +22,11 @@ class VoteVector(
     for (i <- 0 to vec.length-1) vec(i) = value
   }
   
-  def clear() : Unit = {
+  /** clear all weights */
+  def clear(weight: Double) : Unit = {
     clear(votes, 0.0)
     clear(supporters, 0.0)
-    supporters(userID)=1.0
+    supporters(userID)= weight
   }
 
   def enlarge(vec : Array[Double], minLength : Int) = {

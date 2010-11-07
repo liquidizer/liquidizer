@@ -8,7 +8,7 @@ import _root_.org.liquidizer.model._
 class Emotion {
   val valence= new PoisonMemory(0.0)
   val potency= new PoisonMemory(0.0)
-  val arousal= valence.swing
+  def getArousal() = (valence.swing max potency.swing)
 
   override def toString() = valence.toString + " " + potency.value
 }
@@ -22,7 +22,8 @@ class LinkedVote(val owner:User, val nominee:Votable) {
 }
 
 class NomineeHead {
-  var result = Quote(0,0)
+  var result = Quote(0, 0)
+  val smooth = new PoisonMemory(0.0)
   val history = new TimeSeries()
   var votes  : List[LinkedVote] = Nil
   def update(time : Long) = history.add(time, result)
@@ -33,7 +34,7 @@ class UserHead(id : Int) {
   var votes : List[LinkedVote] = Nil
   val emos = mutable.Map.empty[User, Emotion]
   var denom = 0
-  var inflow = 1.0
+  var lastVote = 0L
 }
 
 class VoteMap {
@@ -54,7 +55,11 @@ class VoteMap {
     {
       // user has never voted for this nominee
       if (!nominees.contains(nominee)) nominees.put(nominee, new NomineeHead)
-      if (!users.contains(owner)) users.put(owner, new UserHead(id(owner)))
+      if (!users.contains(owner)) {
+	if (!nominees.contains(VotableUser(owner)))
+	  nominees.put(VotableUser(owner), new NomineeHead)
+	users.put(owner, new UserHead(id(owner)))
+      }
       val nomineeHead = nominees.get(nominee).get
       val userHead = users.get(owner).get
       val newLink= new LinkedVote(owner, nominee)
@@ -67,7 +72,10 @@ class VoteMap {
       newLink
     }
     val newPref= vote.weight.is
-    users.get(owner).get.denom += newPref.abs - link.preference.abs
+    users.get(owner).foreach { head => 
+      head.denom += newPref.abs - link.preference.abs
+      head.lastVote = vote.date.is
+    }
     link.preference= newPref
     dirty = true
   }
@@ -75,7 +83,7 @@ class VoteMap {
   def update(time : Long) : Unit = {
     
     // iterative matrix solving
-    for (i <- 1 to 20) sweep()
+    for (i <- 1 to 20) sweep(time)
 
     // clear all nominee results
     for (head <- nominees) { head._2.result= Quote(0,0) }
@@ -91,8 +99,9 @@ class VoteMap {
       }
       // set the computed inflow as result for votable users
       val nominee= VotableUser(userHead._1)
-      nominees.get(nominee).foreach { 
-	_.result= Tick.toQuote(userHead._2.vec.getInflow())
+      nominees.get(nominee).foreach { head =>
+	head.result= Tick.toQuote(userHead._2.vec.getInflow())
+	head.smooth.set(time, head.result.value)
       }
     }
     // include the new results in the time series
@@ -101,10 +110,11 @@ class VoteMap {
   }
 
   /** Iterative step to solve the equation system */
-  def sweep() : Unit = synchronized {
+  def sweep(time: Long) : Unit = synchronized {
     users.foreach { case (user,head) => 
       // reset the voting vector
-      head.vec.clear()
+      val decay= Math.exp(5e-10 * (head.lastVote - time))
+      head.vec.clear(decay)
       // vor each vote cast by the user update the voting vector
       for (link <- head.votes) {
 	link.nominee match {

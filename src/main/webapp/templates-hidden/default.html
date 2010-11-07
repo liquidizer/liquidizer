@@ -17,63 +17,63 @@
   <body>
     <script type="text/javascript" language="JavaScript">
       usermenu= false;
-      function toggleUserMenu() {
-      usermenu= !usermenu;
-      if (usermenu)
-      $('#usermenu').show();
-      else
-      $('#usermenu').hide();
+      function togglePopup(id) {
+      $('#'+id).toggle();
       }
     </script>
-    <div class="container">
-      <div id="topmenu">
-	<table width="100%">
-	  <tr>
-	    <td>
-	      <a href="/index.html" title="Startseite">
-		<img src="/images/logo.png" alt="liquidizer"/>
-	      </a>
-	      &nbsp;&nbsp;
-	      <lift:UserInfo.in>
-		<a href="javascript:toggleUserMenu()">
-		  <img src="/images/home.png" alt="home"/>
-		</a>
-		<div id="usermenu">
-		  <table>
-		    <tr><td><a href="/index.html">Übersicht</a></td></tr>
-		    <tr><td><a href="/profile.html">Mein Profil</a></td></tr>
-		    <tr><td><a href="/users/~/index.html">Meine Stimmgewichte</a></td></tr>
-		    <tr><td><a href="/users/~/support.html">Meine Unterstützer</a></td></tr>
-		    <tr><td><a href="/users/~/delegates.html">Meine Delegierten</a></td></tr>
-		  </table>
-		</div>
-	      </lift:UserInfo.in>
-	      &nbsp;
-	      <a href="/queries.html" title="Liste aller Forderungen">
-		<img src="/images/queries.png" alt="queries"/>
-	      </a>
-	      <a href="/users.html" title="Liste aller Piraten">
-		<img src="/images/users.png" alt="users"/>
-	      </a>
-	      &nbsp;
-	      <a href="/help.html" title="Hilfe">
-		<img src="/images/help.png" alt="help"/>
-	      </a>
-	    </td>
-	    <td width="60%" align="right">
-	      <lift:UserInfo.in>
-      		Angemeldet als <b><me:name/></b>
-		<br/><me:logout>logout</me:logout>
-	      </lift:UserInfo.in>
-	    </td>
-	  </tr>
-	</table>
-      </div>
-      <hr/>
+    <div id="header">
+      <lift:MenuMarker>
+      <ul id="topmenu">
+	<li>
+	  <a href="/index.html" title="Startseite">
+	    <img src="/images/logo.png" alt="Startseite"/>
+	  </a>
+	</li>
+	<lift:UserInfo.in>
+	  <li>
+	    <a href="javascript:togglePopup('usermenu')">
+	      <img src="/images/home.png" alt="home"/>
+	    </a>
+	    <div>
+	      <ul class="popup" id="usermenu">
+		<li><menu:a href="/index.html">Übersicht</menu:a></li>
+		<li><menu:a href="/profile.html">Mein Profil</menu:a></li>
+		<li><menu:a href="/users/~/index.html">Meine Stimmgewichte</menu:a></li>
+		<li><menu:a href="/users/~/support.html">Meine Unterstützer</menu:a></li>
+		<li><menu:a href="/users/~/delegates.html">Meine Delegierten</menu:a></li>
+	      </ul>
+	    </div>
+	  </li>
+	</lift:UserInfo.in>
+	<li>
+	  <a href="/queries.html" title="Liste aller Forderungen">
+	    <img src="/images/queries.png" alt="Liste aller Forderungen"/>
+	  </a>
+	</li>
+	<li>
+	  <a href="/users.html" title="Liste aller Piraten">
+	    <img src="/images/users.png" alt="Liste aller Piraten"/>
+	  </a>
+	</li>
+	<li>
+	  <a href="/help.html" title="Hilfe">
+	    <img src="/images/help.png" alt="Hilfe"/>
+	  </a>
+	</li>
+      </ul>
+      </lift:MenuMarker>
+      <lift:UserInfo.in>
+	<div id="loginfo">
+      	  Angemeldet als <b><me:name/></b>
+	  <br/><me:logout>logout</me:logout>
+	</div>
+      </lift:UserInfo.in>
+    </div>
+    <hr style="clear:both"/>
 
-      <div class="content">
-	<table>
-	  <tr>
+    <div class="content">
+      <table>
+	<tr>
 	  <td width="85%">
             <lift:bind name="content" />
 	  </td>
@@ -81,13 +81,12 @@
 	  <td align="right" width="14%">
 	    <lift:bind name="sidebar"/>
 	  </td>
-	  </tr>
-	</table>
-      </div>
-
-      <div style="clear:both"/>
-      <hr/>
+	</tr>
+      </table>
     </div>
+
+    <div style="clear:both"/>
+    <hr/>
     <i>Mesmerizing Liquidizer - v10.10</i>
     -
     <a href="/legal/impressum.html">Impressum</a>

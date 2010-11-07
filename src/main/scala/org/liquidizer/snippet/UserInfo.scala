@@ -31,9 +31,7 @@ class UserInfo {
 	case Elem("me", label, attribs, scope, children @ _*) => label match {
 	  case "name" => <span>{user.displayName}</span>
 	  case "logout" => SHtml.a(() => {
-	    User.logUserOut(); RedirectTo("/") }, children)
-	  case "passwd" =>
-	    <a href={"/"+User.changePasswordPath.mkString("/")}>{children}</a>
+	    User.logUserOut(); RedirectTo("/index.html") }, children)
 
 	  case "profile" =>
 	    buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
@@ -74,7 +72,7 @@ class UserInfo {
     User.getUserByNick(username) match {
       case Some(user) if user.validated && user.password.match_?(password) =>  
 	User.logUserIn(user)
-        S.redirectTo("/")
+        S.redirectTo("/index.html")
       case Some(user) if !user.validated =>  
 	S.error(S.??("account.validation.error"))  
       case Some(user) =>
@@ -161,7 +159,7 @@ class UserInfo {
 	  user.password(passwd1)  
 	  user.save
 	  S.notice(S.??("password.changed"))
-	  S.redirectTo("/")  
+	  S.redirectTo("/index.html")  
        }  
      }  
    
@@ -264,7 +262,7 @@ class UserSignUp extends StatefulSnippet {
 	  user.save
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet
-	  redirectTo("/")
+	  redirectTo("/index.html")
 	}
     }
   }
@@ -278,7 +276,7 @@ object UserInfo {
          S.redirectTo("/user_mgt/change_password")
        case _ =>
 	 S.error(S.??("pasword.link.invalid"))
-         S.redirectTo("/")
+         S.redirectTo("/index.html")
    }  
 }
 

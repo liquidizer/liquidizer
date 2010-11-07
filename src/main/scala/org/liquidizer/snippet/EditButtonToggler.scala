@@ -31,8 +31,19 @@ class EditButtonToggler() {
     current = data
   }
 
-  def newCommentRecord(text : ()=> String, update : String => Unit) =
-    newRecord(ToggleButtonData(index, text, () => Markup.renderComment(text()), update, 5, 50))
+  def newCommentRecord(text : ()=> String, update : String => Unit, maxlen : Int = 0) =
+    newRecord(ToggleButtonData(index, text, () => trimmedComment(text(), maxlen, index), update, 5, 50))
+
+  def trimmedComment(in : String, maxlen : Int, id : Int) : NodeSeq = {
+    if (in==null || maxlen==0 || in.length < maxlen+50) {
+      Markup.renderComment(in)
+    } else {
+      <span id={"togglemore"+id}>{Markup.renderComment(in.substring(0,maxlen))}
+      <div style="text-align:right">
+      { SHtml.a(Text("... mehr ..."), SetHtml("togglemore"+id, Markup.renderComment(in))) }
+      </div></span>
+    }
+  }
 
   def newLineRecord(text : ()=> String, update : String => Unit) =
     newRecord(ToggleButtonData(index, text, () => Markup.renderComment(text()), update, 1, 50))

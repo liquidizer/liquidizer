@@ -24,13 +24,6 @@ class Users extends MultipageSnippet {
     sortData()
   }
 
-  def sortData(): Unit = {
-    sortData { 
-      case VotableUser(user) => VoteCounter.getDelegationInflow(user) 
-      case _ => 0.0
-    }
-  }
-
   override def categories(in:NodeSeq) : NodeSeq = {
     val keys= search.split(" +").toList.map { _ toLowerCase }
     val markup= new CategoryView(keys, "/users.html")
@@ -58,7 +51,7 @@ class UserDetails extends MultipageSnippet {
       VoteCounter.getAllVotes(user)
       .filter { searchFilter _ }
       .map { VotableQuery(_) }
-    sortData( VoteCounter.getWeight(user, _).abs )
+    sortData(user)
   }
   def loadSupporters() = {
     data= 

@@ -7,17 +7,18 @@ import _root_.net.liftweb.http.js._
 import _root_.net.liftweb.http.js.JsCmds._
 import _root_.net.liftweb.common._
 
+import _root_.org.liquidizer.model._
 
 object Markup {
 
   val url= "(http:/[^\\s\"]*[^\\s!?&.<>])".r
   val nl= "(\\s*(\n|\r)+\\s*)+".r
  
-  def renderComment(in:String) : NodeSeq = {
+  def renderComment(in : String) : NodeSeq = {
     if (in==null || in.length==0) return Nil
     val node:Node= Text(in)
     var text= node.toString
-
+    
     text= url.replaceAllIn(text, "<a href=\"$1\" class=\"extern\">$1</a>")
     text= nl.replaceAllIn(text, "<br/>")
 
@@ -89,12 +90,23 @@ class MenuMarker {
   def bind(in :Node) : NodeSeq = {
     in match {
       case Elem("menu", "a", attribs, scope, children @ _*) =>
-	val href= attribs.get("href").map { _.text }.getOrElse("")
-        val cur= if (href.startsWith("/")) 
-	  S.uri
-        else
-	  S.uri.replaceAll(".*/","")
-	if (href==cur)
+	// determine target and current link
+	var href= attribs.get("href").map { _.text }.getOrElse(S.uri).
+	    replaceAll("~", User.currentUser.map { _.id.is }.getOrElse(1).toString)
+
+        var active= href == (if (href.startsWith("/")) S.uri else S.uri.replaceAll(".*/",""))
+
+        // set up parameters
+        attribs.get("action").foreach { action =>
+	  val field= action.text
+	  val value= attribs.get("value").get.text
+	  active &&= value == S.param(field).getOrElse(
+	    if (attribs.get("default").map{ _.text=="true" }.getOrElse(false)) value else "")
+	  href += "?"+field+"="+value
+	}
+
+        // format link as either active (currently visited) or inaktive
+	if (active)
 	  <div class="active">{children}</div>
         else
 	  <a href={href}><div class="inactive">{children}</div></a>

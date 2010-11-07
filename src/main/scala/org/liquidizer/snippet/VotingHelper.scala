@@ -26,7 +26,7 @@ class VotingHelper {
     displayedVotes ::= result
     <span id={"dynamicvote"+displayedVotes.size}>{result()}</span>
   }
-  def formatDouble(value : Double) : String =  String.format("%3.2f",double2Double(value))
+  def formatDouble(value : Double) : String =  String.format("%3.2f",double2Double(value+1e-5))
 
   def formatResult(value : Double, style: String) : Node = 
     <span class={style}> { formatDouble(value) } </span>
@@ -153,7 +153,9 @@ class VotingHelper {
 	nominee match {
 	  case VotableUser(user) => tag match {
 	    case "profile" => 
-	      buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
+	      val maxlen= attribs.get("maxlen").map { _.text.toInt }.getOrElse(0)
+	      buttonFactory.newCommentRecord(() => user.profile.is, 
+					     value => { user.profile(value); user.save }, maxlen)
 	      buttonFactory.toggleText
 	    case "inflow" =>  
 	      <a href={nominee.uri+"/support.html"}>{
@@ -161,7 +163,8 @@ class VotingHelper {
 	      }</a>
 	    case "outflow" =>  
 	      <a href={nominee.uri+"/delegates.html"}>{
-		renderVote(() => formatResult(VoteCounter.getDelegationOutflow(user), "contra"))
+		val outflow= VoteCounter.getDelegationOutflow(user)
+		renderVote(() => formatResult(outflow, (if (outflow>0) "contra" else "pass")))
 	      }</a>
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
@@ -211,7 +214,7 @@ class VotingHelper {
 	  if (!emo.isEmpty) {
 	    val p= emo.get.potency.value
 	    val v= emo.get.valence.value / (.9*p + .1) / 2.0 + 0.5
-	    val a= (emo.get.valence.swing max emo.get.potency.swing) min 1.0 max 0.0
+	    val a= emo.get.getArousal min 1.0 max 0.0
 	    Map("v" -> formatDouble(v), "a" -> formatDouble(a), "p" ->  formatDouble(p))
 	  }
 	  else
