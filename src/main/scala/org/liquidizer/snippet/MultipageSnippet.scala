@@ -92,7 +92,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "outflow" => isUser(_, VoteCounter.getDelegationInflow(_))
       case "valence" => emotion(_, _.valence.value)
       case "avalence" => emotion(_, -_.valence.value)
-      case "arrousal" => emotion(_, _.getArousal)
+      case "arousal" => emotion(_, _.getArousal)
     }
   }
 
