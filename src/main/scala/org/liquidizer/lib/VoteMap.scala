@@ -113,7 +113,8 @@ class VoteMap {
   def sweep(time: Long) : Unit = synchronized {
     users.foreach { case (user,head) => 
       // reset the voting vector
-      val decay= Math.exp(5e-10 * (head.lastVote - time))
+      val decay= if (head.denom > 0)
+	Math.exp(5e-10 * (head.lastVote - time)) else 0.0
       head.vec.clear(decay)
       // vor each vote cast by the user update the voting vector
       for (link <- head.votes) {
@@ -214,13 +215,16 @@ class VoteMap {
       val head1= users.get(key1).get
       val head2= users.get(key2).get
 
-      if (!head1.emos.contains(key2)) head1.emos.put(key2, new Emotion())
-      val emo= head1.emos.get(key2).get
+      if (head1.denom==0 || head2.denom==0) {
+	None
+      } else {
+	if (!head1.emos.contains(key2)) head1.emos.put(key2, new Emotion())
+	val emo= head1.emos.get(key2).get
       
-      emo.valence.set(time, head1.vec.dotProd(head2.vec, false))
-      emo.potency.set(time, head1.vec.dotProd(head2.vec, true))
-      Some(emo)
-
+	emo.valence.set(time, head1.vec.dotProd(head2.vec, false))
+	emo.potency.set(time, head1.vec.dotProd(head2.vec, true))
+	Some(emo)
+      }
     } else
       None
   }

@@ -130,7 +130,7 @@ class UserInfo {
   def newUsers(in : NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
     User
-    .findAll(OrderBy(User.id,Descending)).slice(0,5)
+    .findAll(By(User.validated, true), OrderBy(User.id,Descending)).slice(0,5)
     .flatMap { user => helper.render(in, VotableUser(user)) }
   }
 
