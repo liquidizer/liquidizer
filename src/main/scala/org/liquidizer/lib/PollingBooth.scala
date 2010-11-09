@@ -39,9 +39,11 @@ object PollingBooth {
       .author(owner)
       .content(comment)
     voteText.save
+
     // attach comment to vote
     if (vote.comment.defined_?)
       vote.comment.obj.get.delete_!
+
     vote.comment(voteText)
     vote.save
     VoteCounter.register(vote)
@@ -55,5 +57,19 @@ object PollingBooth {
     vote.setVotable(nominee)
     vote.save
     VoteCounter.register(vote)
+  }
+
+  def clearComments(owner : User) = {
+    for(vote <- Vote.findAll(By(Vote.owner, owner))) {
+      if (vote.comment.defined_?) {
+	// unregister comment from in-memory map
+	vote.comment.obj.get.content("")
+	VoteCounter.registerComment(vote)
+	// delete comment from database
+	vote.comment.obj.get.delete_!
+	vote.comment(Empty)
+	vote.save
+      }
+    }
   }
 }

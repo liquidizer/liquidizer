@@ -31,8 +31,8 @@ class UserInfo {
 	case Elem("me", label, attribs, scope, children @ _*) => label match {
 	  case "name" => <span>{user.displayName}</span>
 	  case "logout" => SHtml.a(() => {
-	    User.logUserOut(); RedirectTo("/index.html") }, children)
-
+	    User.logUserOut()
+	    RedirectTo("/index.html") }, children)
 	  case "profile" =>
 	    buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
 	  buttonFactory.toggleText
@@ -212,6 +212,56 @@ class UserInfo {
      Helpers.bind("user", in,
           "email" -> SHtml.text("", email = _ ),
           "submit" -> SHtml.submit(S.??("send"), sendPasswd _))
+  }
+}
+
+/** Data deletion snippet */
+class UserReset extends StatefulSnippet {
+  var deleteVotes= false
+  var deleteComments= false
+  var deleteAccount= false
+  
+  var dispatch : DispatchIt = {
+    case "render" => render _
+  }
+
+  def render(in: NodeSeq): NodeSeq = {
+    var passwd1= ""
+    var passwd2= ""
+    Helpers.bind("user", in, 
+		 "deleteVotes" -> SHtml.checkbox(false, deleteVotes = _),
+		 "deleteComments" -> SHtml.checkbox(false, deleteComments = _),
+		 "deleteAccount" -> SHtml.checkbox(false, deleteAccount = _),
+		 "submit" -> SHtml.submit("Löschen", () => process()))
+  }
+
+  def process() = {
+    val user= User.currentUser.get
+    if (deleteVotes || deleteAccount) {
+      VoteCounter.getActiveVotes(user).foreach {
+	PollingBooth.vote(user, _, 0)
+      }
+      VoteCounter.refresh()
+      S.notice("Alle Stimmgewichte zurückgesetzt")
+    }
+    if (deleteComments || deleteAccount) {
+      PollingBooth.clearComments(user)
+      S.notice("Alle Kommentare gelöscht")
+    }
+    if (deleteAccount) {
+      println("deleteAccount "+user)
+      User.logUserOut()
+      user
+      .profile("")
+      .email("")
+      .nick("---")
+      .validated(false)
+      user.save
+      S.notice("Account gelöscht")
+    }
+    println("going home")
+    this.unregisterThisSnippet
+    S.redirectTo("/index.html")
   }
 }
 

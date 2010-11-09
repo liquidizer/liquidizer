@@ -18,7 +18,7 @@ class Users extends MultipageSnippet {
   }
     
   def loadData() = {
-    data = User.findAll
+    data = User.findAll(By(User.validated, true))
     .filter { searchFilter _ }
     .map { VotableUser(_) }
     sortData()

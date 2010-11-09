@@ -1,0 +1,28 @@
+<lift:surround with="default">
+<lift:bind-at name="title">Daten löschen</lift:bind-at>
+<lift:bind-at name="content">
+  <h3>Private Daten löschen</h3>
+  
+  <lift:UserReset form="POST">
+  <table>
+    <tr> 
+      <td><user:deleteVotes/></td>
+      <td>Stimmen löschen</td>
+    </tr>
+    <tr>
+      <td><user:deleteComments/></td>
+      <td>Kommentare löschen</td>
+    </tr>
+    <tr>
+      <td><user:deleteAccount/></td>
+      <td>Account vollständig löschen</td>
+    </tr>
+    <tr height="20"/>
+    <tr>
+      <td/>
+      <td><user:submit/></td>
+    </tr>
+  </table>	
+  </lift:UserReset>
+</lift:bind-at>
+</lift:surround>

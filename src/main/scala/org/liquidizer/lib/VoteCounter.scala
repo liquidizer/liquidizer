@@ -85,8 +85,10 @@ object VoteCounter {
   }
   def refresh() = mapper !? 'PUSH
 
+  def registerComment(vote : Vote) = comments.add(vote)
+
   def register(vote : Vote) {
-    comments.add(vote)
+    registerComment(vote)
     mapper !? vote
   }
   
