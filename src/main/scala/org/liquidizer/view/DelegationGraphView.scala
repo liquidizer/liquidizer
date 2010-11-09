@@ -33,40 +33,34 @@ object DelegationGraphView {
 
       case other => other
     }
-
   }
   
-  def superGraph() : Box[LiftResponse] = {
-    val grapher= new GraphvizAPI
-    val node= grapher.toGraph().first
-    Full(XmlResponse(addLink(node), "image/svg+xml"))
-  }
-
-  def graphNode(user : User) : Node = {
-    cache.get("user"+user.id.is, Map(), () => {
+  def graphSVG(node : Votable, count:Int) : Node = {
+    cache.get(node.getClass.toString + node.id+"/"+count, Map(), () => {
       val grapher= new GraphvizAPI
-      val node= grapher.toGraph(user).first
-      addLink(node)
-    })
-  }
-
-  def graphNode(query : Query) : Node = {
-    cache.get("query"+query.id.is, Map(), () => {
-      val grapher= new GraphvizAPI
-      val node=grapher.toGraph(VotableQuery(query)).first
-      addLink(node)
+      val svgNode= grapher.toGraph(node, count).first
+      val svg= addLink(svgNode)
+      val width= svg.attribute("width").get.text.replace("pt","").toInt
+      val height= svg.attribute("height").get.text.replace("pt","").toInt
+      val scale= Math.min(600.0/width, 600.0/height)
+      if (scale < 1) {
+	SVGUtil.resize(svg, (width*scale).toInt, (height*scale).toInt)
+      }
+	else svg
     })
   }
 
   def queryGraph(poll : String) : Box[LiftResponse] = {
+    val count= S.param("nodes").getOrElse("10").toInt
     val query= Query.getQuery(poll).get
-    val node= graphNode(query)
+    val node= graphSVG(VotableQuery(query), count)
     Full(XmlResponse(node, "image/svg+xml"))
   }
 
   def userGraph(userid : String) : Box[LiftResponse] = {
+    val count= S.param("nodes").getOrElse("10").toInt
     val user= User.getUser(userid).get
-    val node= graphNode(user)
+    val node= graphSVG(VotableUser(user), count)
     Full(XmlResponse(node, "image/svg+xml"))
   }
 

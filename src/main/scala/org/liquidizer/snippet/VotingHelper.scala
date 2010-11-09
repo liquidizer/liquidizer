@@ -26,7 +26,7 @@ class VotingHelper {
     displayedVotes ::= result
     <span id={"dynamicvote"+displayedVotes.size}>{result()}</span>
   }
-  def formatDouble(value : Double) : String =  String.format("%3.2f",double2Double(value+1e-5))
+  def formatDouble(value : Double) : String =  String.format("%3.2f",double2Double(value+1e-3))
 
   def formatResult(value : Double, style: String) : Node = 
     <span class={style}> { formatDouble(value) } </span>
@@ -84,27 +84,33 @@ class VotingHelper {
     in match {
       
       case Elem("poll", tag, attribs, scope, children @ _*) => tag match {
-      case "name" => formatNominee(nominee)
-      case "id" => Text(nominee.id.toString)
-      case "title" => Text(nominee.toString)
-      case "result" => 	
-	renderVote(() => formatResult(VoteCounter.getResult(nominee).value))
-      case "value" =>
-	renderVote(() => Text(formatDouble(
-	  attribs.get("measure").map { _.text }.getOrElse("") match {
-	    case "pro" => VoteCounter.getResult(nominee).pro
-	    case "contra" => VoteCounter.getResult(nominee).contra
-	    case "volume" => VoteCounter.getResult(nominee).pro
-	    case _ => VoteCounter.getResult(nominee).value
-	  })))
-      case "chart" => chart(nominee.uri, "chart", in.attributes)
-      case "hist" => chart(nominee.uri, "histogram", in.attributes)
-      case "supporters" =>
-	getSupporters().flatMap {
-	  user => bind(bind(children, user, nominee), VotableUser(user))
-	}
+	case "name" => formatNominee(nominee)
+	case "id" => Text(nominee.id.toString)
+	case "title" => Text(nominee.toString)
+	case "result" => 	
+	  renderVote(() => formatResult(VoteCounter.getResult(nominee).value))
+	case "value" =>
+	  renderVote(() => Text(formatDouble(
+	    attribs.get("measure").map { _.text }.getOrElse("") match {
+	      case "pro" => VoteCounter.getResult(nominee).pro
+	      case "contra" => VoteCounter.getResult(nominee).contra
+	      case "volume" => VoteCounter.getResult(nominee).pro
+	      case _ => VoteCounter.getResult(nominee).value
+	    })))
+	case "chart" => chart(nominee.uri, "chart", in.attributes)
+	case "hist" => chart(nominee.uri, "histogram", in.attributes)
+	case "supporters" =>
+	  getSupporters().flatMap {
+	    user => bind(bind(children, user, nominee), VotableUser(user))
+	  }
+	case "graph-nodes" => 
+	  val nodes= attribs.get("count").get.text.toInt
+	  <a href={S.uri+"?nodes="+nodes}>{children}</a>
+	case "graph" => 
+	  val nodes= S.param("nodes").getOrElse("10").toInt
+	  DelegationGraphView.graphSVG(nominee, nodes)
       }
-
+      
       case Elem("me", tag, attribs, scope, children @ _*) =>
 	currentUser match {
 	  case Full(me) => tag match {
@@ -136,7 +142,6 @@ class VotingHelper {
 	      buttonFactory.newKeyListRecord(() => query.keyList,
 					     list => query.keys(list).save )
 	      buttonFactory.toggleText
-	    case "graph" => DelegationGraphView.graphNode(query)
 	    case "numVoters" => 
 	      val sign= attribs.get("weight").get.text.toInt
 	      renderVote(() => 
@@ -177,7 +182,6 @@ class VotingHelper {
 		emoticon(user, attribs)
 	      else
 		renderVote(() => emoticon(user, attribs))
-	    case "graph" => DelegationGraphView.graphNode(user)
 	    case _ => in
 	  }
 	  case _ => tag match {

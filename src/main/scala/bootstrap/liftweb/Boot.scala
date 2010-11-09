@@ -59,7 +59,6 @@ class Boot {
       case Req(List("queries",query,"histogram.svg"),_,_) => () => HistogramView.hist(query)
       case Req(List("users",user,"delegation.svg"),_,_) => () => DelegationGraphView.userGraph(user)
       case Req(List("users",user,"chart.svg"),_,_) => () => TimeseriesView.userChart(user)
-      case Req(List("graph.svg"),_,_) => () => DelegationGraphView.superGraph()
       case Req(List("emoticons","face.svg"),_,_) => () => EmotionView.face()
       case Req(List("user_mgt","reset_password", id),_,_) => () => UserInfo.passwordReset(id)
     }

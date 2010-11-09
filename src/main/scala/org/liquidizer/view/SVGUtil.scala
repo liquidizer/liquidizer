@@ -29,8 +29,8 @@ object SVGUtil {
 
 
   def resize(svg:Node, width:Int, height:Int) : Node = {
-    val oldWidth=svg.attribute("width").get.text.toInt
-    val oldHeight=svg.attribute("height").get.text.toInt
+    val oldWidth=svg.attribute("width").get.text.replace("pt","").toInt
+    val oldHeight=svg.attribute("height").get.text.replace("pt","").toInt
 
     svg match {
       case Elem(prefix, label, attribs, scope, children @ _*) => {
