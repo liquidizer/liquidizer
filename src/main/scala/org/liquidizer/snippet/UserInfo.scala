@@ -72,6 +72,8 @@ class UserInfo {
     User.getUserByNick(username) match {
       case Some(user) if user.validated && user.password.match_?(password) =>  
 	User.logUserIn(user)
+        // restore voting weight to 1.00
+        PollingBooth.vote(user, VotableUser(user), 0)
         S.redirectTo("/index.html")
       case Some(user) if !user.validated =>  
 	S.error(S.??("account.validation.error"))  

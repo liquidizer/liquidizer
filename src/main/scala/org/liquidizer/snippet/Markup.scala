@@ -93,6 +93,7 @@ class MenuMarker {
     in match {
       case Elem("menu", "a", attribs, scope, children @ _*) =>
 	// determine target and current link
+	var keep= attribs.get("keep").map { _.text }
 	var href= attribs.get("href").map { _.text }.getOrElse(S.uri).
 	    replaceAll("~", User.currentUser.map { _.id.is }.getOrElse(1).toString)
 
@@ -105,7 +106,12 @@ class MenuMarker {
 	  active &&= value == S.param(field).getOrElse(
 	    if (attribs.get("default").map{ _.text=="true" }.getOrElse(false)) value else "")
 	  href += "?"+field+"="+value
+	  if (keep.isEmpty)
+	    keep=Some("search tags")
 	}
+        // add persisted parameters
+        keep.foreach { _.split(" ").foreach { key => S.param(key).foreach { value =>
+	  if (value.length>0) href += ("&" + key + "=" + value) }}}
 
         // format link as either active (currently visited) or inaktive
 	if (active)

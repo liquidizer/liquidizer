@@ -150,17 +150,18 @@ class GnuplotAPI {
   }
 
   def formatData[A](data : List[Tick[A]], f:(A => Double)) = {
-    var oldX= now
-    run(formatX(oldX)+" 0")
+    var lastX= now
+    run(formatX(lastX)+" 0")
     if (!data.isEmpty) {
       var oldY= f(data.first.value)
       data.foreach {
 	case Tick(newX,quote) => {
-	  if (oldX>minX) {
-	    var y= f(quote)
-	    run(formatX(oldX)+" "+y)
+	  if (lastX>minX) {
+	    val y= f(quote)
+	    val dy= y * Math.exp(VoteMap.DECAY * (newX - lastX))
+	    run(formatX(lastX)+" "+dy)
 	    run(formatX(Math.max(newX,minX))+" "+y)
-	    oldX= newX
+	    lastX= newX
 	  }
 	}}
       run(formatX(Math.max(minX,data.last.time))+" "+0);

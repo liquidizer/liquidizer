@@ -37,6 +37,10 @@ class UserHead(id : Int) {
   var lastVote = 0L
 }
 
+object VoteMap {
+  val DECAY= 5e-10
+}
+
 class VoteMap {
   val voteMap= mutable.Map.empty[(User,Votable),LinkedVote]
   val users= mutable.Map.empty[User, UserHead]
@@ -114,7 +118,7 @@ class VoteMap {
     users.foreach { case (user,head) => 
       // reset the voting vector
       val decay= if (head.denom > 0)
-	Math.exp(5e-10 * (head.lastVote - time)) else 0.0
+	Math.exp(VoteMap.DECAY * (head.lastVote - time)) else 0.0
       head.vec.clear(decay)
       // vor each vote cast by the user update the voting vector
       for (link <- head.votes) {

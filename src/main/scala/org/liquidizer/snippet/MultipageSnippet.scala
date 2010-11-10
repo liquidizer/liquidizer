@@ -44,7 +44,8 @@ abstract class MultipageSnippet extends StatefulSnippet {
     def inflow(user:User) = VoteCounter.getDelegationInflow(user)
     def weight(user:User) = VoteCounter.getWeight(user, nominee)
     def comment(user:User) = VoteCounter.getComment(user, nominee)
-    def bonus(user:User) = if (comment(user).isEmpty) 0 else 1000
+    def bonus(user:User) = 
+      if (comment(user).isEmpty && Full(user)!=User.currentUser) 0 else 1000
     def isUser(q:Votable, f:(User=>Double)) = 
       q match { case VotableUser(u) => f(u) + bonus(u) case _ => -1e10 }
 
