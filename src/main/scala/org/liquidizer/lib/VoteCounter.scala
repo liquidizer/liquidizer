@@ -8,7 +8,7 @@ import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 
 import org.liquidizer.model._
-
+import java.io._
 
 class CommentMap {
   val map= mutable.Map.empty[(User, Votable), Comment]
@@ -106,10 +106,29 @@ object VoteCounter {
 	}
         mapper.push(vote)
     }
-    mapper.updateFactors()
+    for (i <- 1 to 20)
+      mapper.updateFactors()
     refresh()
+
+    val out= new PrintStream(new File("bpt_data.m"))
+    val users= User.findAll.filter { user =>
+      val name= user.nick.is
+      name!="---" && !name.contains("face") && !name.contains("socken")
+    }
+    val queries= Query.findAll.filter { query =>
+      query.keys.is.contains("BPT")
+    }
+    
+    out.println("users="+(users.map{ _.nick.is }.mkString("{'","','","'}"))+";")
+    out.println("queries="+(queries.map{ _.what.is}.mkString("{'","','","'}"))+";")
+    out.println("votes=[...")
+    for (user <- users) {
+      out.println(queries.map{ q =>VoteCounter.getWeight(user,VotableQuery(q)).toString }
+	      .mkString(",")+";...")
+    }
+    out.println("];");
+    out.close()
   }
-  
   
   def dump:Unit = {
     voteMap.dump()
