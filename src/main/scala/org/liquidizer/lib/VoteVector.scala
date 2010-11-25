@@ -14,7 +14,7 @@ class VoteVector(
   def normalize() : Unit = {
     val norm= votes.foldLeft(0.0) { (a,b) => a+b*b }
     if (norm > 1e-8) {
-      normalize(votes, Math.sqrt(norm) / supporters(userID))
+      normalize(votes, Math.sqrt(norm))
     }
   }
   
@@ -71,12 +71,14 @@ class VoteVector(
 	scalar += Math.abs(votes(i)*other.votes(i))
       else
 	scalar += votes(i)*other.votes(i)
-    scalar
+    scalar * getActiveWeight * other.getActiveWeight
   }
   
   def getVotingWeight(queryId : Int) : Double = 
-    if (queryId < votes.length) votes(queryId) else 0.0
+    if (queryId < votes.length) getActiveWeight * votes(queryId) else 0.0
   
+  def getActiveWeight() = supporters(userID)
+
   def getSupportWeight(userId : Int) =
     if (userId < supporters.length) supporters(userId) else 0.0
 
