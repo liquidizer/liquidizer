@@ -34,14 +34,17 @@ object Markup {
     <span class="keys">{in.mkString(", ")}</span>
   }
 
-  def renderHeader(in : String, link : String) : NodeSeq = {
+  def renderHeader(in : String, link : String) : NodeSeq = 
+    renderHeader(in, { node => <a href={link}>{node}</a> })
+
+  def renderHeader(in : String, link : Node=>Node) : NodeSeq = {
     url.findFirstMatchIn(in) match {
       case Some(m) =>
-        <a href={link}>{m.before}</a> ++ 
+        link(Text(m.before.toString)) ++ 
         <a href={m.matched} title={m.matched} class="extern">LINK</a> ++ 
         renderHeader(m.after.toString, link)
       case _ =>
-	<a href={link}>{in}</a>
+	link(Text(in))
     }
   }
 }

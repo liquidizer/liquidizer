@@ -107,7 +107,7 @@ class AddQuery extends StatefulSnippet {
 
   def confirm(in:NodeSeq) : NodeSeq = {
     Helpers.bind("addquery", in,
-		 "what" -> link("/add_query", {()=>}, Text(what)),
+		 "what" -> Markup.renderHeader(what, link("/add_query", {()=>}, _)),
 		 "keys" -> Markup.renderTagList(TaggedUtils.getTags(keys)),
 		 "cancel" -> SHtml.submit("Abbrechen", ()=>redirectTo("/add_query")),
 		 "submit" -> SHtml.submit("Absenden", ()=>saveQuery))
