@@ -1,7 +1,6 @@
 import org.liquidizer.lib.VoteVector
 
 object VoteVectorTest {
-  def main(args : Array[String]) = {
     val v1= new VoteVector(1)
     val v2= new VoteVector(2)
     val v3= new VoteVector(3)
@@ -15,16 +14,16 @@ object VoteVectorTest {
       println()
 
       val w= 1.0
-      v1.clear
+      v1.clear(1.0)
       v1.addSupporter(w/2.0, v2)
 
-      v2.clear
+      v2.clear(1.0)
       v2.addSupporter(w, v3)
       v2.addSupporter(w, v4)
       
-      v3.clear
+      v3.clear(1.0)
       v3.addSupporter(w/2.0, v2)
 
     }
-  }
+    exit(0)
 }
