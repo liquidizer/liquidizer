@@ -97,8 +97,9 @@ class VoteMap {
       // sum all contributed voting weights to the results of queries
       nominees.foreach { 
 	case (VotableQuery(query), nomineeHead) => 
-	  val v=userHead._2.vec.getVotingWeight(id(query))
-	  nomineeHead.result = nomineeHead.result + Tick.toQuote(v)
+	  val v= userHead._2.vec
+	  val w= v.getVotingWeight(id(query)) * v.getActiveWeight()
+	  nomineeHead.result = nomineeHead.result + Tick.toQuote(w)
 	case _ =>
       }
       // set the computed inflow as result for votable users
