@@ -170,23 +170,20 @@ a.extern {
     width: 100px;
 }
 .vote td {
-    height: 2.5em;
+    height: 35px;
     vertical-align: middle;
-    padding: 0 2px 0 2px;
+    padding: 0;
     text-align: center;
     nowrap: true;
 }
-.vote img { height: 2.5em; }    
+.vote img { 
+    vertical-align: bottom;
+}
 .vote_th { 
     width: 100px; 
     text-align: center;
 }
 
-.chart_thumb {
-    width: 150px;
-    height: 60px;
-    text-align:right;
-}
 .emo_thumb {
     width: 80px;
     height: 80px;
@@ -194,7 +191,7 @@ a.extern {
 }
 .chart {
     height: 400px;
-    width:640px;
+    width: 640px;
 }
 .chart_wrapper {
     width:640px; 

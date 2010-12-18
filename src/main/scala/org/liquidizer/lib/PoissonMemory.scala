@@ -1,8 +1,8 @@
 package org.liquidizer.lib
 
-class PoisonMemory(var value:Double, var time:Long) {
+class PoissonMemory(var value:Double, var time:Long) {
 
-  val DECAY = 1e-9
+  val DECAY = VoteMap.DECAY
   var memory= value
 
   def Double() : Double = value
@@ -22,7 +22,7 @@ class PoisonMemory(var value:Double, var time:Long) {
   }
 
   def smooth() = memory
-  def swing() = Math.abs(memory-value)
+  def swing() = value - memory
 
-  override def toString() = { value + "("+memory+")"}
+  override def toString() = { value + " ("+memory+")"}
 }

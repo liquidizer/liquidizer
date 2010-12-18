@@ -6,9 +6,9 @@ import _root_.net.liftweb.mapper._
 import _root_.org.liquidizer.model._
 
 class Emotion {
-  val valence= new PoisonMemory(0.0)
-  val potency= new PoisonMemory(0.0)
-  def getArousal() = (valence.swing max potency.swing)
+  val valence= new PoissonMemory(0.0)
+  val potency= new PoissonMemory(0.0)
+  def getArousal() = (valence.swing.abs max potency.swing.abs)
 
   override def toString() = valence.toString + " " + potency.value
 }
@@ -23,10 +23,13 @@ class LinkedVote(val owner:User, val nominee:Votable) {
 
 class NomineeHead {
   var result = Quote(0, 0)
-  val smooth = new PoisonMemory(0.0)
+  val smooth = new PoissonMemory(0.0)
   val history = new TimeSeries()
   var votes  : List[LinkedVote] = Nil
-  def update(time : Long) = history.add(time, result)
+  def update(time : Long) = { 
+    history.add(time, result); 
+    smooth.set(time, result.value) 
+  }
 }
 
 class UserHead(id : Int) {
@@ -104,10 +107,7 @@ class VoteMap {
       }
       // set the computed inflow as result for votable users
       val nominee= VotableUser(userHead._1)
-      nominees.get(nominee).foreach { head =>
-	head.result= Tick.toQuote(userHead._2.vec.getInflow())
-	head.smooth.set(time, head.result.value)
-      }
+      nominees.get(nominee).foreach { _.result= Tick.toQuote(userHead._2.vec.getInflow()) }
     }
     // include the new results in the time series
     for (head <- nominees) head._2.update(time)

@@ -35,6 +35,21 @@ class VotingHelper {
       formatResult(value, 
 		   if (value>=5e-3) "pro" else if (value< (-5e-3)) "contra" else "pass")
 
+  def formatTrend(trend : Double) : Node =
+    <img src={ "/images/" + { 
+      if (trend.abs < 1) "flat" else if (trend>0) "up" else "down" } + ".png" }/>
+
+  def formatResult(nominee : Votable, showTrend : Boolean) : Node = {
+    val r= VoteCounter.getResult(nominee)
+    if (showTrend)
+      <span> { 
+	val trend= VoteCounter.getSwing(nominee)
+	formatResult(r.value) ++ formatTrend(trend)
+      } </span>
+    else 
+      formatResult(r.value)
+  }
+
   def formatWeight(user: User, nominee : Votable, format:String):Node = {
     format match {
       case "decimal" => 
@@ -87,8 +102,9 @@ class VotingHelper {
 	case "name" => formatNominee(nominee)
 	case "id" => Text(nominee.id.toString)
 	case "title" => Text(nominee.toString)
-	case "result" => 	
-	  renderVote(() => formatResult(VoteCounter.getResult(nominee).value))
+	case "result" =>
+ 	  val showTrend= attribs.get("trend").map { _.text=="show" }.getOrElse( false )
+	  renderVote(() => formatResult(nominee, showTrend))
 	case "value" =>
 	  renderVote(() => Text(formatDouble(
 	    attribs.get("measure").map { _.text }.getOrElse("") match {
@@ -168,8 +184,10 @@ class VotingHelper {
 	      }</a>
 	    case "outflow" =>  
 	      <a href={nominee.uri+"/delegates.html"}>{
-		val outflow= VoteCounter.getDelegationOutflow(user)
-		renderVote(() => formatResult(outflow, (if (outflow>0) "contra" else "pass")))
+		renderVote(() => {
+		  val outflow= VoteCounter.getDelegationOutflow(user)
+		  formatResult(outflow, (if (outflow>0) "contra" else "pass")) 
+		})
 	      }</a>
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
@@ -207,6 +225,7 @@ class VotingHelper {
     height={attribs.get("height").getOrElse(Text("480"))}/>
   }
 
+  /** Create an embed tag for an inclusion of the emoticon */
   def emoticon(other : User, attribs:MetaData) : Node = {
     val size={attribs.get("size").getOrElse(Text("100"))}
     var uri= "/emoticons/face.svg" + {
@@ -217,7 +236,7 @@ class VotingHelper {
 	  val emo= VoteCounter.getEmotion(currentUser.get, other)
 	  if (!emo.isEmpty) {
 	    val p= emo.get.potency.value
-	    val v= emo.get.valence.value / (.9*p + .1) / 2.0 + 0.5
+	    val v= Math.pow(emo.get.valence.value / (.9*p + .1) / 2.0 + 0.5, 2.0)
 	    val a= emo.get.getArousal min 1.0 max 0.0
 	    Map("v" -> formatDouble(v), "a" -> formatDouble(a), "p" ->  formatDouble(p))
 	  }
