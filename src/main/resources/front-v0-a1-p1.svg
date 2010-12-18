@@ -41,12 +41,12 @@
      id="namedview50"
      showgrid="false"
      inkscape:zoom="1.888"
-     inkscape:cx="149.9143"
-     inkscape:cy="180.05046"
-     inkscape:window-x="0"
+     inkscape:cx="32.907813"
+     inkscape:cy="84.960931"
+     inkscape:window-x="-1"
      inkscape:window-y="24"
      inkscape:window-maximized="0"
-     inkscape:current-layer="emoticon-front-view"
+     inkscape:current-layer="left-eye"
      showguides="true"
      inkscape:guide-bbox="true" />
   <defs
@@ -93,14 +93,14 @@
     </clipPath>
     <clipPath
        id="clipPath4022">
-    <use
-       transform="matrix(-1,0,0,1,915.87172,-3.7713235)"
-       id="use5959"
-       x="0"
-       y="0"
-       width="250"
-       height="250"
-       xlink:href="#path3622" />
+      <use
+         transform="matrix(-1,0,0,1,915.87172,-3.7713235)"
+         id="use5959"
+         x="0"
+         y="0"
+         width="250"
+         height="250"
+         xlink:href="#path3622" />
     </clipPath>
     <radialGradient
        cx="-15.37231"
@@ -147,10 +147,10 @@
      id="left-eye"
      style="stroke-width:4.35711336;stroke-miterlimit:4;stroke-dasharray:none">
     <path
-       d="m 303.44033,561.7351 c -0.19843,20.1271 -29.58738,57.85975 -42.72484,65.11839 C 203.90149,658.24408 129.4702,657.92482 80.446882,597.33341 48.916228,558.36243 36.216803,486.59414 116.44172,440.07628 182.68635,401.66479 279.54766,536.84059 303.44033,561.7351 z"
+       d="m 314.94606,568.63854 c -0.19843,20.1271 -29.58738,57.85975 -42.72484,65.11839 -56.814,31.39059 -142.75102,24.16789 -191.774338,-36.42352 -31.530654,-38.97098 -30.336496,-123.99704 35.994838,-157.25713 82.43936,19.66628 174.61167,103.66775 198.50434,128.56226 z"
        id="path3622"
        style="fill:#ffffff;stroke:#000000;stroke-width:6.14414215;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       sodipodi:nodetypes="csssc" />
+       sodipodi:nodetypes="csscc" />
     <g
        transform="translate(57.142857,22.857143)"
        clip-path="url(#clipPath2967)"
