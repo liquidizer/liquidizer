@@ -87,6 +87,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "age" => q => q.id
       case "pro" => result(_).value
       case "contra" => -result(_).value
+      case "conflict" => v => { val r=result(v); r.pro min r.contra }
       case "swing" => VoteCounter.getSwing(_)
       case "volume" => result(_).volume
       case "inflow" => isUser(_, VoteCounter.getDelegationInflow(_))
