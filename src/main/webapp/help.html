@@ -76,10 +76,11 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft den Überblick in 
 <h2 id="sec-vote">Abstimmen</h2>
 <p>
   Das Wahlverfahren im Liquidizer arbeitet mit einem global
-  beschränkten Stimmgewicht. Das maximale Gewicht, dass man in
-  eine Forderung einbringen kann ist 1.00. Es sinkt jedoch leicht,
-  sobald man sich mehreren Forderungen anschließt. Um seinen Einfluss
-  zu optimieren, muss man seine Stimmgewichtungen genau austarieren.
+  beschränkten Stimmgewicht. Das maximale Gewicht, dass man in eine
+  Forderung einbringen kann ist 1.00. Es sinkt jedoch leicht, sobald
+  man sich mehreren Forderungen anschließt, oder längere Zeit inaktiv
+  ist. Um seinen Einfluss zu optimieren, muss man sich also regelmäßig
+  im System anmelden und seine Stimmgewichtungen genau austarieren.
 </p>
 
 <p>
@@ -259,8 +260,11 @@ die erste davon.
       <td>
 	Charts zeigen den historischen Verlauf des Wahlergebnisses an.
 	Die obere Linie zeigt die Summe der positiven Stimmgewichte
-	und die untere die Summer der negativen. In der Mitte ist das
+	und die untere die Summe der negativen. In der Mitte ist das
 	Gesammtergebnis je nach Zustimmung gelb oder rot eingefärbt.
+	Durch das mit der Zeit abfallende Stimmgewicht ergeben sich
+	Trendlinien, die gegen Null tendieren, sobald die Wähler nicht
+	mehr aktiv ihre Stimmen auffrischen.
       </td>
     </tr>
     <tr>
@@ -270,8 +274,12 @@ die erste davon.
       <td><img src="/images/charts/histogram.png"/></td>
       <td>
 	Das Histogram gibt Auskunft darüber wie viele Nutzer mit
-	welcher Intensität an einer Forderung beteiligt sind. Alle Stimmen
-	haben ein Gewicht zwischen 1 und -1.
+	welcher Intensität an einer Forderung beteiligt sind. Alle
+	Stimmen haben ein Gewicht zwischen 1 und -1. Nur wenige Nutzer
+	bringen jedoch ihr gesamtes Gewicht in einer Frage
+	ein. Deshalb sind kleinere Stimmgewichte in der Mitte der
+	Grafik häufiger. Am Histogram kann man erkennen, wie viele
+	Wähler sich mit welcher Intensität an der Frage beteiligen.
       </td>
     </tr>
     <tr>
@@ -280,10 +288,12 @@ die erste davon.
     <tr>
       <td><img src="/images/charts/graph.png"/></td>
       <td>
-	Der Delegationsgraph zeigt an welche Beeinflussung durch
-	Stimmdelegation zu Stande kommt. Durch die Delegation werden
-	die eigenen Stimmgewichte denen des delegierten Nutzers
-	angeglichen.
+	Der Delegationsgraph zeigt die Beeinflussung durch
+	Stimmdelegation. Jeder Wähler kann mehrere Delegierte
+	auswählen. Sein Stimmgewicht entsteht dann durch Abstimmung
+	unter diesen. Auch bei aktiven Delegation muss der Nutzer
+	regelmäßig angemeldet sein, damit sein Stimmgewicht nicht mit
+	der Zeit verschwindet.
       </td>
     </tr>
   </table>
