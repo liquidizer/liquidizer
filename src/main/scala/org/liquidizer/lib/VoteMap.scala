@@ -98,7 +98,7 @@ class VoteMap {
       nominees.foreach { 
 	case (VotableQuery(query), nomineeHead) => 
 	  val v= userHead._2.vec
-	  val w= v.getVotingWeight(id(query)) * v.getActiveWeight()
+	  val w= v.getVotingWeight(id(query))
 	  nomineeHead.result = nomineeHead.result + Tick.toQuote(w)
 	case _ =>
       }
