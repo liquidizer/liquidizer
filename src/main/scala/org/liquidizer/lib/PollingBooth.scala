@@ -36,7 +36,7 @@ object PollingBooth {
     val voteText=
       Comment.create
       .date(Tick.now)
-      .author(owner)
+      .vote(vote)
       .content(comment)
     voteText.save
 

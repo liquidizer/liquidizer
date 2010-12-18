@@ -62,6 +62,7 @@ class VotingHelper {
     }
   }
 
+  def formatUser(user : User) : NodeSeq = formatNominee(VotableUser(user))
   def formatNominee(nominee : Votable) : NodeSeq = 
     Markup.renderHeader(nominee.toString, nominee.uri+"/index.html")
   
@@ -119,6 +120,13 @@ class VotingHelper {
 	  getSupporters().flatMap {
 	    user => bind(bind(children, user, nominee), VotableUser(user))
 	  }
+	case "aboutLastComment" => 
+	  VoteCounter.getLatestComment(nominee) match {
+	    case Some(comment) => 
+	      Text("Kommentiert vor "+ Markup.formatRelTime(comment.date.is)+" (") ++
+		   formatUser(comment.getAuthor) ++ Text(")")
+	    case _ => Nil }
+
 	case "graph-nodes" => 
 	  val nodes= attribs.get("count").get.text.toInt
 	  <a href={S.uri+"?nodes="+nodes}>{children}</a>
@@ -261,7 +269,7 @@ class VotingHelper {
 
     in match {
       case Elem("user", label, attribs, scope, _*) => label match {
-	case "name" => formatNominee(VotableUser(user))
+	case "name" => formatUser(user)
 	case "notme" => rec(currentUser!=Full(user))
 	case "itsme" => rec(currentUser==Full(user))
 	case "comment" => {

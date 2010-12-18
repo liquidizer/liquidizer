@@ -11,21 +11,28 @@ import org.liquidizer.model._
 import java.io._
 
 class CommentMap {
-  val map= mutable.Map.empty[(User, Votable), Comment]
-  
+  val map= mutable.Map.empty[(User, Votable), Long]
+  val latestCommentor= mutable.Map.empty[Votable, User]
+  val latestCommented= mutable.Map.empty[User, Votable]
+
   def add(vote:Vote) ={
     if (vote.comment.defined_?) {
-      val key= (vote.owner.obj.get, vote.getVotable)
+      val user= vote.owner.obj.get
+      val nominee= vote.getVotable
       val comment= vote.comment.obj.get
+      val key= (user, nominee)
       if (comment.content.is.trim=="")
 	map -= key
-      else
-	map.put(key, comment)
+      else {
+	map.put(key, comment.id.is)
+	latestCommentor.put(nominee, user)
+	latestCommented.put(user, nominee)
+      }
     }
   }
   
   def get(user : User, nominee : Votable) : Option[Comment] = {
-    map.get((user, nominee))
+    map.get((user, nominee)).map { Comment.getComment(_).get }
   }
 }
 
@@ -85,7 +92,19 @@ object VoteCounter {
   }
   def refresh() = mapper !? 'PUSH
 
-  def registerComment(vote : Vote) = comments.add(vote)
+  def registerComment(vote : Vote) = {
+    // update data model
+    if (vote.comment.defined_?) {
+      if (!vote.comment.obj.get.vote.defined_?) {
+	val comment= vote.comment.obj.get
+	comment.vote(vote)
+	comment.save
+      }
+    }
+    
+    // fill legacy comment map
+    comments.add(vote)
+  }
 
   def register(vote : Vote) {
     registerComment(vote)
@@ -96,7 +115,7 @@ object VoteCounter {
     mapper.start
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
       vote =>
-	comments.add(vote)
+	registerComment(vote)
         // recompute results 
         if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
         if ((vote.date.is / Tick.day) > (time / Tick.day)) {
@@ -152,14 +171,6 @@ object VoteCounter {
     voteMap.getWeight(user, nominee)
   }
 
-  def getComment(author : User, nominee : Votable) : Option[String] = {
-    comments.get(author, nominee). map { _.content.is }
-  }
-
-  def getCommentTime(author : User, nominee : Votable) : Long = {
-    comments.get(author, nominee). map { _.date.is }.getOrElse( 0L )
-  }
-
   def getAllVoters(query : Query) : List[User] = {
     val id= voteMap.id(query)
     voteMap synchronized {
@@ -207,4 +218,24 @@ object VoteCounter {
   def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
     voteMap.getEmotion(user1, user2, Tick.now)
   }
+
+  def getComment(author : User, nominee : Votable) : Option[String] = {
+    comments.get(author, nominee). map { _.content.is }
+  }
+
+  def getCommentTime(author : User, nominee : Votable) : Long = {
+    comments.get(author, nominee). map { _.date.is }.getOrElse( 0L )
+  }
+
+  def getLatestComment(nominee : Votable) : Option[Comment] =
+    comments.latestCommentor.get(nominee) match {
+      case Some(user) => comments.get(user, nominee)
+      case _ => None
+    }
+
+  def getLatestComment(user : User) : Option[Comment] =
+    comments.latestCommented.get(user) match {
+      case Some(nominee) => comments.get(user, nominee)
+      case _ => None
+    }
 }

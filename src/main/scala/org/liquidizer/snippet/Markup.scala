@@ -8,6 +8,7 @@ import _root_.net.liftweb.http.js.JsCmds._
 import _root_.net.liftweb.common._
 
 import _root_.org.liquidizer.model._
+import _root_.org.liquidizer.lib.Tick
 
 object Markup {
 
@@ -46,6 +47,16 @@ object Markup {
       case _ =>
 	link(Text(in))
     }
+  }
+
+  def formatRelTime(time : Long) : String = {
+    val dt= Tick.now - time
+    if (dt <= Tick.min) (dt/Tick.sec) + " Sekunden"
+    else if (dt <= Tick.h) (dt/Tick.min) + " Minuten"
+    else if (dt < 2*Tick.h) 1 + " Stunde"
+    else if (dt <= Tick.day) (dt/Tick.h) + " Stunden"
+    else if (dt < 2*Tick.day) 1 + " Tag"
+    else (dt/Tick.day) + " Tagen"
   }
 }
 

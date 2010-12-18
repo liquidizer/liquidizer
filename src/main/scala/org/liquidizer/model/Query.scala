@@ -12,9 +12,7 @@ object Query extends Query with LongKeyedMetaMapper[Query] {
 	override def fieldOrder = List(what, creator, keys, creation)
   
   	def getQuery(id : String) : Option[Query] = getQuery(id.toLong)
-  	def getQuery(id : Long) : Option[Query] = {
-		Query.find(By(Query.id, id))
-	}
+  	def getQuery(id : Long) : Option[Query] = Query.find(By(Query.id, id))
 }
 
 class Query extends LongKeyedMapper[Query] with IdPK {
