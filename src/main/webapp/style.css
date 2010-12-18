@@ -4,12 +4,12 @@ body {
     font-size: small;
     line-height: 125%;
 }
-.purple { color: #662e91; }
+.purple { color: #660099; }
 .orange { color: #FF9933; }
 
 hr {
-    color:#662e91;
-    background-color:#662e91;
+    color:#660099;
+    background-color:#660099;
     height:3px;
     border: 0px;
 }

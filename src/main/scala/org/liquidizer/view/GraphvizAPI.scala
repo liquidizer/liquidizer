@@ -88,7 +88,7 @@ class GraphvizAPI {
 
   def toGraph(nominee : Votable, size : Int) : NodeSeq = {
     nodes+= nominee
-    options.put(nominee,"style=\"filled\" fillcolor=\"#662e91\" fontcolor=\"white\"")
+    options.put(nominee,"style=\"filled\" fillcolor=\"#660099\" fontcolor=\"white\"")
     process(nominee, 1.0)
     while (nodes.size < size && !queue.isEmpty) {
       val cur= queue.poll

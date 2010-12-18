@@ -6,14 +6,10 @@ import scala.xml._
 import org.liquidizer.lib._
 
 object LiquidColors {
-//  val contra_light= "#ffc8a2"
-//  val pro_light= "#c7fbb3"
-//  val contra= "#ff6400"
-//  val pro= "#06a500"
   val pro= "#FF9933"
   val contra= "#CC0000"
   val pro_light= "#ffefac"
-  val contra_light= "#ffd6d6"  //"cc6667"
+  val contra_light= "#ffd6d6"
 }
 
 class GnuplotAPI {
