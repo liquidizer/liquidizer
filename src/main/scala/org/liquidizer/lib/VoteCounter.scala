@@ -219,12 +219,14 @@ object VoteCounter {
     voteMap.getEmotion(user1, user2, Tick.now)
   }
 
-  def getComment(author : User, nominee : Votable) : Option[String] = {
-    comments.get(author, nominee). map { _.content.is }
-  }
+  def getCommentText(author : User, nominee : Votable) : String =
+    getComment(author, nominee). map { _.content.is }.getOrElse("")
 
-  def getCommentTime(author : User, nominee : Votable) : Long = {
-    comments.get(author, nominee). map { _.date.is }.getOrElse( 0L )
+  def getCommentTime(author : User, nominee : Votable) : Long =
+    getComment(author, nominee). map { _.date.is }.getOrElse(0L)
+
+  def getComment(author : User, nominee : Votable) : Option[Comment] = {
+    comments.get(author, nominee)
   }
 
   def getLatestComment(nominee : Votable) : Option[Comment] =

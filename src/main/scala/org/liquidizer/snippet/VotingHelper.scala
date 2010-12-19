@@ -125,7 +125,7 @@ class VotingHelper {
 	case "aboutLastComment" => 
 	  VoteCounter.getLatestComment(nominee) match {
 	    case Some(comment) => 
-	      Text("Kommentiert vor "+ Markup.formatRelTime(comment.date.is)+" (") ++
+	      Text("Kommentiert "+ Markup.formatRelTime(comment.date.is)+" (") ++
 		   formatUser(comment.getAuthor) ++ Text(")")
 	    case _ => Nil }
 
@@ -277,10 +277,15 @@ class VotingHelper {
 	case "notme" => rec(currentUser!=Full(user))
 	case "itsme" => rec(currentUser==Full(user))
 	case "comment" => {
+	  // editable comment text
 	  buttonFactory.newCommentRecord(
-	    () => VoteCounter.getComment(user, nominee).getOrElse(""),
+	    () => VoteCounter.getCommentText(user, nominee),
 	    text => PollingBooth.comment(user, nominee, text))
-	  buttonFactory.toggleText
+	  buttonFactory.toggleText ++
+	  // add comment time
+	  VoteCounter.getComment(user, nominee).map { c => 
+	    <span class="keys">{ Markup.formatRelTime( c.date.is) }</span> }
+	  .getOrElse(Nil)
 	}
 	case _ => Elem("user", label, attribs, scope, rec(true) : _*)
       }
@@ -296,10 +301,12 @@ class VotingHelper {
       case Elem("vote", label, attribs, scope, _*) =>
 	label match {
 	  case "result"  => {
+	    // format voting weights
 	    val format= in.attribute("format").getOrElse(Text("decimal"))
 	    renderVote(() => formatWeight(user,nominee,format.text))
 	  }
 	  case "weight" => {
+	    // format delegation weights
 	    val style= in.attribute("style").getOrElse(Text("pro"))
 	    renderVote(() => formatResult(
 	      VoteCounter.getDelegationInflow(user) * 

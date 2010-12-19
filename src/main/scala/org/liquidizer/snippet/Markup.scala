@@ -38,6 +38,7 @@ object Markup {
   def renderHeader(in : String, link : String) : NodeSeq = 
     renderHeader(in, { node => <a href={link}>{node}</a> })
 
+  /** render a header replacing links with a generic short cut */
   def renderHeader(in : String, link : Node=>Node) : NodeSeq = {
     url.findFirstMatchIn(in) match {
       case Some(m) =>
@@ -49,7 +50,8 @@ object Markup {
     }
   }
 
-  def formatRelTime(time : Long) : String = {
+  /** format a time relative to now */
+  def formatRelTime(time : Long) : String = "vor " + {
     val dt= Tick.now - time
     if (dt <= Tick.min) (dt/Tick.sec) + " Sekunden"
     else if (dt <= Tick.h) (dt/Tick.min) + " Minuten"
