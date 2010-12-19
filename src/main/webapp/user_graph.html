@@ -1,19 +1,9 @@
 <lift:surround with="user_head">
   <lift:bind-at name="details">
-    <div style="text-align:center">
-      <lift:UserDetails>
-	<div align="center">
-	  <div class="navi">
-	    <div>Knotenpunkte:</div>
-	    <poll:graph-nodes count="5"><div>5</div></poll:graph-nodes>
-	    <poll:graph-nodes count="10"><div>10</div></poll:graph-nodes>
-	    <poll:graph-nodes count="20"><div>20</div></poll:graph-nodes>
-	    <poll:graph-nodes count="50"><div>50</div></poll:graph-nodes>
-	    <poll:graph-nodes count="100"><div>100</div></poll:graph-nodes>
-	  </div>
-	</div>
-	<poll:graph/>
-      </lift:UserDetails>
-    </div>
+    <lift:UserDetails eager_eval="true">
+      <div style="text-align:center">
+	<lift:embed what="graph"/>
+      </div>
+    </lift:UserDetails>
   </lift:bind-at>
 </lift:surround>

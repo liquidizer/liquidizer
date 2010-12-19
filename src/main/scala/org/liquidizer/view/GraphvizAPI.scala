@@ -19,7 +19,7 @@ class GraphvizAPI {
   val stdOutput = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
   val stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
-  val nodes= mutable.Set.empty[Votable]
+  val nodes= mutable.ArrayBuffer.empty[Votable]
   val edges= mutable.Set.empty[Edge]
   val queue= new PriorityQueue[Entry] (10, new Comparator[Entry] {
     def compare(x: Entry, y: Entry) = -(x.weight.abs compare y.weight.abs)
@@ -34,7 +34,7 @@ class GraphvizAPI {
     edge.to match {
       case VotableQuery(_) => 
 	label= VoteCounter.getWeight(edge.from, edge.to)
-        factor= label * 0.1
+        factor= label * label * 0.5
       case VotableUser(_) => 
 	factor= VoteCounter.getCumulativeWeight(edge.from, edge.to)
         label= factor * VoteCounter.getDelegationInflow(edge.from)
@@ -79,14 +79,14 @@ class GraphvizAPI {
 	  val edge= Edge(user, nominee)
 	  if (!options.contains(edge)) {
 	    val factor= setOptions(edge)
-	    queue.add(Entry(nominee, edge, weight * factor * 0.1))
+	    queue.add(Entry(nominee, edge, weight * factor))
 	  }
 	}
       case _ =>
     }
   }
 
-  def toGraph(nominee : Votable, size : Int) : NodeSeq = {
+  def build(nominee : Votable, size : Int) : Unit = {
     nodes+= nominee
     options.put(nominee,"style=\"filled\" fillcolor=\"#660099\" fontcolor=\"white\"")
     process(nominee, 1.0)
@@ -95,11 +95,10 @@ class GraphvizAPI {
       if (!edges.contains(cur.edge))
 	edges+=cur.edge
       if (!nodes.contains(cur.node)) {
-	nodes+= cur.node
+	nodes.append(cur.node)
 	process(cur.node, cur.weight)
       }
     }
-    runGraphviz()
   }
   
   def out(line:String) = { 
@@ -109,6 +108,7 @@ class GraphvizAPI {
   def runGraphviz() : NodeSeq = {
     out("digraph delegationMap {")
     out("size=\"12,12\"")
+    var no=0
     nodes.foreach {
       node =>
       var opt= options.get(node).getOrElse("")
@@ -117,7 +117,8 @@ class GraphvizAPI {
 	  val label= user.toString.replaceAll(" ","\\\\n")
 	out("\""+node.uri+"\" ["+opt+" label=\""+label+"\" shape=\"circle\" width=1]")
 	case node @ VotableQuery(query) => 
-	  out("\""+node.uri+"\" ["+opt+" label=\""+node.id+"\" shape=\"box\"]")
+	  no+= 1
+	  out("\""+node.uri+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
       }}
     edges.foreach {
       case edge @ Edge(from,to) =>

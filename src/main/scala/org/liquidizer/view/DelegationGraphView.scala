@@ -10,6 +10,29 @@ import Helpers._
 
 import org.liquidizer.model._
 
+class DelegationGraphView(node : Votable, count : Int) {
+  val grapher= new GraphvizAPI
+  grapher.build(node, count)
+
+  def getGraph : Node = {
+    val svgNode= grapher.runGraphviz.first
+    val svg= DelegationGraphView.addLink(svgNode)
+    val width= svg.attribute("width").get.text.replace("pt","").toInt
+    val height= svg.attribute("height").get.text.replace("pt","").toInt
+    val scale= Math.min(600.0/width, 600.0/height)
+    if (scale < 1) {
+      SVGUtil.resize(svg, (width*scale).toInt, (height*scale).toInt)
+    }
+    else svg
+  }
+
+  def getQueries = grapher.nodes.filter {
+    _ match {
+      case VotableQuery(_) => true
+      case _ => false
+    }}
+}
+
 object DelegationGraphView {
 
   val cache = new ResultCache[Node]
@@ -36,18 +59,7 @@ object DelegationGraphView {
   }
   
   def graphSVG(node : Votable, count:Int) : Node = {
-    cache.get(node.getClass.toString + node.id+"/"+count, Map(), () => {
-      val grapher= new GraphvizAPI
-      val svgNode= grapher.toGraph(node, count).first
-      val svg= addLink(svgNode)
-      val width= svg.attribute("width").get.text.replace("pt","").toInt
-      val height= svg.attribute("height").get.text.replace("pt","").toInt
-      val scale= Math.min(600.0/width, 600.0/height)
-      if (scale < 1) {
-	SVGUtil.resize(svg, (width*scale).toInt, (height*scale).toInt)
-      }
-	else svg
-    })
+    new DelegationGraphView(node, count).getGraph
   }
 
   def queryGraph(poll : String) : Box[LiftResponse] = {

@@ -134,7 +134,9 @@ class VotingHelper {
 	  <a href={S.uri+"?nodes="+nodes}>{children}</a>
 	case "graph" => 
 	  val nodes= S.param("nodes").getOrElse("10").toInt
-	  DelegationGraphView.graphSVG(nominee, nodes)
+	  val grapher= new DelegationGraphView(nominee, nodes)
+	  grapher.getGraph ++
+	  grapher.getQueries.flatMap { render( children, _ ) }
       }
       
       case Elem("me", tag, attribs, scope, children @ _*) =>
