@@ -24,7 +24,7 @@ object TaggedUtils {
       for (okey <- keys) {
 	val key= okey.toLowerCase
 	if (!names.contains(key)) names.put(key, okey)
-	map.put(key, map.get(key).getOrElse(0.0) + (weight / keys.size.sqrt))
+	map.put(key, map.get(key).getOrElse(0.0) + (weight / Math.sqrt(keys.size)))
       }
     }
     
