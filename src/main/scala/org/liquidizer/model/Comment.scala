@@ -12,7 +12,6 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
   object content extends MappedText(this)
   
   def getAuthor() : User = {
-    println(vote.obj.get)
     vote.obj.get.owner.obj.get
   }
   

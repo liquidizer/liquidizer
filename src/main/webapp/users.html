@@ -1,54 +1,10 @@
 <lift:surround with="default">
   <lift:bind-at name="title">Alle Piraten</lift:bind-at>
   <lift:bind-at name="content">
-  <table width="100%">
-    <tr>
-      <th align="left">Pirat</th>
-      <th>Match</th>
-      <th class="vote_th">Einfluss</th>
-      <lift:UserInfo.in>
-	<th class="vote_th">Stimme delegieren</th>
-      </lift:UserInfo.in>
-    </tr>
-    <tr height="30"/>
-    <lift:Users eager_eval="true">
-      <tr>
-	<td class="votable">
-	  <poll:name/>
-	  <div class="keys">
-	    <user:profile maxlen="150"/>
-	  </div>
-	</td>
-	<td class="emo_thumb"><user:emoticon size="60"/></td>
-	<td align="center">
-	  <table class="vote"><tr><td><user:inflow/></td></tr></table>
-	</td>
-	<lift:UserInfo:in>
-	  <user:itsme>
-	    <td align="center"><span class="pass">−</span></td>
-	  </user:itsme>
-	  <user:notme>
-	    <td align="center" nowrap="true">
-	      <lift:embed what="vote"/>
-	    </td>
-	  </user:notme>
-	</lift:UserInfo:in>
-      </tr>
-    </lift:Users>
-  </table>
-  <div align="center">
-    <lift:Users.navigator/>
-  </div>
-  </lift:bind-at>
-  <lift:bind-at name="sidebar">
-    <lift:Users.view form="POST" eager_eval="true">
-      <search:input/>
-    </lift:Users.view>
     <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
     <lift:MenuMarker>
       <ul class="popup" id="sort">
 	<li><menu:a action="sort" value="inflow" default="true">Einfluss</menu:a></li>
-	<li><menu:a action="sort" value="outflow">Abfluss</menu:a></li>
 	<li><menu:a action="sort" value="active">Aktivität</menu:a></li>
 	<li><menu:a action="sort" value="age">Neuigkeit</menu:a></li>
 	<lift:UserInfo.in>
@@ -58,6 +14,54 @@
 	</lift:UserInfo.in>
       </ul>
     </lift:MenuMarker>
+    <div style="float:right">
+      <lift:Users.view form="POST" eager_eval="true">
+	<search:input/>
+      </lift:Users.view>
+    </div>
+    <div style="height:10px; clear:both"/>
+
+    <lift:Users eager_eval="true">
+      <div class="user">
+      <table>
+	<tr>
+	  <td class="votable" width="140px">
+	    <poll:name/>
+	  </td>
+	  <td align="center" width="80px">
+	    <user:inflow/>
+	  </td>
+	</tr>
+	<tr>
+	  <td>
+	    <div class="keys">
+	      <user:profile maxlen="150"/>
+	    </div>
+	  </td>
+	  <td class="emo_thumb" rowspan="2">
+	    <user:emoticon size="60"/>
+	  </td>
+	</tr>
+	<lift:UserInfo:in>
+	  <tr>
+	    <td style="align:left; vertical-align:bottom">
+	      <user:itsme>
+		<td align="center"><span class="pass">−</span></td>
+	      </user:itsme>
+	      <user:notme>
+		<me:weight format="numer"/>
+	      </user:notme>
+	    </td>
+	  </tr>
+	</lift:UserInfo:in>
+      </table>
+      </div>
+    </lift:Users>
+  <div align="center" style="clear:both">
+    <lift:Users.navigator/>
+  </div>
+  </lift:bind-at>
+  <lift:bind-at name="sidebar">
   </lift:bind-at>
 </lift:surround>
 

@@ -38,6 +38,7 @@ class UserHead(id : Int) {
   val emos = mutable.Map.empty[User, Emotion]
   var denom = 0
   var lastVote = 0L
+  def isActive() = denom>0.0 && vec.getActiveWeight>0.0
 }
 
 object VoteMap {
@@ -220,7 +221,7 @@ class VoteMap {
       val head1= users.get(key1).get
       val head2= users.get(key2).get
 
-      if (head1.denom==0 || head2.denom==0) {
+      if (!head1.isActive || !head2.isActive) {
 	None
       } else {
 	if (!head1.emos.contains(key2)) head1.emos.put(key2, new Emotion())

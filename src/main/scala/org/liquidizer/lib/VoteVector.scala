@@ -13,9 +13,10 @@ class VoteVector(
   
   def normalize() : Unit = {
     val norm= votes.foldLeft(0.0) { (a,b) => a+b*b }
-    if (norm > 1e-8) {
+    if (norm > 1e-8)
       normalize(votes, Math.sqrt(norm))
-    }
+    else
+      supporters(userID)= 0.0
   }
   
   def clear(vec : Array[Double], value : Double) = {

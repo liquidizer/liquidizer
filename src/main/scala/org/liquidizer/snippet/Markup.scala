@@ -121,7 +121,7 @@ class MenuMarker {
 	    if (attribs.get("default").map{ _.text=="true" }.getOrElse(false)) value else "")
 	  href += "?"+field+"="+value
 	  if (keep.isEmpty)
-	    keep=Some("search tags")
+	    keep=Some("search")
 	}
         // add persisted parameters
         keep.foreach { _.split(" ").foreach { key => S.param(key).foreach { value =>

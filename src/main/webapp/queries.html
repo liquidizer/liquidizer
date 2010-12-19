@@ -1,15 +1,27 @@
 <lift:surround with="default">
   <lift:bind-at name="title">Forderungen</lift:bind-at>
   <lift:bind-at name="content">
+
+    <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
+    <lift:MenuMarker>
+      <ul class="popup" id="sort">
+	<li><menu:a action="sort" value="value" default="true">Ergebnis</menu:a></li>
+	<li><menu:a action="sort" value="conflict">Konflikt</menu:a></li>
+	<li><menu:a action="sort" value="comment">Kommentar</menu:a></li>
+	<li><menu:a action="sort" value="age">Neuigkeit</menu:a></li>
+	<li><menu:a action="sort" value="pro">Zustimmung</menu:a></li>
+	<li><menu:a action="sort" value="contra">Ablehnung</menu:a></li>
+	<li><menu:a action="sort" value="swing">Swing</menu:a></li>
+      </ul>
+    </lift:MenuMarker>
+    <div style="float:right">
+      <lift:Queries.view form="POST" eager_eval="true">
+	<search:input/>
+      </lift:Queries.view>
+    </div>
+    <div style="height:20px; clear:both"/>
+
   <table width="100%">
-    <tr>
-      <td>Forderung</td>
-      <th>Ergebnis</th>
-      <lift:UserInfo.in>
-	<th>Deine Präferenz</th>
-      </lift:UserInfo.in>
-    </tr>
-    <tr height="30"/>
     <lift:Queries eager_eval="true">
       <tr>
 	<td class="votable">
@@ -49,23 +61,7 @@
   </lift:bind-at>
 
   <lift:bind-at name="sidebar">
-      <lift:Queries.view form="POST" eager_eval="true">
-	<search:input/>
-      </lift:Queries.view>
-      <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
-      <lift:MenuMarker>
-	<ul class="popup" id="sort">
-	  <li><menu:a action="sort" value="value" default="true">Ergebnis</menu:a></li>
-	  <li><menu:a action="sort" value="conflict">Konflikt</menu:a></li>
-	  <li><menu:a action="sort" value="comment">Kommentar</menu:a></li>
-	  <li><menu:a action="sort" value="age">Neuigkeit</menu:a></li>
-	  <li><menu:a action="sort" value="pro">Zustimmung</menu:a></li>
-	  <li><menu:a action="sort" value="contra">Ablehnung</menu:a></li>
-	  <li><menu:a action="sort" value="swing">Swing</menu:a></li>
-	</ul>
-      </lift:MenuMarker>
-      
-    <div style="margin: 50px 10px 10px 0; text-align:right">Kategorien</div>
+    <div style="margin: 50px 10px 10px 10px">Kategorien</div>
     <div class="keys">
       <lift:Queries.categories/>
     </div>

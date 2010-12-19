@@ -144,9 +144,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       <div>{text}</div>
     else 
 	link("" , () => {
-	  redirectTo(S.uri+"?page="+targetPage+
-		     (if (search=="") "" else "&search="+search)+
-		     (if (order=="") "" else "&sort="+order))}, 
+	  redirectTo(attribUri("page" -> targetPage.toString))}, 
 	     <div>{text}</div>)
   }
 
@@ -154,22 +152,33 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
   def view(in : NodeSeq) : NodeSeq = in.flatMap(view(_))
 
+  def attribUri(params : (String,String)*) = {
+    S.uri + {
+      (Map("sort" -> order, "search" -> search) ++ Map(params:_*))
+      .filter { case (key, value) => value.length>0 }
+      .map { case (key,value) => key+"="+value }
+      .mkString("?","&","")
+    }
+  }
+
   def view(in : Node) : NodeSeq = {
     in match {
       case <search:input/> => 
 	SHtml.text(search, search = _ , 
-		   "width" -> "15", "placeholder" -> "search")
-
-      case <search:submit/> =>
+		   "width" -> "20", 
+		   "placeholder" -> "search", "class" -> "searchText") ++
 	SHtml.ajaxSubmit("Search", { () =>
 	  this.unregisterThisSnippet
-	  S.redirectTo(S.uri+"?search="+search+
-		       (if (order.length>0) "&sort="+order else "")) } )
-
-      case <search:clear/> =>
-	SHtml.ajaxSubmit("Clear", { () =>
-	  this.unregisterThisSnippet
-	  S.redirectTo(S.uri + (if (order.length>0) "?sort="+order else "")) } )
+	  S.redirectTo(attribUri("search"-> search)) },
+		       "class" -> "searchSubmit") ++
+        {
+	  // Display a clear search text button if applicable
+	  if (search.length==0) Nil else
+	    SHtml.ajaxSubmit("X", { () =>
+	      this.unregisterThisSnippet
+	      S.redirectTo(attribUri("search"->"")) },
+				 "class" -> "searchClear")
+	}
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, view(children) : _*)
@@ -178,20 +187,11 @@ abstract class MultipageSnippet extends StatefulSnippet {
     }
   }
 
-  def clearSearchButton(in : NodeSeq) : NodeSeq = {
-    if (search=="")
-      NodeSeq.Empty
-    else
-      <a href={S.uri + (if (order.length>0) "?sort="+order else "")}>{
-	in
-      }</a>
-  }
-
   def searchFilter : String => Boolean = {
     val keys= search.split(" +").map { _.toUpperCase }
     val f= {
       text:String =>
-	val uText= text.toUpperCase
+	val uText= if (text==null) "" else text.toUpperCase
       keys.isEmpty || keys.filter { key => !uText.contains(key) }.size==0
     }
     f
