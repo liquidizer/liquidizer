@@ -10,7 +10,10 @@ object TaggedUtils {
     keys.split("(\\s|,)").map { _.trim }.toList.filter { !_.isEmpty }
   }
 
+  def sortedQueryTags() = sortedTags( Query.findAll.map { VotableQuery(_) } )
+
   def sortedTags(data : List[Votable]): List[String] = {
+    val names = mutable.Map.empty[String, String]
     val map = mutable.Map.empty[String, Double]
     for (item <- data) {
       val keys= item match {
@@ -18,7 +21,9 @@ object TaggedUtils {
 	case VotableUser(user) => getTags(user.profile.is)
       }
       val weight= VoteCounter.getResult(item).volume
-      for (key <- keys) {
+      for (okey <- keys) {
+	val key= okey.toLowerCase
+	if (!names.contains(key)) names.put(key, okey)
 	map.put(key, map.get(key).getOrElse(0.0) + (weight / keys.size))
       }
     }
@@ -26,6 +31,6 @@ object TaggedUtils {
     map
     .toList
     .sort { case ((k0, v0),(k1,v1)) => v0>v1 }
-    .map { case (key, value) => key }
+    .map { case (key, value) => names.get(key).get }
   }
 }

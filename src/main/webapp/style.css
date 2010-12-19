@@ -82,7 +82,7 @@ a.extern {
     -moz-border-radius: 5px;
     border-radius: 5px;
     background-color: #FF9933;
-    margin: 8px 5px 1px 5px;
+    margin: 8px 5px 2px 5px;
     color: black;
 }
 input.searchSubmit {
@@ -102,6 +102,9 @@ input.searchText:hover {
     background-color: lightgray;
 }
 input {
+    border: 1px #FF9933 solid;
+}
+textarea {
     border: 1px #FF9933 solid;
 }
 

@@ -29,8 +29,7 @@ class Queries extends MultipageSnippet {
   }
 
   override def categories(in:NodeSeq) : NodeSeq = {
-    val keys= search.split(" +").toList.distinct.map { _ toLowerCase }
-    val markup= new CategoryView(keys, "/queries.html")
+    val markup= new CategoryView(search, "/queries.html")
     <span>{
       markup.renderTagList(TaggedUtils.sortedTags(getData()), 5)
     }</span>
@@ -101,8 +100,18 @@ class AddQuery extends StatefulSnippet {
   def create(in:NodeSeq) : NodeSeq = {
     Helpers.bind("addquery", in,
 		 "what" -> SHtml.textarea(what, what = _, "rows"-> "3", "cols"-> "40", "placeholder" -> "Frage"),
-		 "keys" -> SHtml.text(keys, keys = _, "size"-> "40"),
-		 "submit" -> SHtml.submit("Absenden", ()=>verifyQuery))
+		 "keys" -> SHtml.text(keys, keys = _, 
+				      "size"-> "40", "id" -> "keys"),
+		 "submit" -> SHtml.submit("Absenden", ()=>verifyQuery),
+		 "keyset" -> 
+		 new CategoryView(keys, "") {
+		   override def renderTag(tag : String) : Node = {
+		     <div class={getStyle(isActive(tag))} 
+		     id={"key_"+tag}
+		     onclick={"toggleTag('"+tag+"')"}>{tag}</div>
+		   }
+		 }.renderTagList(TaggedUtils.sortedQueryTags(), 20)
+	       )
   }
 
   def confirm(in:NodeSeq) : NodeSeq = {

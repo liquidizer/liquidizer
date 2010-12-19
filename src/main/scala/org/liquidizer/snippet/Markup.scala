@@ -62,16 +62,25 @@ object Markup {
 
 class CategoryView(val keys : List[String], rootLink:String) {
 
-  def link(node : Node, keys: List[String]) = {
+  def this(keyStr : String, rootLink : String) = 
+    this(keyStr.toLowerCase.split(",| ").distinct.toList, rootLink)
+
+  def isActive(tag : String) = keys.contains(tag.toLowerCase)
+
+  def link(node : Node, keys : List[String]) = {
     val uri= rootLink+"?search="+keys.mkString(" ")
     <a href={uri}>{node}</a>
   }
 
+  def getStyle(isactive : Boolean) = if (isactive) "active" else "inactive"
+  def getKeysWith(tag : String) = tag :: keys
+  def getKeysWithout(tag : String) = keys.filter{ _ != tag.toLowerCase }
+
   def renderTag(tag : String) : Node = {
-    if (keys.contains(tag.toLowerCase)) {
-      link(<div class="active">{tag}</div>, keys.filter{ _ != tag.toLowerCase })
+    if (isActive(tag)) {
+      link(<div class={getStyle(true)}>{tag}</div>, getKeysWithout(tag))
     } else {
-      link(<div class="inactive">{tag}</div>, tag :: keys)
+      link(<div class={getStyle(false)}>{tag}</div>, getKeysWith(tag))
     }
   }
 

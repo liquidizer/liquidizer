@@ -1,32 +1,64 @@
-<lift:surround with="default" at="content">
-  <lift:UserInfo.in>
+<lift:surround with="default">
+  <lift:bind-at name="title">Neue Forderung</lift:bind-at>
+  <lift:bind-at name="content">
+    <head>
+      <script language="javascript">
+	function toggleTag(tag) {
+	var elt= $("#key_"+tag);
+	var txt= $("#keys");
+	if (elt.hasClass("active")) {
+	  elt.removeClass("active");
+	  elt.addClass("inactive");
+	  var regex= new RegExp(tag+"([, ]*|$)", "i")
+	  txt.val(txt.val().replace(regex,''));
+	} else {
+	  elt.removeClass("inactive");
+	  elt.addClass("active");
+	  txt.val(tag+" "+txt.val());
+        }
+	}
+      </script>
+    </head>
+    <lift:UserInfo.in>
+      <lift:AddQuery.create form="POST">
+	<div class="head">
+	  <h2>Neue Forderung stellen:</h2>
+	</div>
+	
+	<hr class="none"/>
+	
+	<table>
+	  <tr>
+	    <td>
+	      <p>
+		Die Forderung lautet:
+	      <p/>
+	      <addquery:what/>
+	      </p>
+	      <p>
+		Stichworte für die Suchfunktion
+	      <p/>
+	      <addquery:keys/>
+	      </p>
+	      <p>
+		<addquery:submit/>
+	      </p>
+	    </td>
+	    <td width="20px"/>
+	    <td>
+	      <p>Kategorien:</p>
+	      <div class="keys">
+		<addquery:keyset/>
+	      </div>
+	    </td>
+	  </tr>
+	</table>
+      </lift:AddQuery.create>
 
-    <lift:AddQuery.create form="POST">
-      <div class="head">
-	<h2>Neue Forderung stellen:</h2>
-      </div>
-      
-      <hr class="none"/>
-      
-      <p>
-	Die Forderung lautet:
-	<p/>
-	<addquery:what/>
-      </p>
-      <p>
-	Stichworte für die Suchfunktion
-	<p/>
-	<addquery:keys/>
-      </p>
-      <p>
-	<addquery:submit/>
-      </p>
-    </lift:AddQuery.create>
-
-  </lift:UserInfo.in>
-  <lift:UserInfo:out>
-    Du musst angemeldet sein um neue Forderungen hinzufügen zu können
-  </lift:UserInfo:out>
-
+    </lift:UserInfo.in>
+    <lift:UserInfo:out>
+      Du musst angemeldet sein um neue Forderungen hinzufügen zu können
+    </lift:UserInfo:out>
+  </lift:bind-at>
 </lift:surround>
 
