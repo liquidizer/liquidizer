@@ -17,6 +17,7 @@ import _root_.org.liquidizer.view.DelegationGraphView
 
 class VotingHelper {
   val currentUser= User.currentUser
+  var no= 0
 
   val buttonFactory = new EditButtonToggler
   
@@ -102,6 +103,7 @@ class VotingHelper {
       case Elem("poll", tag, attribs, scope, children @ _*) => tag match {
 	case "name" => formatNominee(nominee)
 	case "id" => Text(nominee.id.toString)
+	case "no" => no+=1; Text(no.toString)
 	case "title" => Text(nominee.toString)
 	case "result" =>
  	  val showTrend= attribs.get("trend").map { _.text=="show" }.getOrElse( false )

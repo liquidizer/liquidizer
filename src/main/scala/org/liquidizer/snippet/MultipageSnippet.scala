@@ -28,7 +28,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def render(in:NodeSeq) : NodeSeq
   def categories(in:NodeSeq) : NodeSeq = NodeSeq.Empty
 
-  val defaultsize= 20
+  val defaultsize= 12
   val pagesize:Int = S.param("pagesize").map{ _.toInt }.getOrElse(defaultsize)
   var search= S.param("search").getOrElse("")
   var order= S.param("sort").getOrElse("")

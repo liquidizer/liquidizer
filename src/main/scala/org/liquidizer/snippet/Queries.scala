@@ -37,6 +37,7 @@ class Queries extends MultipageSnippet {
 
   def render(in: NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
+    helper.no= from
     getData()
     .slice(from, to)
     .flatMap {

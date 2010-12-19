@@ -235,7 +235,10 @@ textarea {
   display: block;
   color: red;
 }
-
+.rank {
+    color: gray;
+    margin-right: 5px;
+}
 .contra {
     color: #CC0000;
     font-weight: bold;
