@@ -119,14 +119,14 @@ textarea {
     float: left;
     margin: 0 10px 0 0;
 }
-#topmenu img {
+#topmenu img.top {
     height: 49px;
 }
 #loginfo {
     float: right;
 }
-
 .popup {
+    width: 200px;
     display: none;
     position: absolute;
     list-style-type: none;
@@ -144,10 +144,15 @@ textarea {
     background-color: white;
 }
 .popup div {
-    padding: 5px;
+   nowrap: true;
+   padding: 5px;
+}
+.popup img.menu {
+    height: 20px;
+    margin: 0 10px 0 0;
 }
 .popup .active {
-    background-color: orange;
+    background-color: #FF9933;
 }
 
 .content { 

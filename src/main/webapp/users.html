@@ -4,13 +4,25 @@
     <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
     <lift:MenuMarker>
       <ul class="popup" id="sort">
-	<li><menu:a action="sort" value="inflow" default="true">Einfluss</menu:a></li>
-	<li><menu:a action="sort" value="active">Aktivität</menu:a></li>
-	<li><menu:a action="sort" value="age">Neuigkeit</menu:a></li>
+	<li><menu:a action="sort" value="inflow" default="true" icon="inflow">
+	    Einfluss</menu:a>
+	</li>
+	<li><menu:a action="sort" value="active" icon="comment">
+	    Aktivität</menu:a>
+	</li>
+	<li><menu:a action="sort" value="age" icon="new">
+	    Neuigkeit</menu:a>
+	</li>
 	<lift:UserInfo.in>
-	  <li><menu:a action="sort" value="valence">Sympathie</menu:a></li>
-	  <li><menu:a action="sort" value="avalence">Apathie</menu:a></li>
-	  <li><menu:a action="sort" value="arousal">Erregung</menu:a></li>
+	  <li><menu:a action="sort" value="valence" icon="sympathy">
+	      Sympathie</menu:a>
+	  </li>
+	  <li><menu:a action="sort" value="avalence" icon="apathy">
+	      Apathie</menu:a>
+	  </li>
+	  <li><menu:a action="sort" value="arousal" icon="arousal">
+	      Erregung</menu:a>
+	  </li>
 	</lift:UserInfo.in>
       </ul>
     </lift:MenuMarker>

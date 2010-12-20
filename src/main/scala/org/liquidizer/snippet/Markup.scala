@@ -138,11 +138,16 @@ class MenuMarker {
         keep.foreach { _.split(" ").foreach { key => S.param(key).foreach { value =>
 	  if (value.length>0) href += ("&" + key + "=" + value) }}}
 
+        // make icon
+	val icon= attribs.get("icon").map { url =>
+	  <img src={"/images/menu/"+url.text+".png"} alt="" class="menu"/>
+	}.getOrElse(Text(""))
+
         // format link as either active (currently visited) or inaktive
 	if (active)
-	  <div class="active">{children}</div>
+	  <div class="active">{icon ++ children}</div>
         else
-	  <a href={href}><div class="inactive">{children}</div></a>
+	  <a href={href}><div class="inactive">{icon ++ children}</div></a>
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children) : _*)

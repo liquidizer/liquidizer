@@ -44,14 +44,28 @@
       <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
       <lift:MenuMarker>
 	<ul class="popup" id="sort">
-	  <li><menu:a action="sort" value="weight" default="true">Gewicht</menu:a></li>
-	  <li><menu:a action="sort" value="comment_age">Kommentarzeit</menu:a></li>
-	  <li><menu:a action="sort" value="approval">Zustimmung</menu:a></li>
-	  <li><menu:a action="sort" value="objection">Ablehnung</menu:a></li>
+	  <li><menu:a action="sort" value="weight" default="true" icon="weight">
+	      Gewicht</menu:a>
+	  </li>
+	  <li><menu:a action="sort" value="comment_age" icon="comment">
+	      Kommentarzeit</menu:a>
+	  </li>
+	  <li><menu:a action="sort" value="approval" icon="pro">
+	      Zustimmung</menu:a>
+	  </li>
+	  <li><menu:a action="sort" value="objection" icon="contra">
+	      Ablehnung</menu:a>
+	  </li>
 	  <lift:UserInfo.in>
-	    <li><menu:a action="sort" value="valence">Sympathie</menu:a></li>
-	    <li><menu:a action="sort" value="avalence">Apathie</menu:a></li>
-	    <li><menu:a action="sort" value="arousal">Erregung</menu:a></li>
+	    <li><menu:a action="sort" value="valence" icon="sympathy">
+		Sympathie</menu:a>
+	    </li>
+	    <li><menu:a action="sort" value="avalence" icon="apathy">
+		Apathie</menu:a>
+	    </li>
+	    <li><menu:a action="sort" value="arousal" icon="arousal">
+		Erregung</menu:a>
+	    </li>
 	  </lift:UserInfo.in>
 	</ul>
       </lift:MenuMarker>
