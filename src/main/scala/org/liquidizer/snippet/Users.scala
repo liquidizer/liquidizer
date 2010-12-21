@@ -45,6 +45,7 @@ class Users extends MultipageSnippet {
 class UserDetails extends MultipageSnippet {
 
   val user= User.getUser(S.param("user").openOr("-1")).get
+  def getOrder() = if (order=="") "flow" else order;
 
   def loadVotes() = {
     data= 
@@ -58,6 +59,7 @@ class UserDetails extends MultipageSnippet {
       VoteCounter.getActiveVoters(VotableUser(user))
       .filter { searchFilter _ }
       .map { VotableUser(_) }
+    sortData(sortFunction(getOrder, VotableUser(user)))
   }
   def loadDelegates() = {
     data= 
@@ -66,6 +68,7 @@ class UserDetails extends MultipageSnippet {
 	case VotableUser(user) => searchFilter(user)
         case _ => false
       }
+    sortData(sortFunction(getOrder, user))
   }
 
   def render(in : NodeSeq) : NodeSeq = {

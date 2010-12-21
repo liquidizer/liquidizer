@@ -1,45 +1,71 @@
 <lift:surround with="user_head">
   <lift:bind-at name="details">
-      <table width="100%">
-	<tr height="50">
-	  <th/><th/>
-	  <th  class="vote_th">Abfluss</th>
+    <table width="100%">
+      <tr height="50">
+	<th/><th/>
+	<th  class="vote_th">Abfluss</th>
+	<lift:UserInfo.in>
+	  <user:itsme>
+	    <th  class="vote_th">Delegieren</th>
+	  </user:itsme>
+	</lift:UserInfo.in>
+      </tr>
+      <user:delegates>
+	<tr>
+	  <td class="emo_thumb">
+	    <user:emoticon size="60"/>
+	  </td>
+	  <td class="votable">
+	    <poll:name/>
+	    <div class="comment">
+	      <user:comment/>
+	      <user:itsme>
+		<poll:notme>
+		  <me:editButton/>
+		</poll:notme>
+	      </user:itsme>
+	    </div>
+	  </td>
+	  <td align="center">
+	    <table class="vote"><tr><td><vote:weight style="contra"/></td></tr></table>
+	  </td>
 	  <lift:UserInfo.in>
-	    <user:itsme>
-	      <th  class="vote_th">Delegieren</th>
-	    </user:itsme>
+	    <td nowrap="true" align="center">
+	      <poll:notme>
+		<user:itsme>
+		  <lift:embed what="vote"/>
+		</user:itsme>
+	      </poll:notme>
+	    </td>
 	  </lift:UserInfo.in>
 	</tr>
-	<user:delegates>
-	  <tr>
-	    <td class="emo_thumb">
-	      <user:emoticon size="60"/>
-	    </td>
-	    <td class="votable">
-	      <poll:name/>
-	      <div class="comment">
-		<user:comment/>
-		<user:itsme>
-		  <poll:notme>
-		    <me:editButton/>
-		  </poll:notme>
-		</user:itsme>
-	      </div>
-	    </td>
-	    <td align="center">
-	      <table class="vote"><tr><td><vote:weight style="contra"/></td></tr></table>
-	    </td>
-	    <lift:UserInfo.in>
-	      <td nowrap="true" align="center">
-		<poll:notme>
-		  <user:itsme>
-		    <lift:embed what="vote"/>
-		  </user:itsme>
-		</poll:notme>
-	      </td>
-	    </lift:UserInfo.in>
-	  </tr>
-	</user:delegates>
-      </table>
+      </user:delegates>
+    </table>
+  </lift:bind-at>
+  <lift:bind-at name="selection">
+    <div style="position:absolute">
+      <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
+      <lift:MenuMarker>
+	<ul class="popup" id="sort">
+	  <li><menu:a action="sort" value="flow" default="true" icon="weight">
+	      Gewicht</menu:a>
+	  </li>
+	  <li><menu:a action="sort" value="comment_age" icon="comment">
+	      Kommentarzeit</menu:a>
+	  </li>
+	  <lift:UserInfo.in>
+	    <li><menu:a action="sort" value="valence" icon="sympathy">
+		Sympathie</menu:a>
+	    </li>
+	    <li><menu:a action="sort" value="avalence" icon="apathy">
+		Apathie</menu:a>
+	    </li>
+	    <li><menu:a action="sort" value="arousal" icon="arousal">
+		Erregung</menu:a>
+	    </li>
+	  </lift:UserInfo.in>
+	</ul>
+      </lift:MenuMarker>
+    </div>
   </lift:bind-at>
 </lift:surround>

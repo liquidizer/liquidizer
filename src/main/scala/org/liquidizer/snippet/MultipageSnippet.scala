@@ -43,6 +43,9 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def sortFunction(order: String, nominee:Votable) : (Votable => Double) = {
     def inflow(user:User) = VoteCounter.getDelegationInflow(user)
     def weight(user:User) = VoteCounter.getWeight(user, nominee)
+    def flow(user:User) = 
+      VoteCounter.getDelegationInflow(user) * 
+      VoteCounter.getCumulativeWeight(user, nominee)
     def comment(user:User) = VoteCounter.getComment(user, nominee)
     def bonus(user:User) = 
       if (comment(user).isEmpty && Full(user)!=User.currentUser) 0 else 1000
@@ -51,6 +54,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
     order match {
       case "" | "weight" => isUser(_, user => inflow(user)*weight(user).abs)
+      case "flow" => isUser(_, flow(_))
       case "approval" => isUser(_, weight(_))
       case "objection" => isUser(_, -weight(_))
       case "comment_age" => isUser(_, VoteCounter.getCommentTime(_, nominee))
@@ -62,9 +66,11 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
   /** Create a sort ordering function for votes cast by a fixed user */
   def sortFunction(order: String, user:User) : (Votable => Double) = {
+    def flow(nominee:Votable) = VoteCounter.getCumulativeWeight(user, nominee)
     def weight(nominee : Votable) = VoteCounter.getWeight(user, nominee)
     order match {
       case "" | "weight" => weight(_).abs
+      case "flow" => flow(_)
       case "approval" => weight(_)
       case "objection" => -weight(_)
       case "comment_age" => VoteCounter.getCommentTime(user, _)
@@ -103,7 +109,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
   }
 
   def sortData(): Unit = sortData(sortFunction(order))
-  def sortData(nominee: Votable): Unit = sortData(sortFunction(order, nominee))
+  def sortData(nominee: Votable) : Unit = sortData(sortFunction(order, nominee))
   def sortData(user: User): Unit = sortData(sortFunction(order, user))
 
   def sortData(f : Votable => Double): Unit = {

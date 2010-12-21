@@ -38,4 +38,30 @@
 	</poll:supporters>
       </table>
   </lift:bind-at>
+  <lift:bind-at name="selection">
+    <div style="position:absolute">
+      <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
+      <lift:MenuMarker>
+	<ul class="popup" id="sort">
+	  <li><menu:a action="sort" value="flow" default="true" icon="weight">
+	      Gewicht</menu:a>
+	  </li>
+	  <li><menu:a action="sort" value="comment_age" icon="comment">
+	      Kommentarzeit</menu:a>
+	  </li>
+	  <lift:UserInfo.in>
+	    <li><menu:a action="sort" value="valence" icon="sympathy">
+		Sympathie</menu:a>
+	    </li>
+	    <li><menu:a action="sort" value="avalence" icon="apathy">
+		Apathie</menu:a>
+	    </li>
+	    <li><menu:a action="sort" value="arousal" icon="arousal">
+		Erregung</menu:a>
+	    </li>
+	  </lift:UserInfo.in>
+	</ul>
+      </lift:MenuMarker>
+    </div>
+  </lift:bind-at>
 </lift:surround>
