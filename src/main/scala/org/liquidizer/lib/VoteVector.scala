@@ -72,7 +72,7 @@ class VoteVector(
 	scalar += Math.abs(votes(i)*other.votes(i))
       else
 	scalar += votes(i)*other.votes(i)
-    scalar * getActiveWeight * other.getActiveWeight
+    scalar
   }
   
   def getVotingWeight(queryId : Int) : Double = 
