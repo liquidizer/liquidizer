@@ -35,43 +35,43 @@
 
     <lift:Users eager_eval="true">
       <div class="user">
-      <table>
-	<tr>
-	  <td class="votable" width="140px">
-	    <poll:name/>
-	  </td>
-	  <td align="center" width="80px">
-	    <user:inflow/>
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-	    <div class="keys">
-	      <user:profile maxlen="150"/>
-	    </div>
-	  </td>
-	  <td class="emo_thumb" rowspan="2">
-	    <user:emoticon size="60"/>
-	  </td>
-	</tr>
-	<lift:UserInfo:in>
+	<table>
 	  <tr>
-	    <td style="align:left; vertical-align:bottom">
-	      <user:itsme>
-		<td align="center"><span class="pass">−</span></td>
-	      </user:itsme>
-	      <user:notme>
-		<me:weight format="numer"/>
-	      </user:notme>
+	    <td class="votable" width="140px">
+	      <poll:name/>
+	    </td>
+	    <td align="center" width="80px">
+	      <user:inflow/>
 	    </td>
 	  </tr>
-	</lift:UserInfo:in>
-      </table>
+	  <tr>
+	    <td>
+	      <div class="keys">
+		<user:profile maxlen="150"/>
+	      </div>
+	    </td>
+	    <td class="emo_thumb" rowspan="2">
+	      <user:emoticon size="60"/>
+	    </td>
+	  </tr>
+	  <lift:UserInfo:in>
+	    <tr>
+	      <td style="align:left; vertical-align:bottom">
+		<user:itsme>
+		  <td align="center"><span class="pass">−</span></td>
+		</user:itsme>
+		<user:notme>
+		  <me:weight format="numer"/>
+		</user:notme>
+	      </td>
+	    </tr>
+	  </lift:UserInfo:in>
+	</table>
       </div>
     </lift:Users>
-  <div align="center" style="clear:both">
-    <lift:Users.navigator/>
-  </div>
+    <div align="center" style="clear:both">
+      <lift:Users.navigator/>
+    </div>
   </lift:bind-at>
   <lift:bind-at name="sidebar">
   </lift:bind-at>

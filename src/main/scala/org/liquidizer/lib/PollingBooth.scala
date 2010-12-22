@@ -16,7 +16,7 @@ object PollingBooth {
 	  case VotableQuery(query) => By(Vote.query, query)
 	  case VotableUser(user) => By(Vote.user, user)
 	},
-	OrderBy(Vote.date, Descending))
+	OrderBy(Vote.date, Descending), MaxRows(1))
     val votes = allVotes()
     if (votes.isEmpty) {
       // user has not voted on this issue yet
@@ -46,7 +46,7 @@ object PollingBooth {
 
     vote.comment(voteText)
     vote.save
-    VoteCounter.register(vote)
+    VoteCounter.registerComment(vote)
   }
   
   def vote(owner : User, nominee : Votable, weight : Int) = {
