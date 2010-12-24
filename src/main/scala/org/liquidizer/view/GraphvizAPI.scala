@@ -31,23 +31,25 @@ class GraphvizAPI {
 
   def setOptions(edge : Edge) : Double = {
     var label= 1.0
-    var factor= 1.0
+    var factor= 1.0 
     edge.to match {
       case VotableQuery(_) => 
 	label= VoteCounter.getWeight(edge.from, edge.to)
-        factor= label * label * 0.5
+        factor = label * label * 0.5
       case VotableUser(user) => 
-	factor= VoteCounter.getCumulativeWeight(edge.from, edge.to)
-        label= factor * VoteCounter.getDelegationInflow(edge.from)
-        // always show the current User if adjacent
-        User.currentUser match {
-	  case Full(user) if user==edge.from || VotableUser(user)==edge.to => 
-	    factor=1.0
-	    if (!options.contains(VotableUser(user)))
-		options.put(VotableUser(user), 
-			    "style=\"filled\" fillcolor=\"#FF9933\"")
-	  case _ => 
+	factor = VoteCounter.getDelegationInflow(edge.from)*
+                  VoteCounter.getCumulativeWeight(edge.from, edge.to)
+        label= factor
+    }
+    // always show the current User if adjacent
+    User.currentUser match {
+      case Full(user) if user==edge.from || VotableUser(user)==edge.to => 
+	if (!nodes.contains(VotableUser(user))) {
+	  factor=1.0
+	  options.put(VotableUser(user), 
+		      "style=\"filled\" fillcolor=\"#FF9933\"")
 	}
+      case _ => 
     }
     options.put(edge, 
 		"color=\""+(if (factor>=0) "black" else "red")+"\" " +
