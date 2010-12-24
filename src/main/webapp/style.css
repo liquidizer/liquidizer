@@ -194,18 +194,15 @@ textarea {
 .vote {
     margin:0px;
     border-spacing:0px;
-    margin: 0 5px 0 5px;
     width: 100px;
 }
 .vote td {
-    height: 35px;
-    vertical-align: middle;
     padding: 0;
+    height: 35px;
+    width: 29px;
+    vertical-align: middle;
     text-align: center;
     nowrap: true;
-}
-.vote img { 
-    vertical-align: bottom;
 }
 .vote_th { 
     width: 100px; 

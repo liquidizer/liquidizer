@@ -38,7 +38,8 @@ class VotingHelper {
 
   def formatTrend(trend : Double) : Node =
     <img src={ "/images/" + { 
-      if (trend.abs < 1) "flat" else if (trend>0) "up" else "down" } + ".png" }/>
+      if (trend.abs < 1) "flat" else if (trend>0) "up" else "down" }+".png" 
+	    } alt=""/>
 
   def formatResult(nominee : Votable, showTrend : Boolean) : Node = {
     val r= VoteCounter.getResult(nominee)
@@ -146,10 +147,16 @@ class VotingHelper {
 	      renderVote(() => {
 		val format= attribs.get("format").getOrElse(Text("numer"))
 		formatWeight(me, nominee, format.text)} )
-	    case "up" =>
-	      SHtml.a(() => vote(nominee,1), children)
-	    case "down" =>
-	      SHtml.a(() => vote(nominee, -1), children)
+	    case "vote" =>
+	      new VoteControl(VoteCounter.getPreference(me, nominee),
+			      displayedVotes.size, 
+			      nominee match { 
+				case VotableUser(_) => true 
+				case _ => false }) {
+		override def updateValue(diff : Int) : JsCmd = 
+		  super.updateValue(diff) & vote(nominee, diff) }
+	      .render(children)
+
 	    case "editButton" =>
 	      buttonFactory.toggleButton
 	    case "isDelegated" => if (nominee match {
