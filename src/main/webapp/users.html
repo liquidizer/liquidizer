@@ -37,32 +37,32 @@
       <div class="user">
 	<table>
 	  <tr>
-	    <td class="votable" width="140px">
+	    <td class="votable" width="150px">
 	      <poll:name/>
 	    </td>
-	    <td align="center" width="80px">
+	    <td align="center" width="100px">
 	      <user:inflow/>
 	    </td>
 	  </tr>
 	  <tr>
-	    <td>
-	      <div class="keys">
+	    <td rowspan="2">
+	      <div class="keys user_space">
 		<user:profile maxlen="150"/>
 	      </div>
 	    </td>
-	    <td class="emo_thumb" rowspan="2">
+	    <td class="emo_thumb">
 	      <user:emoticon size="60"/>
 	    </td>
 	  </tr>
 	  <lift:UserInfo:in>
 	    <tr>
-	      <td style="align:left; vertical-align:bottom">
-		<user:itsme>
-		  <td align="center"><span class="pass">−</span></td>
-		</user:itsme>
-		<user:notme>
-		  <me:weight format="numer"/>
-		</user:notme>
+	      <td style="text-align:center; vertical-align:bottom; height:42px">
+		  <user:itsme>
+		    <span class="pass">−</span>
+		  </user:itsme>
+		  <user:notme>
+		    <me:vote/>
+		  </user:notme>
 	      </td>
 	    </tr>
 	  </lift:UserInfo:in>

@@ -7,6 +7,8 @@ import _root_.net.liftweb.http.js._
 import _root_.net.liftweb.http.js.JsCmds._
 import _root_.net.liftweb.common._
 
+import _root_.com.tristanhunt.knockoff.DefaultDiscounter._
+
 import _root_.org.liquidizer.model._
 import _root_.org.liquidizer.lib.Tick
 
@@ -16,19 +18,10 @@ object Markup {
   val nl= "(\\s*(\n|\r)+\\s*)+".r
  
   def renderComment(in : String) : NodeSeq = {
-    if (in==null || in.length==0) return Nil
-    val node:Node= Text(in)
-    var text= node.toString
-    
-    text= url.replaceAllIn(text, "<a href=\"$1\" class=\"extern\">$1</a>")
-    text= nl.replaceAllIn(text, "<br/>")
-
-    try {
-      val src=scala.io.Source.fromString("<div>"+text+"</div>")
-      scala.xml.parsing.XhtmlParser.apply(src)
-    } catch {
-      case _ => Text(in)
-    }
+    if (in==null || in.length==0)
+      NodeSeq.Empty
+    else
+      toXHTML( knockoff( in ) )
   }
   
   def renderTagList(in:List[String]) : Node = {

@@ -218,10 +218,15 @@ textarea {
     -moz-border-radius: 5px;
     border-radius: 5px;
     float: left;
-    width: 226px;
+    width: 256px;
     margin: 5px;
     padding: 3px;
     border: 1px #660099 solid;
+}
+.user_space {
+    width: 120px;
+    height: 100px;
+    overflow: hidden;
 }
 .chart {
     height: 400px;

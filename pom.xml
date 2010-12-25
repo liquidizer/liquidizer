@@ -34,6 +34,11 @@
       <url>http://scala-tools.org/repo-snapshots</url>
       <snapshots/>
     </repository>
+    <repository>
+      <id>tristanhunt.com</id>
+      <name>Tristan's Repo</name>
+      <url>http://tristanhunt.com:8081/content/groups/public/</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -87,6 +92,12 @@
       <version>${scala.version}</version>
       <scope>test</scope>
     </dependency>
+    <!-- Markdown -->
+    <dependency>
+      <groupId>com.tristanhunt</groupId>
+      <artifactId>knockoff_2.8.0.RC6</artifactId>
+      <version>0.7.2-13</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -108,7 +119,6 @@
           <execution>
             <goals>
               <goal>compile</goal>
-              <goal>testCompile</goal>
             </goals>
           </execution>
         </executions>
