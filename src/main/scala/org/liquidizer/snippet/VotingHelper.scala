@@ -21,11 +21,12 @@ class VotingHelper {
 
   val buttonFactory = new EditButtonToggler
   
-  var displayedVotes = List[()=>Node]()
+  var displayedVotes = List[(()=>Node, Node)]()
   
   def renderVote(result : () => Node):Node = {
-    displayedVotes ::= result
-    <span id={"dynamicvote"+displayedVotes.size}>{result()}</span>
+    val node= result()
+    displayedVotes ::= (result, node)
+    <span id={"dynamicvote"+displayedVotes.size}>{node}</span>
   }
   def formatDouble(value : Double) : String =  String.format("%3.2f",double2Double(value+1e-3))
 
@@ -68,6 +69,7 @@ class VotingHelper {
   def formatNominee(nominee : Votable) : NodeSeq = 
     Markup.renderHeader(nominee.toString, nominee.uri+"/index.html")
   
+  /** Update the preferences with a weightChange triggered by the user */
   def vote(nominee : Votable, weightChange : Int) : JsCmd = {
     val newVote= VoteCounter.getPreference(currentUser.get, nominee) + weightChange
 
@@ -81,13 +83,21 @@ class VotingHelper {
     ajaxUpdate(nominee)
   }
   
+  /** detect which entries in the dynamic votes list changed and update */
   def ajaxUpdate(nominee : Votable) : JsCmd = {
     var index1= displayedVotes.size+1
-    displayedVotes.map { 
-      displayedVote =>
+    val oldVotes= displayedVotes.map { case (r, n) => (r, n, r()) }
+    displayedVotes= oldVotes.map { case (r, n1, n2) => (r, n2) }
+
+    oldVotes
+    .map {
+      case (r, n1, n2) =>
  	index1-= 1
- 	SetHtml("dynamicvote"+index1, displayedVote())
-    }.toList
+        if (n1.toString == n2.toString)
+	  Noop
+        else
+ 	  SetHtml("dynamicvote"+index1, n2)
+    }
   }
 
   def render(in:NodeSeq, nominee:Votable) : NodeSeq = {
@@ -234,7 +244,8 @@ class VotingHelper {
       case other => other
     }
   }
-  
+
+  /** render a timeseries chart */
   def chart(uri:String, chartType:String, attribs:MetaData ) : Node = {
     val options = attribs.elements.map ( a=> a.key+"="+a.value).mkString("&")
     <embed
@@ -255,9 +266,10 @@ class VotingHelper {
 	  val emo= VoteCounter.getEmotion(currentUser.get, other)
 	  if (!emo.isEmpty) {
 	    val p= emo.get.potency.value
-	    val v= Math.pow(emo.get.valence.value / (.9*p + .1) / 2.0 + 0.5, 2.0)
-	    val a= emo.get.getArousal min 1.0 max 0.0
-	    Map("v" -> formatDouble(v), "a" -> formatDouble(a), "p" ->  formatDouble(p))
+	    val v= Math.pow(emo.get.valence.value/(.9*p + .1)/2.0 + 0.5, 2.0)
+	    val a= emo.get.getArousal min 1.0 max 0.
+	    val f= "%1.1f"
+	    Map("v" -> f.format(v), "a" -> f.format(a), "p" -> f.format(p))
 	  }
 	  else
 	    Map("view" -> "sleeping")
