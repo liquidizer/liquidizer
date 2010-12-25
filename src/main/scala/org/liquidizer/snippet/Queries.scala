@@ -25,7 +25,7 @@ class Queries extends MultipageSnippet {
     data = Query.findAll
     .filter { searchFilter _ }
     .map { VotableQuery(_) }
-    sortData()
+    sortData("value")
   }
 
   override def categories(in:NodeSeq) : NodeSeq = {
@@ -56,7 +56,7 @@ class QueryDetails extends MultipageSnippet {
       .filter { searchFilter _ }
       .map { VotableUser(_) }
     
-    sortData(VotableQuery(query.get))
+    sortData("weight", VotableQuery(query.get))
 
     // check if my own vote is registered. 
     // If not a page update should show it after the first vote is cast

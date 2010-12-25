@@ -4,9 +4,19 @@
     <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
     <lift:MenuMarker>
       <ul class="popup" id="sort">
-	<li><menu:a action="sort" value="inflow" default="true" icon="inflow">
-	    Einfluss</menu:a>
-	</li>
+	<lift:UserInfo.out>
+	  <li><menu:a action="sort" value="inflow" default="true" icon="inflow">
+	      Einfluss</menu:a>
+	  </li>
+	</lift:UserInfo.out>
+	<lift:UserInfo.in>
+	  <li><menu:a action="sort" value="myweight" default="true" icon="plus">
+	      Einfluss auf mich</menu:a>
+	  </li>
+	  <li><menu:a action="sort" value="inflow" icon="inflow">
+	      Einfluss insgesamt</menu:a>
+	  </li>
+	</lift:UserInfo.in>
 	<li><menu:a action="sort" value="active" icon="comment">
 	    Aktivität</menu:a>
 	</li>

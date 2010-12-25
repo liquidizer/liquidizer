@@ -31,7 +31,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
   val defaultsize= 12
   val pagesize:Int = S.param("pagesize").map{ _.toInt }.getOrElse(defaultsize)
   var search= S.param("search").getOrElse("")
-  var order= S.param("sort").getOrElse("")
+  var order= S.param("sort")
   
   def numPages= (size+pagesize-1)/pagesize
   def page:Int = { S.param("page").map{ _.toInt }.getOrElse(0) }
@@ -53,7 +53,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       q match { case VotableUser(u) => f(u) + bonus(u) case _ => -1e10 }
 
     order match {
-      case "" | "weight" => isUser(_, user => inflow(user)*weight(user).abs)
+      case "weight" => isUser(_, user => inflow(user)*weight(user).abs)
       case "flow" => isUser(_, flow(_))
       case "approval" => isUser(_, weight(_))
       case "objection" => isUser(_, -weight(_))
@@ -69,7 +69,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
     def flow(nominee:Votable) = VoteCounter.getCumulativeWeight(user, nominee)
     def weight(nominee : Votable) = VoteCounter.getWeight(user, nominee)
     order match {
-      case "" | "weight" => weight(_).abs
+      case "weight" => weight(_).abs
       case "flow" => flow(_)
       case "approval" => weight(_)
       case "objection" => -weight(_)
@@ -83,13 +83,16 @@ abstract class MultipageSnippet extends StatefulSnippet {
     def result(q:Votable)= VoteCounter.getResult(q)
     def isUser(q:Votable, f:(User=>Double)) = 
       q match { case VotableUser(u) => f(u) case _ => -1e10 }
-    def emotion(q:Votable, f:(Emotion=>Double)) =
-      isUser(q, u=>
-	     User.currentUser match { 
-	       case Full(me) => VoteCounter.getEmotion(me,u).map{ f(_) }.getOrElse(-1e9)
-	       case _=> -1e10 })
+    def isMe(f : (User, Votable) => Double) : Votable => Double =
+      nominee => User.currentUser match {
+	case Full(me) => f(me, nominee) + 1e-5*result(nominee).value
+	case _ => 0 }
+    def emotion(f:(Emotion=>Double)) =
+	isMe( (u,v) => isUser(v, VoteCounter.getEmotion(u, _).
+			      map{ f(_) }.getOrElse(-1e9)))
+
     order match {
-      case "" | "value" => result(_).value.abs
+      case "value" => result(_).value.abs
       case "age" => q => q.id
       case "pro" => result(_).value
       case "contra" => -result(_).value
@@ -98,19 +101,23 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	VoteCounter.getLatestComment(_).map{ _.date.is.toDouble }.getOrElse(0.0)
       case "active" => 
 	isUser(_, VoteCounter.getLatestComment(_).map{ _.date.is.toDouble }.getOrElse(0.0))
+      case "myweight" => isMe(VoteCounter.getWeight(_ , _))
       case "swing" => VoteCounter.getSwing(_).abs
       case "volume" => result(_).volume
       case "inflow" => isUser(_, VoteCounter.getDelegationInflow(_))
       case "outflow" => isUser(_, VoteCounter.getDelegationInflow(_))
-      case "valence" => emotion(_, _.valence.value)
-      case "avalence" => emotion(_, -_.valence.value)
-      case "arousal" => emotion(_, _.getArousal)
+      case "valence" => emotion(_.valence.value)
+      case "avalence" => emotion(-_.valence.value)
+      case "arousal" => emotion(_.getArousal)
     }
   }
 
-  def sortData(): Unit = sortData(sortFunction(order))
-  def sortData(nominee: Votable) : Unit = sortData(sortFunction(order, nominee))
-  def sortData(user: User): Unit = sortData(sortFunction(order, user))
+  def sortData(defaultOrder : String): Unit = 
+    sortData(sortFunction(order.getOrElse(defaultOrder)))
+  def sortData(defaultOrder : String, nominee: Votable) : Unit = 
+    sortData(sortFunction(order.getOrElse(defaultOrder), nominee))
+  def sortData(defaultOrder : String, user: User): Unit = 
+    sortData(sortFunction(order.getOrElse(defaultOrder), user))
 
   def sortData(f : Votable => Double): Unit = {
     data = data
@@ -160,7 +167,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
   def attribUri(params : (String,String)*) = {
     S.uri + {
-      (Map("sort" -> order, "search" -> search) ++ Map(params:_*))
+      (Map("sort" -> order.getOrElse(""), "search" -> search) ++ Map(params:_*))
       .filter { case (key, value) => value.length>0 }
       .map { case (key,value) => key+"="+value }
       .mkString("?","&","")

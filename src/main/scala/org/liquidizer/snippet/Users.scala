@@ -11,7 +11,6 @@ import _root_.org.liquidizer.lib._
 
 class Users extends MultipageSnippet {
 
-
   def getData() = {
     if (data.isEmpty) loadData()
     data
@@ -21,7 +20,7 @@ class Users extends MultipageSnippet {
     data = User.findAll(By(User.validated, true))
     .filter { searchFilter _ }
     .map { VotableUser(_) }
-    sortData()
+    sortData(if (User.currentUser.isEmpty) "inflow" else "myweight")
   }
 
   override def categories(in:NodeSeq) : NodeSeq = {
@@ -45,21 +44,20 @@ class Users extends MultipageSnippet {
 class UserDetails extends MultipageSnippet {
 
   val user= User.getUser(S.param("user").openOr("-1")).get
-  def getOrder() = if (order=="") "flow" else order;
 
   def loadVotes() = {
     data= 
       VoteCounter.getAllVotes(user)
       .filter { searchFilter _ }
       .map { VotableQuery(_) }
-    sortData(user)
+    sortData("weight", user)
   }
   def loadSupporters() = {
     data= 
       VoteCounter.getActiveVoters(VotableUser(user))
       .filter { searchFilter _ }
       .map { VotableUser(_) }
-    sortData(sortFunction(getOrder, VotableUser(user)))
+    sortData(sortFunction(order.getOrElse("flow"), VotableUser(user)))
   }
   def loadDelegates() = {
     data= 
@@ -68,7 +66,7 @@ class UserDetails extends MultipageSnippet {
 	case VotableUser(user) => searchFilter(user)
         case _ => false
       }
-    sortData(sortFunction(getOrder, user))
+    sortData(sortFunction(order.getOrElse("flow"), user))
   }
 
   def render(in : NodeSeq) : NodeSeq = {
