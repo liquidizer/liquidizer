@@ -34,11 +34,11 @@ object Markup {
 	   tidy(children, isLink || tag=="a" || tag=="pre") :_*)
     case Group(nodes) => tidy(nodes, isLink)
     case _ => 
-      if (node.getClass.getName=="scala.xml.Atom") 
-	node
-      else {
-        println("unexpected : "+node.getClass.getName+" : "+node)
-	NodeSeq.Empty
+      try {
+	val src=scala.io.Source.fromString("<span>"+node+"</span>")
+	parsing.XhtmlParser(src)
+      } catch {
+	case _ => NodeSeq.Empty
       }
   }
 
