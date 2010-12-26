@@ -27,8 +27,8 @@ object Markup {
     seq.flatMap { tidy(_, isLink) }
 
   def tidy(node : Node, isLink : Boolean) : NodeSeq = node match {
-    case Text(text) if !isLink => 
-      renderHeader(text, x=>x)
+    case Text(text) => 
+      if (isLink) node else renderHeader(text, x=>x)
     case Elem(ns, tag, attribs, scope, children @ _*) =>
       Elem(ns, tag, attribs, scope, 
 	   tidy(children, isLink || tag=="a" || tag=="pre") :_*)
