@@ -2,7 +2,7 @@
   <lift:bind-at name="details">
       <table width="100%">
 	<tr height="50">
-	  <td/>
+	  <td/><td/>
 	  <user:itsme>
 	    <th class="vote_th">Deine Präferenz</th>
 	    <th class="vote_th">Stimmgewicht</th>
@@ -19,6 +19,7 @@
 	</tr>
 	<user:votes>
 	  <tr>
+	    <td><span class="rank"><poll:no/></span></td>
 	    <td class="votable">
 	      <poll:name/>
 	      <div class="comment">
@@ -32,25 +33,21 @@
 	      <td nowrap="true" align="center"><me:vote/></td>
 	    </user:itsme>
 	    <td align="center">
-	      <table class="vote"><tr><td>
-		    <user:itsme>
-		      <span class="pass">=</span>
-		      <vote:result format="decimal"/>
-		    </user:itsme>
-		    <user:notme>
-	      	      <vote:result format="decimal"/>
-		    </user:notme>
-	      </td></tr></table>
+	      <user:itsme>
+		<span class="pass">=</span>
+		<vote:result format="decimal"/>
+	      </user:itsme>
+	      <user:notme>
+	      	<vote:result format="decimal"/>
+	      </user:notme>
 	    </td>
 	    <lift:UserInfo.in>
 	      <user:notme>
 		<td align="center">
-		  <table class="vote"><tr><td>
-			<poll:notme>
-			  <me:weight format="decimal"/>
-			</poll:notme>
-			<poll:itsme><span class="pass">−</span></poll:itsme>
-		  </td></tr></table>
+		  <poll:notme>
+		    <me:weight format="decimal"/>
+		  </poll:notme>
+		  <poll:itsme><span class="pass">−</span></poll:itsme>
 		</td>
 	      </user:notme>
 	    </lift:UserInfo.in>
