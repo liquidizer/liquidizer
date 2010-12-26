@@ -15,15 +15,34 @@ import _root_.org.liquidizer.lib.Tick
 object Markup {
 
   val url= "(http:/[^\\s\"]*[^\\s!?&.<>])".r
-  val nl= "(\\s*(\n|\r)+\\s*)+".r
  
   def renderComment(in : String) : NodeSeq = {
     if (in==null || in.length==0)
       NodeSeq.Empty
     else
-      toXHTML( knockoff( in ) )
+      tidy( toXHTML( knockoff( in ) ), false )
   }
   
+  def tidy(seq : NodeSeq, isLink : Boolean) : NodeSeq = 
+    seq.flatMap { tidy(_, isLink) }
+
+  def tidy(node : Node, isLink : Boolean) : NodeSeq = node match {
+    case Text(text) if !isLink => 
+      renderHeader(text, x=>x)
+    case Elem(ns, tag, attribs, scope, children @ _*) =>
+      Elem(ns, tag, attribs, scope, 
+	   tidy(children, isLink || tag=="a" || tag=="pre") :_*)
+    case Group(nodes) => tidy(nodes, isLink)
+    case _ => 
+      if (node.getClass.getName=="scala.xml.Atom") 
+	node
+      else {
+        println("unexpected : "+node.getClass.getName+" : "+node)
+	NodeSeq.Empty
+      }
+  }
+
+
   def renderTagList(in:List[String]) : Node = {
     <span class="keys">{in.mkString(", ")}</span>
   }
@@ -134,7 +153,7 @@ class MenuMarker {
         // make icon
 	val icon= attribs.get("icon").map { url =>
 	  <img src={"/images/menu/"+url.text+".png"} alt="" class="menu"/>
-	}.getOrElse(Text(""))
+	}.getOrElse(NodeSeq.Empty)
 
         // format link as either active (currently visited) or inaktive
 	if (active)

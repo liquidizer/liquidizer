@@ -160,9 +160,7 @@ class VotingHelper {
 	    case "vote" =>
 	      new VoteControl(VoteCounter.getPreference(me, nominee),
 			      displayedVotes.size, 
-			      nominee match { 
-				case VotableUser(_) => true 
-				case _ => false }) {
+			      nominee.isInstanceOf[VotableUser]) {
 		override def updateValue(diff : Int) : JsCmd = 
 		  super.updateValue(diff) & vote(nominee, diff) }
 	      .render(children)
