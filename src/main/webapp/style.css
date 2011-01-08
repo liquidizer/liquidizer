@@ -172,6 +172,9 @@ textarea {
     margin: 5px 0 10px 10px;
     font-weight: normal;
 }
+.comment p {
+    margin: 0.2em 0 0.2em 0;
+}
 /* user's guide */
 #table-of-contents a { text-decoration:none; }
 .example {

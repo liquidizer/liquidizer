@@ -7,8 +7,6 @@ import _root_.net.liftweb.http.js._
 import _root_.net.liftweb.http.js.JsCmds._
 import _root_.net.liftweb.common._
 
-import _root_.com.tristanhunt.knockoff.DefaultDiscounter._
-
 import _root_.org.liquidizer.model._
 import _root_.org.liquidizer.lib.Tick
 
@@ -20,28 +18,51 @@ object Markup {
     if (in==null || in.length==0)
       NodeSeq.Empty
     else
-      tidy( toXHTML( knockoff( in ) ), false )
+      toXHTML(in)
+  }
+
+  def toXHTML(input : String) : NodeSeq = {
+    try {
+      val src=scala.io.Source.fromString("<span>"+input+"</span>")
+      tidy(parsing.XhtmlParser(src).first.child, false)
+    } catch {
+      case e:Exception => 
+	throw e
+    }
   }
   
   def tidy(seq : NodeSeq, isLink : Boolean) : NodeSeq = 
     seq.flatMap { tidy(_, isLink) }
 
   def tidy(node : Node, isLink : Boolean) : NodeSeq = node match {
-    case Text(text) => 
-      if (isLink) node else renderHeader(text, x=>x)
-    case Elem(ns, tag, attribs, scope, children @ _*) =>
-      Elem(ns, tag, attribs, scope, 
-	   tidy(children, isLink || tag=="a" || tag=="pre") :_*)
-    case Group(nodes) => tidy(nodes, isLink)
-    case _ => 
-      try {
-	val src=scala.io.Source.fromString("<span>"+node+"</span>")
-	parsing.XhtmlParser(src)
-      } catch {
-	case _ => NodeSeq.Empty
+    case Elem(ns, tag, attr, scope, ch @ _*) =>
+      tag match {
+	case "img" | "code" | "p"  =>
+	  val allowed= Set("src", "width", "height")
+	  val fAttr= attr.filter { n=> allowed.contains(n.key) }
+	  Elem(ns, tag, fAttr, scope, tidy(ch, true) :_*)
+	case _ => Text(node.toString)
       }
+    case Text(text) if !isLink => renderBlock(text.split("\n").toList)
+    case _ => Text(node.toString)
   }
 
+  def renderBlock(in : List[String]) : List[Node] = {
+    def tail= renderBlock(in.tail)
+    in match {
+      case Nil => Nil
+      case List(line, _*) if line.matches(" *[*#].*") => {
+	val li = <li>{ renderLine(line.replaceAll("^ *[*#]","")) }</li>
+	tail match {
+	  case <ul>{ c @ _* }</ul> :: t => <ul>{ li ++ c }</ul> :: t
+	  case t => <ul>{ li }</ul> :: t
+	}
+      }
+      case List(line, _*) => <p>{ renderLine(line) }</p> :: tail
+    }
+  }
+
+  def renderLine(in : String) = renderHeader(in, x=>x)
 
   def renderTagList(in:List[String]) : Node = {
     <span class="keys">{in.mkString(", ")}</span>
