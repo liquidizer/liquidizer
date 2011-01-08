@@ -1,7 +1,6 @@
 package org.liquidizer.snippet
 
 import scala.xml._
-import scala.collection.mutable
 
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.http._
@@ -14,6 +13,7 @@ import Helpers._
 import _root_.org.liquidizer.lib._
 import _root_.org.liquidizer.model._
 import _root_.org.liquidizer.view.DelegationGraphView
+import _root_.org.liquidizer.view.EmotionView
 
 class VotingHelper {
   val currentUser= User.currentUser
@@ -223,10 +223,7 @@ class VotingHelper {
 	      delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate))
 	    }
 	    case "emoticon" => 
-	      if (Full(user)==currentUser)
-		emoticon(user, attribs)
-	      else
-		renderVote(() => emoticon(user, attribs))
+		renderVote(() => EmotionView.emoticon(user, attribs))
 	    case _ => in
 	  }
 	  case _ => tag match {
@@ -251,31 +248,6 @@ class VotingHelper {
     src={uri+"/"+chartType+".svg?"+options}
     width={attribs.get("width").getOrElse(Text("640"))}
     height={attribs.get("height").getOrElse(Text("480"))}/>
-  }
-
-  /** Create an embed tag for an inclusion of the emoticon */
-  def emoticon(other : User, attribs:MetaData) : Node = {
-    val size={attribs.get("size").getOrElse(Text("100"))}
-    var uri= "/emoticons/face.svg" + {
-      attribs.asAttrMap ++ {
-	if (currentUser.isEmpty) {
-	  Map("view" -> "sleeping")
-	} else {
-	  val emo= VoteCounter.getEmotion(currentUser.get, other)
-	  if (!emo.isEmpty) {
-	    val p= emo.get.potency.value
-	    val v= Math.pow(emo.get.valence.value/(.9*p + .1)/2.0 + 0.5, 2.0)
-	    val a= emo.get.getArousal min 1.0 max 0.
-	    val f= "%1.1f"
-	    Map("v" -> f.format(v), "a" -> f.format(a), "p" -> f.format(p))
-	  }
-	  else
-	    Map("view" -> "sleeping")
-	}}
-    }.map { case (a,b) => a+"="+b }.mkString("?","&","")
-    <embed
-    alt="Emoticon"
-    src={uri} width={size} height={size}/>
   }
 
   def bind(in : NodeSeq, user:User, nominee:Votable) : NodeSeq = {

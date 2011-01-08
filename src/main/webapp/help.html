@@ -108,12 +108,10 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft den Überblick in 
 	Alle Positionen mit diesem Icon können vom eingeloggten User
 	mit Texten versehen werden. Mit Ausnahme der Email-Adresse
 	sind alle Einträge dann öffentlich sichtbar.  
-	
 	<br/> 
-
-	Zur Formatierung der eingegebenen Texte gilt
-	die <a href="http://daringfireball.net/projects/markdown/syntax#html">
-	Markdown Syntax </a>.
+	Die eingegebenen Texte können Links enthalten. In Aufzählungen
+	beginnt jede Zeile mit einem Stern (*). Zusätzlich sind die HTML 
+	elemente &lt;img&gt; und &lt;code&gt; erlaubt.
       </td>
     </tr>
   </table>
@@ -131,16 +129,15 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft den Überblick in 
 <p>
   Im eingeloggten Zustand wird die Beziehung zu jedem Nutzer über ein
   Emoticon visualisiert.  Die Berechnung folgt einem
-  drei-dimensionalen psychologischen Modell, mit Komponenten für
-  Valenz, Erregung und Stärke.
-
+  mehrdimensionalen psychologischen Modell, mit Komponenten für
+  Wertung, Erregung, Stärke und Distanz. 
   <table>
     <tr>
       <td width="100"><img src="/images/emos/face-v0.png"/></td>
       <td width="150"><img src="/images/emos/face-v1.png"/></td>
       <td>
-	<h3>Valenz</h3>
-	Die Valenz-Dimension zeigt die Übereinstimmung mit dem angezeigten User an.
+	<h3>Wertung</h3>
+	Die Übereinstimmung mit dem angezeigten User an wird anhand eines wertenden Gesichtsausdruckes visualisiert.
       </td>
     </tr>
     <tr>
@@ -157,6 +154,14 @@ Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft den Überblick in 
       <td>
 	<h3>Stärke</h3>
 	Zweifel und Stärke zeigen die Überlappung der Interessensgebiete unabhängig von der eingenommen Position.
+      </td>
+    </tr>
+    <tr>
+      <td><img src="/images/emos/face-close.png"/></td>
+      <td><img src="/images/emos/face-dist.png"/></td>
+      <td>
+	<h3>Distanz</h3>
+	Die Distanz zeigt den Einfluss der über direkte oder indirekte Delegation ausgeübt wird.
       </td>
     </tr>
   </table>

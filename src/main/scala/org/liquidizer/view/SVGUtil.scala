@@ -28,10 +28,14 @@ object SVGUtil {
     "#"+(List(r,g,b).map { channel => hexFormat(Math.min(255,Math.max(0,channel)),2) }.mkString)
 
 
-  def resize(svg:Node, width:Int, height:Int) : Node = {
+  def resize(svg:Node, width:Int, height:Int, scale:Double = 1.0) : Node = {
     val oldWidth=svg.attribute("width").get.text.replace("pt","").toInt
     val oldHeight=svg.attribute("height").get.text.replace("pt","").toInt
-
+    val viewBox= List(
+      oldWidth*(1-1/scale)/2,
+      oldHeight*(1-1/scale)/2,
+      oldWidth/scale,
+      oldWidth/scale)
     svg match {
       case Elem(prefix, label, attribs, scope, children @ _*) => {
 	val newAttr= attribs
@@ -39,7 +43,7 @@ object SVGUtil {
 	.append(new UnprefixedAttribute(
 	  "width",width.toString, new UnprefixedAttribute(
 	    "height", height.toString, new UnprefixedAttribute(
-	      "viewBox", "0 0 "+oldWidth+" "+oldHeight, Null))))
+	      "viewBox", viewBox.mkString(" "), Null))))
 	  Elem(prefix, label, newAttr, scope, children :_*)
       }
       case _ => svg

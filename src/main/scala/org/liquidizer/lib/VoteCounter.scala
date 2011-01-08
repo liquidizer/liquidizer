@@ -146,10 +146,20 @@ object VoteCounter {
     } * getDelegationInflow(user)
   }
 
+  def getMaxDelegation(user : User) : Double= {
+    getActiveVotes(user)
+    .map { 
+      case u : VotableUser => getWeight(user, u)
+      case _ => 0.0 }
+    .reduceLeft{ _ max _ }
+  }
+
+  /** cumulative weight are counted, as if the sum total voting weight was 1.0
+   * This is used as an indication of delegation influence */
   def getCumulativeWeight(user : User, nominee : Votable) =
     voteMap.getPreference(user, nominee).toDouble / (voteMap.getDenom(user) max 1)
 
-
+  /** Total voting result for a votable nominee */
   def getResult(nominee : Votable) : Quote = {
     voteMap.getResult(nominee).getOrElse(Quote(0.0, 0.0))
   }
