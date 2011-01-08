@@ -1,14 +1,16 @@
 package org.liquidizer.snippet
 
 import scala.xml._
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.http.js._
-import _root_.net.liftweb.http.js.JsCmds._
-import _root_.net.liftweb.common._
+import scala.xml.parsing._
 
-import _root_.org.liquidizer.model._
-import _root_.org.liquidizer.lib.Tick
+import net.liftweb.util._
+import net.liftweb.http._
+import net.liftweb.http.js._
+import net.liftweb.http.js.JsCmds._
+import net.liftweb.common._
+
+import org.liquidizer.model._
+import org.liquidizer.lib.Tick
 
 object Markup {
 
@@ -23,11 +25,10 @@ object Markup {
 
   def toXHTML(input : String) : NodeSeq = {
     try {
-      val src=scala.io.Source.fromString("<span>"+input+"</span>")
-      tidy(parsing.XhtmlParser(src).first.child, false)
+      val src= scala.io.Source.fromString("<span>"+input+"</span>")
+      tidy(XhtmlParser(src).first.child, false)
     } catch {
-      case e:Exception => 
-	throw e
+      case e:FatalError => <p>{input}</p>
     }
   }
   
