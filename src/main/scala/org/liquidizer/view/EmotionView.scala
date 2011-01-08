@@ -69,7 +69,7 @@ object EmotionView {
 	      Map("v" -> "%1.1f".format(v), 
 		  "a" -> "%1.1f".format(a), 
 		  "p" -> "%1.1f".format(p),
-		  "scale" -> "%1.2f".format(dist max 1.5))
+		  "scale" -> "%1.2f".format(dist min 1.5))
 	    }
 	    case None => Map("view" -> "sleeping", "scale" -> "0.5")
 	  }}
