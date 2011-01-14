@@ -146,12 +146,16 @@ object VoteCounter {
     } * getDelegationInflow(user)
   }
 
-  def getMaxDelegation(user : User) : Double= {
+  def getDelegationScale(user : User) : (Double, Int)= {
+    var scale=0.0
+    var pref=0
     getActiveVotes(user)
     .map { 
-      case u : VotableUser => getWeight(user, u)
-      case _ => 0.0 }
-    .reduceLeft{ _ max _ }
+      case u : VotableUser => 
+	scale= scale max getWeight(user, u)
+        pref= pref max getPreference(user, u)
+      case _ =>  }
+    (scale, pref)
   }
 
   /** cumulative weight are counted, as if the sum total voting weight was 1.0

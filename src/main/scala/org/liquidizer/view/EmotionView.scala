@@ -63,8 +63,11 @@ object EmotionView {
 	      val a= emo.getArousal min 1.0 max 0.
 	      val dist= if (other==me) 1.0 else {
 		val w= VoteCounter.getWeight(me, VotableUser(other))
-		val d= VoteCounter.getMaxDelegation(me) max 1e-3
-		w/d + 0.5
+		val scale= VoteCounter.getDelegationScale(me)
+		if (scale._2==0)
+		  1.0
+		else
+		1.0 + 0.3*(w/scale._1 - 0.5)*(scale._2 min 3)
 	      }
 	      Map("v" -> "%1.1f".format(v), 
 		  "a" -> "%1.1f".format(a), 
