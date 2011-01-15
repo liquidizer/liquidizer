@@ -203,29 +203,19 @@ textarea {
     float: left;
     margin: 1px;
     text-align: center;
+    height: 25px;
 }
 .vote .active {
-    width: 30px;
-    height: 36px;
+    width: 24px;
+}
+.vote .inactive {
+    width: 20px;
 }
 .vote .pro {
     background-color: #FF9900;
 }
 .vote .contra {
     background-color: #CC0000;
-}
-.vote .inactive {
-    width: 20px;
-    position: relative;
-    top: 6px;
-}
-.vote td {
-    padding: 0;
-    height: 35px;
-    width: 29px;
-    vertical-align: middle;
-    text-align: center;
-    nowrap: true;
 }
 .vote_result { 
     width: 100px; 
