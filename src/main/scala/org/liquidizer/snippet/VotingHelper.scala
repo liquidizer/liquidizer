@@ -69,16 +69,8 @@ class VotingHelper {
   def formatNominee(nominee : Votable) : NodeSeq = 
     Markup.renderHeader(nominee.toString, nominee.uri+"/index.html")
   
-  /** Update the preferences with a weightChange triggered by the user */
-  def vote(nominee : Votable, weightChange : Int) : JsCmd = {
-    val newVote= VoteCounter.getPreference(currentUser.get, nominee) + weightChange
-
-    // users can not get negative vote
-    nominee match {
-      case VotableUser(_) => {if (newVote<0) return Noop }
-      case _ => {}
-    }
-
+  /** Update the voting preferences */
+  def vote(nominee : Votable, newVote : Int) : JsCmd = {
     PollingBooth.vote(currentUser.get, nominee, newVote)
     ajaxUpdate(nominee)
   }
@@ -158,11 +150,12 @@ class VotingHelper {
 		val format= attribs.get("format").getOrElse(Text("numer"))
 		formatWeight(me, nominee, format.text)} )
 	    case "vote" =>
+	      val isUser= nominee.isInstanceOf[VotableUser]
 	      new VoteControl(VoteCounter.getPreference(me, nominee),
 			      displayedVotes.size, 
-			      nominee.isInstanceOf[VotableUser]) {
-		override def updateValue(diff : Int) : JsCmd = 
-		  super.updateValue(diff) & vote(nominee, diff) }
+			      if (isUser) 0 else -3, 3) {
+		override def updateValue(newValue : Int) : JsCmd = 
+		  super.updateValue(newValue) & vote(nominee, newValue) }
 	      .render(children)
 
 	    case "editButton" =>

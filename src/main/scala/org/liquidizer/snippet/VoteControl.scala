@@ -14,53 +14,31 @@ import _root_.org.liquidizer.lib._
 import _root_.org.liquidizer.model._
 
 /** Controls the state of a preference vote with two buttons for + and - */
-class VoteControl(var value : Int, val id : Int, nonNegative : Boolean) {
-  
+class VoteControl(var value : Int, val id : Int, min : Int, max : Int) {
+
+  /** determine style for option pref */
+  def getStyle(pref : Int) = 
+    if (pref!=value) "inactive" else "active "+
+    (if (pref<0) "contra" else if (pref>0) "pro" else "pass")
+
+  /** determine style for option pref */
+  def format(pref : Int) = (if (pref>0) "+" else "") + pref
+
   /** render the current value */
-  def renderValue() : Node =
-    <span class={
-      if (value==0) "pass" else if (value>0) "pro" else "contra" } >{
-	(if (value>0) "+" else "") + value } </span>
+  def renderValue() : NodeSeq =
+    (min to max).map { 
+      no => SHtml.a(() => updateValue(no),
+		    <div class={ getStyle(no) }>{ format(no) }</div>) }
       
   /** function to count votes and updates visuals */
-  def updateValue(diff : Int) : JsCmd = {
+  def updateValue(newValue : Int) : JsCmd = {
     val oldValue= value
-    value = oldValue + diff
-    (
-      if (nonNegative && (value==0 || oldValue==0))
-	SetHtml("nay_switch_"+id, nayButton())
-      else
-	JsCmds.Noop
-    ) & SetHtml("value"+id, renderValue())
+    value = newValue
+    SetHtml("vote"+id, renderValue())
   }
 
-  /** render the +/- voting control buttons */
+  /** render the voting control */
   def render(in : NodeSeq) : NodeSeq = {
-    <table class="vote">
-    <tr>
-    <td>{ splash("yay_"+id, "yay", +1) }</td>
-    <td><span id={"value"+id}>{ renderValue() }</span></td>
-    <td><span id={"nay_switch_" + id}>{ nayButton() }</span></td>
-    </tr>
-    </table>
-  }
-
-  /** render a minus button, that grays out to avoid negative input */
-  def nayButton() = 
-    if (nonNegative && value <=0) 
-      img("nay_gray") 
-    else
-      splash("nay_"+id, "nay", -1)
-
-  /** render an image html element */
-  def img(base : String) =
-    <img src={"/images/"+base+".png"}/>
-
-  /** render a vote button that splashes, while vote recounting takes place */
-  def splash(id : String, base : String, diff : Int) : NodeSeq= {
-    SHtml.a(<span id={id}>{img(base)}</span>, 
-	    SetHtml(id, img(base+"_splash")) &
-	    SHtml.ajaxInvoke(() => updateValue(diff) & SetHtml(id, img(base)) )
-	    ._2)
+    <div id={"vote"+id} class="vote">{ renderValue() }</div>
   }
 }
