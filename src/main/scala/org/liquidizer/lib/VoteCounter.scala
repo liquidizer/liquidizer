@@ -46,7 +46,7 @@ object VoteCounter {
   val mapper= new VoteMapper
   var time = 0L
   
-  class VoteMapper extends Actor {
+  class VoteMapper extends Actor with Logger {
     def act = {
       loop {
 	react {
@@ -81,7 +81,7 @@ object VoteCounter {
 	val t0= Tick.now
 	voteMap.update(time)
 	val t1= Tick.now
-	Log.info("Vote results update took "+(t1-t0)+" ms")
+	info("Vote results update took "+(t1-t0)+" ms")
       }
     }
   }

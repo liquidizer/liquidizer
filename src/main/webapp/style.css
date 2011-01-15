@@ -194,10 +194,30 @@ textarea {
 .balance td {
     margin : 5px;
 }
-.vote {
-    margin:0px;
-    border-spacing:0px;
-    width: 100px;
+.vote div {
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background-color: gray;
+    color: white;
+    display: table;
+    float: left;
+    margin: 1px;
+    text-align: center;
+}
+.vote .active {
+    width: 30px;
+    height: 36px;
+}
+.vote .pro {
+    background-color: #FF9900;
+}
+.vote .contra {
+    background-color: #CC0000;
+}
+.vote .inactive {
+    width: 20px;
+    position: relative;
+    top: 6px;
 }
 .vote td {
     padding: 0;
@@ -207,7 +227,15 @@ textarea {
     text-align: center;
     nowrap: true;
 }
-.vote_th { 
+.vote_result { 
+    width: 100px; 
+    text-align: center;
+}
+.vote_query { 
+    width: 180px; 
+    text-align: center;
+}
+.vote_user { 
     width: 100px; 
     text-align: center;
 }
@@ -227,8 +255,8 @@ textarea {
     border: 1px #660099 solid;
 }
 .user_space {
-    width: 150px;
-    height: 100px;
+    width: 140px;
+    height: 120px;
     overflow: hidden;
 }
 .chart {

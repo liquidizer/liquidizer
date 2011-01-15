@@ -157,13 +157,14 @@ class MenuMarker {
 	    replaceAll("~", User.currentUser.map { _.id.is }.getOrElse(1).toString)
 
         var active= href == (if (href.startsWith("/")) S.uri else S.uri.replaceAll(".*/",""))
+	val isDefault= attribs.get("default").map{ _.text=="true" }.getOrElse(false)
 
         // set up parameters
         attribs.get("action").foreach { action =>
-	  val field= action.text
 	  val value= attribs.get("value").get.text
-	  active &&= value == S.param(field).getOrElse(
-	    if (attribs.get("default").map{ _.text=="true" }.getOrElse(false)) value else "")
+	  val field= action.text
+	  if (isDefault && field=="sort") S.set("defaultOrder", value)
+	  active &&= S.param(field).map { value == _ }.getOrElse(isDefault)
 	  href += "?"+field+"="+value
 	  if (keep.isEmpty)
 	    keep=Some("search")

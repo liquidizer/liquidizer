@@ -22,23 +22,23 @@
 	    <tr height="10"/>
 	    <tr>
 	      <th/>
-	      <th class="vote_th">Ergebnis</th>
 	      <lift:UserInfo.in>
-		<th class="vote_th">Dein Beitrag</th>
-		<th class="vote_th">Deine Präferenz</th>
+		<th class="vote_query">Deine Präferenz</th>
+		<th class="vote_result">Dein Beitrag</th>
 	      </lift:UserInfo.in>
+	      <th class="vote_result">Ergebnis</th>
 	    </tr>	    
 	    <tr>
 	      <td/>
-	      <td align="center">
-		<table class="vote"><td><poll:result/></td></table>
-	      </td>
 	      <lift:UserInfo.in>
-		<td align="center">
-		  <table class="vote"><td><me:weight format="decimal"/></td></table>
-		</td>
 		<td align="center"><me:vote/></td>
+		<td align="center">
+		  <me:weight format="decimal"/>
+		</td>
 	      </lift:UserInfo.in>
+	      <td align="center">
+		<poll:result/>
+	      </td>
 	    </tr>
 	  </table>
 	  <hr/>

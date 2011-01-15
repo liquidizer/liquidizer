@@ -2,7 +2,6 @@ package org.liquidizer.view
 
 import scala.xml.NodeSeq
 import scala.collection.mutable
-import java.io._
 import java.util._
 
 import net.liftweb.mapper._
@@ -14,11 +13,7 @@ import org.liquidizer.model._
 case class Edge(val from: User, val to: Votable)
 case class Entry(val node: Votable,  edge : Edge, weight: Double)
 
-class GraphvizAPI {
-  val p = Runtime.getRuntime().exec("dot -Tsvg");  
-  val stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-  val stdOutput = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
-  val stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+class GraphvizAPI extends CommandAPI("dot -Tsvg") {
 
   val nodes= mutable.ArrayBuffer.empty[Votable]
   val edges= mutable.Set.empty[Edge]
@@ -35,7 +30,7 @@ class GraphvizAPI {
     edge.to match {
       case VotableQuery(_) => 
 	label= VoteCounter.getWeight(edge.from, edge.to)
-        factor = label * label * 0.5
+        factor = label * label.abs * 0.5
       case VotableUser(user) => 
 	factor = VoteCounter.getDelegationInflow(edge.from)*
                   VoteCounter.getCumulativeWeight(edge.from, edge.to)
@@ -93,9 +88,6 @@ class GraphvizAPI {
     }
   }
   
-  def out(line:String) = { 
-    stdOutput.write(line+"\n") 
-  }
   
   def runGraphviz() : NodeSeq = {
     out("digraph delegationMap {")
@@ -121,21 +113,4 @@ class GraphvizAPI {
     out("}")
     getSVG()
   }
-  
-  def getSVG() : NodeSeq = {
-    stdOutput.flush()
-    stdOutput.close()
-
-    val buf= new java.lang.StringBuilder
-    var aws = stdInput.readLine
-    while(aws!=null) {
-      buf.append(aws+"\n")
-      aws= stdInput.readLine
-    }
-
-    val src=scala.io.Source.fromString(buf.toString)
-    val doc=scala.xml.parsing.XhtmlParser.apply(src)
-    doc
-  }
-
 }

@@ -2,6 +2,7 @@ package org.liquidizer.view
 
 import scala.util.matching.Regex
 import scala.xml._
+import java.io._
 
 object SVGUtil {
   
@@ -97,5 +98,43 @@ object SVGUtil {
 	 	 	  }
 	 	  }
 	  }).replaceAll("  "," ")
+  }
+}
+
+class CommandAPI(command : String) {
+
+  val p = Runtime.getRuntime().exec(command);
+  val stdOutput = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
+  val stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+  val stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+  def out(line:String) = { 
+    stdOutput.write(line+"\n") 
+  }
+  
+  def closeAll() = {
+    stdInput.close()
+    stdError.close()
+    stdOutput.close()
+  }
+
+  def getSVG() : NodeSeq = {
+    val buf= new java.lang.StringBuilder
+    stdOutput.flush()
+    stdOutput.close()
+
+    try {
+      var aws = stdInput.readLine
+      while(aws!=null) {
+	buf.append(aws+"\n")
+	aws= stdInput.readLine
+      }
+    } finally {
+      closeAll
+    }
+
+    val src=scala.io.Source.fromString(buf.toString)
+    val doc=scala.xml.parsing.XhtmlParser.apply(src)
+    (doc)
   }
 }

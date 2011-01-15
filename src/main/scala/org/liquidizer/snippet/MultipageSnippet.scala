@@ -112,11 +112,12 @@ abstract class MultipageSnippet extends StatefulSnippet {
     }
   }
 
-  def sortData(defaultOrder : String): Unit = 
+  def defaultOrder= S.get("defaultOrder").getOrElse("value")
+  def sortData(): Unit = 
     sortData(sortFunction(order.getOrElse(defaultOrder)))
-  def sortData(defaultOrder : String, nominee: Votable) : Unit = 
+  def sortData(nominee: Votable) : Unit = 
     sortData(sortFunction(order.getOrElse(defaultOrder), nominee))
-  def sortData(defaultOrder : String, user: User): Unit = 
+  def sortData(user : User): Unit = 
     sortData(sortFunction(order.getOrElse(defaultOrder), user))
 
   def sortData(f : Votable => Double): Unit = {

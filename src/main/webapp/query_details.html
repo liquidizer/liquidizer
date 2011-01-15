@@ -3,9 +3,9 @@
     <table width="100%">
       <tr height="50">
 	<th/><th/>
-	<th class="vote_th">Stimmgewicht</th>
+	<th class="vote_result">Stimmgewicht</th>
 	<lift:UserInfo.in>
-	  <th class="vote_th">Delegieren</th>
+	  <th class="vote_user">Delegieren</th>
 	</lift:UserInfo.in>
       </tr>
       <poll:supporters>
@@ -23,7 +23,7 @@
 	    </div>
 	  </td>
 	  <td align="center">
-	    <table class="vote"><tr><td><vote:result/></td></tr></table>
+	    <vote:result/>
 	  </td>
 	  <lift:UserInfo.in>
 	    <td nowrap="true" align="center">
