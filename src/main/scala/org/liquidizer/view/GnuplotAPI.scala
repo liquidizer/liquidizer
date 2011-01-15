@@ -1,6 +1,5 @@
 package org.liquidizer.view
 
-import java.io._
 import scala.xml._
 
 import org.liquidizer.lib._
@@ -12,24 +11,13 @@ object LiquidColors {
   val contra_light= "#ffd6d6"
 }
 
-class GnuplotAPI {
-  // run gnuplot through a process         
-  val p = Runtime.getRuntime().exec("gnuplot");  
-  val stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-  val stdOutput = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
-  val stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+class GnuplotAPI extends CommandAPI("gnuplot") {
 
   lazy val tzOffset= java.util.TimeZone.getDefault.getOffset(now)
   val now= Tick.now
   var minX= 0L
   var islog= false
   var hasgrid= false
-
-  def close() = {
-    stdInput.close()
-    stdError.close()
-    stdOutput.close()
-  }
 
   def setBaseOptions(options : Map[String, String]) = {
     val width= options.get("width").getOrElse("640").toInt
@@ -116,25 +104,13 @@ class GnuplotAPI {
 
   def run(cmd : String) = {
     //println("gnuplot> "+cmd)
-    stdOutput.write(cmd + "\n");   
+    super.out(cmd)
   }
 
-  def getSVG() : NodeSeq = {
+  override def getSVG() : NodeSeq = {
     run("unset output")
     run("exit")
-    stdOutput.flush
-    stdOutput.close()
-
-    val buf= new java.lang.StringBuilder
-    var aws = stdInput.readLine
-    while(aws!=null) {
-      buf.append(aws+"\n")
-      aws= stdInput.readLine
-    }
-    
-    val src=scala.io.Source.fromString(buf.toString)
-    val doc=scala.xml.parsing.XhtmlParser.apply(src)
-    doc
+    super.getSVG()
   }
 
   def formatX(x:Long) : String = {
@@ -169,46 +145,39 @@ class GnuplotAPI {
   def plotTS(data : List[Tick[Quote]], options : Map[String, String],
 	   shade:Boolean, pro:Boolean, contra:Boolean) : Node = {
     setOptions(options)
-    try {
-      run("plot "+
-	  (if (shade) {
-	    "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro_light+"', "+
-	    "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra_light+"', " } else "")+
-	  (if (contra) {
-	    "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra+"', " } else "")+
-	  (if (pro) {
-	    "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro+"' " } else ""))
+    run("plot "+
+	(if (shade) {
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro_light+"', "+
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra_light+"', " } else "")+
+	(if (contra) {
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra+"', " } else "")+
+	(if (pro) {
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro+"' " } else ""))
       
-      if (shade) {
-	formatData[Quote](data, quote => quote.pro);
-	formatData[Quote](data, quote => -quote.contra);
-      }
-      if (contra)         formatData[Quote](data, quote => Math.min(quote.pro-quote.contra,0));
-      if (pro && contra)  formatData[Quote](data, quote => Math.max(quote.pro-quote.contra,0));
-      if (pro && !contra) formatData[Quote](data, quote => quote.pro);
-      
-      getSVG.first
-    } finally {
-      close
+    if (shade) {
+      formatData[Quote](data, quote => quote.pro);
+      formatData[Quote](data, quote => -quote.contra);
     }
+    if (contra)         formatData[Quote](data, quote => Math.min(quote.pro-quote.contra,0));
+    if (pro && contra)  formatData[Quote](data, quote => Math.max(quote.pro-quote.contra,0));
+    if (pro && !contra) formatData[Quote](data, quote => quote.pro);
+    
+    getSVG.first
   }
 
   def hist(data : List[(Double,Double)], 
 	   options : Map[String,String]) : Node = {
-    try {
-      setHistOptions(options)
-      run ("plot '-' with boxes title '' lt rgb '"+LiquidColors.contra+"', " +
-	   "     '-' with boxes title '' lt rgb '"+LiquidColors.pro+"'")
 
-      data.filter { _._1 < 0 }.foreach { row => run(row._1+" "+row._2) }
-      run("e")
-
-      data.filter { _._1 > 0 }.foreach { row => run(row._1+" "+row._2) }
-      run("e")
-
-      getSVG.first
-    } finally {
-      close
-    }
+    setHistOptions(options)
+    run ("plot '-' with boxes title '' lt rgb '"+LiquidColors.contra+"', " +
+	 "     '-' with boxes title '' lt rgb '"+LiquidColors.pro+"'")
+    
+    data.filter { _._1 < 0 }.foreach { row => run(row._1+" "+row._2) }
+    run("e")
+    
+    data.filter { _._1 > 0 }.foreach { row => run(row._1+" "+row._2) }
+    run("e")
+    
+    getSVG.first
   }
 }
