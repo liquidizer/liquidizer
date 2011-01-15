@@ -85,14 +85,14 @@ object Markup {
   }
 
   /** format a time relative to now */
-  def formatRelTime(time : Long) : String = "vor " + {
+  def formatRelTime(time : Long) : String = {
     val dt= Tick.now - time
-    if (dt <= Tick.min) (dt/Tick.sec) + " Sekunden"
-    else if (dt <= Tick.h) (dt/Tick.min) + " Minuten"
-    else if (dt < 2*Tick.h) 1 + " Stunde"
-    else if (dt <= Tick.day) (dt/Tick.h) + " Stunden"
-    else if (dt < 2*Tick.day) 1 + " Tag"
-    else (dt/Tick.day) + " Tagen"
+    if (dt <= Tick.min) S.?("time.secs").format(dt/Tick.sec)
+    else if (dt <= Tick.h) S.?("time.mins").format(dt/Tick.min)
+    else if (dt < 2*Tick.h) S.?("time.one.hour")
+    else if (dt <= Tick.day) S.?("time.hours").format(dt/Tick.h)
+    else if (dt < 2*Tick.day) S.?("time.one.day")
+    else S.?("time.days").format(dt/Tick.day)
   }
 }
 
@@ -142,11 +142,17 @@ class CategoryView(val keys : List[String], rootLink:String) {
   }
 }
 
+object Localizer {
+  def loc(in : NodeSeq) : NodeSeq = in.flatMap(loc(_))
+  def loc(in : Node) : NodeSeq = in match {
+    case Text(str) if (str.startsWith("$")) => Text(S.?(str.substring(1)))
+    case _ => in
+  }
+}
+
 class MenuMarker {
 
-  def bind(in :NodeSeq) : NodeSeq = {
-    in.flatMap(bind(_))
-  }
+  def bind(in :NodeSeq) : NodeSeq = in.flatMap(bind(_))
 
   def bind(in :Node) : NodeSeq = {
     in match {
@@ -173,16 +179,14 @@ class MenuMarker {
         keep.foreach { _.split(" ").foreach { key => S.param(key).foreach { value =>
 	  if (value.length>0) href += ("&" + key + "=" + value) }}}
 
-        // make icon
-	val icon= attribs.get("icon").map { url =>
+        // make menu entry
+	val entry= attribs.get("icon").map { url =>
 	  <img src={"/images/menu/"+url.text+".png"} alt="" class="menu"/>
-	}.getOrElse(NodeSeq.Empty)
+	}.getOrElse(NodeSeq.Empty) ++ Localizer.loc(children)
 
         // format link as either active (currently visited) or inaktive
-	if (active)
-	  <div class="active">{icon ++ children}</div>
-        else
-	  <a href={href}><div class="inactive">{icon ++ children}</div></a>
+        val style= if (active) "active" else "inactive" 
+        <li><a href={href}><div class={style}>{entry}</div></a></li>
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children) : _*)

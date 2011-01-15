@@ -1,19 +1,19 @@
 package bootstrap.liftweb
 
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.common._
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.http.provider._
-import _root_.net.liftweb.sitemap._
-import _root_.net.liftweb.sitemap.Loc._
+import net.liftweb.util._
+import net.liftweb.common._
+import net.liftweb.http._
+import net.liftweb.http.provider._
+import net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import Helpers._
-import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
-import _root_.java.sql.{Connection, DriverManager}
 
-import _root_.org.liquidizer.view._
-import _root_.org.liquidizer.model._
-import _root_.org.liquidizer.snippet._
-import _root_.org.liquidizer.lib._
+import java.sql._
+import java.util.Locale
+
+import org.liquidizer.view._
+import org.liquidizer.model._
+import org.liquidizer.snippet._
+import org.liquidizer.lib._
 
 
 /**
@@ -51,10 +51,14 @@ class Boot {
     LiftRules.ajaxEnd =
       Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
+    // Internationalization
     LiftRules.early.append(makeUtf8)
-
+    LiftRules.localeCalculator = req => localeCalculator(req)
+    LiftRules.resourceNames = "liquidizer" ::  LiftRules.resourceNames
+    
+    // dynamic pages
     LiftRules.dispatch.append {
-    case Req(List("queries",query,"chart.svg"),_,_) => () => TimeseriesView.queryChart(query)
+      case Req(List("queries",query,"chart.svg"),_,_) => () => TimeseriesView.queryChart(query)
       case Req(List("queries",query,"delegation.svg"),_,_) => () => DelegationGraphView.queryGraph(query)
       case Req(List("queries",query,"histogram.svg"),_,_) => () => HistogramView.hist(query)
       case Req(List("users",user,"delegation.svg"),_,_) => () => DelegationGraphView.userGraph(user)
@@ -102,8 +106,8 @@ class Boot {
         RewriteResponse("vote_analyzer" :: Nil, Map("user" -> user, "user2" -> user2))
     }
 
-//  make all DB updates atomic
-//    S.addAround(DB.buildLoanWrapper)
+    //  make all DB updates atomic
+    //  S.addAround(DB.buildLoanWrapper)
   }
 
   /**
@@ -112,5 +116,27 @@ class Boot {
   private def makeUtf8(req: HTTPRequest) {
     req.setCharacterEncoding("UTF-8")
   }
+
+  def localeCalculator(request : Box[HTTPRequest]): Locale =
+    request.flatMap(r => {
+      def localeCookie(in: String): HTTPCookie = 
+        HTTPCookie("org.liquidizer.language",Full(in),
+		   Full(S.hostName),Full(S.contextPath),Full(2629743),Empty,Empty)
+      def localeFromString(in: String): Locale = {
+        val x = in.split("_").toList; new Locale(x.head,x.last)
+      }
+      def calcLocale: Box[Locale] = 
+        S.findCookie("org.liquidizer.language").map(
+          _.value.map(localeFromString)
+        ).openOr(Full(LiftRules.defaultLocaleCalculator(request)))
+      S.param("locale") match {
+        case Full(null) => calcLocale
+        case f@Full(selectedLocale) => 
+          S.addCookie(localeCookie(selectedLocale))
+        tryo(localeFromString(selectedLocale))
+        case _ => calcLocale
+      }
+    }).openOr(Locale.getDefault())
+
 }
 

@@ -36,36 +36,36 @@
 	    </a>
 	    <div>
 	      <ul class="popup" id="usermenu">
-		<li><menu:a href="/index.html" icon="view">Übersicht</menu:a></li>
-		<li><menu:a href="/profile.html" icon="profile">Mein Profil</menu:a></li>
-		<li><menu:a href="/users/~/index.html" icon="weight">Meine Stimmgewichte</menu:a></li>
-		<li><menu:a href="/users/~/support.html" icon="inflow">Meine Unterstützer</menu:a></li>
-		<li><menu:a href="/users/~/delegates.html" icon="distance">Meine Delegierten</menu:a></li>
+		<menu:a href="/index.html" icon="view">$home.index</menu:a>
+		<menu:a href="/profile.html" icon="profile">$home.profile</menu:a>
+		<menu:a href="/users/~/index.html" icon="weight">$home.votes</menu:a>
+		<menu:a href="/users/~/support.html" icon="inflow">$home.supporters</menu:a>
+		<menu:a href="/users/~/delegates.html" icon="distance">$home.delegates</menu:a>
 	      </ul>
 	    </div>
 	  </li>
 	</lift:UserInfo.in>
 	<li>
-	  <a href="/queries.html" title="Liste aller Forderungen">
-	    <img src="/images/queries.png" alt="Liste aller Forderungen" class="top"/>
+	  <a href="/queries.html" title="home.all.queries">
+	    <img src="/images/queries.png" alt="home.all.queries" class="top"/>
 	  </a>
 	</li>
 	<li>
-	  <a href="/users.html" title="Liste aller Piraten">
-	    <img src="/images/users.png" alt="Liste aller Piraten" class="top"/>
+	  <a href="/users.html" title="home.all.users">
+	    <img src="/images/users.png" alt="home.all.users" class="top"/>
 	  </a>
 	</li>
 	<li>
-	  <a href="/help.html" title="Hilfe">
-	    <img src="/images/help.png" alt="Hilfe" class="top"/>
+	  <a href="/help.html" title="home.help">
+	    <img src="/images/help.png" alt="home.help" class="top"/>
 	  </a>
 	</li>
       </ul>
       </lift:MenuMarker>
       <lift:UserInfo.in>
 	<div id="loginfo">
-      	  Angemeldet als <b><me:name/></b>
-	  <br/><me:logout>logout</me:logout>
+      	  <span>$logged.in</span> <b><me:name/></b>
+	  <br/><me:logout>$logout</me:logout>
 	</div>
       </lift:UserInfo.in>
     </div>
@@ -87,15 +87,6 @@
 
     <div style="clear:both"/>
     <hr/>
-    <i>Mesmerizing Liquidizer - v10.10</i>
-    -
-    <a href="/legal/impressum.html">Impressum</a>
-    -
-    <a href="/legal/datenschutz.html">Datenschutz</a>
-    -
-    <a href="/legal/nutzung.html">Nutzungsbedingungen</a>
-    <div style="text-align:right">
-      <a href="http://piratenpad.de/UNdQDN5QKn">Bugs, Einf&auml;lle, Ideen</a>
-    </div>
+    <lift:embed what="foot"/>
   </body>
 </html>

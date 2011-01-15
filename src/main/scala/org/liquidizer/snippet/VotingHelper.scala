@@ -128,7 +128,8 @@ class VotingHelper {
 	case "aboutLastComment" => 
 	  VoteCounter.getLatestComment(nominee) match {
 	    case Some(comment) => 
-	      Text("Kommentiert "+ Markup.formatRelTime(comment.date.is)+" (") ++
+	      Text(S.?("time.commented")+" "+ 
+		   Markup.formatRelTime(comment.date.is)+" (") ++
 		   formatUser(comment.getAuthor) ++ Text(")")
 	    case _ => Nil }
 
@@ -229,7 +230,7 @@ class VotingHelper {
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children, nominee) : _*)
 
-      case other => other
+      case _ => Localizer.loc(in)
     }
   }
 

@@ -9,7 +9,7 @@
 	  <table width="100%">
 	    <tr>
 	      <td colspan="4">
-		<span style="font-size:medium">Pirat : <poll:name/></span>
+		<h3><span>$user</span> : <poll:name/></h3>
 	      </td>
 	    </tr>
 	    <tr>
@@ -27,11 +27,11 @@
 	      <td rowspan="2"/>
 	      <lift:UserInfo.in>
 		<user:notme>
-		  <th class="vote_user">Deine Präferenz</th>
+		  <th class="vote_user">$your.preference</th>
 		</user:notme>
 	      </lift:UserInfo.in>
-	      <th class="vote_result">Einfluss</th>
-	      <th class="vote_result">Abfluss</th>
+	      <th class="vote_result">$inflow</th>
+	      <th class="vote_result">$outflow</th>
 	    </tr>
 	    <tr>
 	      <lift:UserInfo.in>
@@ -59,15 +59,15 @@
   </lift:bind-at>
   <lift:bind-at name="sidebar">
     <lift:MenuMarker>
-    <div class="keys">
-      <menu:a href="index.html">Stimmen</menu:a>
+    <ul class="keys">
+      <menu:a href="index.html">$menu.votes</menu:a>
       <div style="clear:both"/>
-      <menu:a href="delegates.html">Delegiert an ...</menu:a>
+      <menu:a href="delegates.html">$menu.delegates</menu:a>
       <div style="clear:both"/>
-      <menu:a href="support.html">Delegiert von ...</menu:a>
+      <menu:a href="support.html">$menu.supporters</menu:a>
       <div style="clear:both"/>
-      <menu:a href="graph.html">Delegationsgraph</menu:a>
-    </div>
+      <menu:a href="graph.html">$menu.graph</menu:a>
+    </ul>
     <div style="margin:10px">&nbsp;</div>
     </lift:MenuMarker>
   </lift:bind-at>
