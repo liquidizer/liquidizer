@@ -20,7 +20,7 @@ class Users extends MultipageSnippet {
     data = User.findAll(By(User.validated, true))
     .filter { searchFilter _ }
     .map { VotableUser(_) }
-    sortData(if (User.currentUser.isEmpty) "inflow" else "myweight")
+    sortData()
   }
 
   override def categories(in:NodeSeq) : NodeSeq = {
@@ -50,7 +50,7 @@ class UserDetails extends MultipageSnippet {
       VoteCounter.getAllVotes(user)
       .filter { searchFilter _ }
       .map { VotableQuery(_) }
-    sortData("weight", user)
+    sortData(user)
   }
   def loadSupporters() = {
     data= 
