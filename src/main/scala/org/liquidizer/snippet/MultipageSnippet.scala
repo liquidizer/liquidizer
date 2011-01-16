@@ -90,17 +90,17 @@ abstract class MultipageSnippet extends StatefulSnippet {
     def emotion(f:(Emotion=>Double)) =
 	isMe( (u,v) => isUser(v, VoteCounter.getEmotion(u, _).
 			      map{ f(_) }.getOrElse(-1e9)))
+    def isActive(f : Votable => Double) : Votable => Double = 
+      n => { if (VoteCounter.getActiveVoters(n).isEmpty) -1e5 else f(n) }
 
     order match {
       case "value" => result(_).value.abs
       case "age" => q => q.id
-      case "pro" => result(_).value
-      case "contra" => -result(_).value
+      case "pro" => isActive(result(_).value)
+      case "contra" => isActive(-result(_).value)
       case "conflict" => v => { val r=result(v); r.pro min r.contra }
       case "comment" => 
 	VoteCounter.getLatestComment(_).map{ _.date.is.toDouble }.getOrElse(0.0)
-      case "active" => 
-	isUser(_, VoteCounter.getLatestComment(_).map{ _.date.is.toDouble }.getOrElse(0.0))
       case "myweight" => isMe(VoteCounter.getWeight(_ , _))
       case "swing" => VoteCounter.getSwing(_).abs
       case "volume" => result(_).volume
