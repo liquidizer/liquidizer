@@ -142,12 +142,23 @@ class CategoryView(val keys : List[String], rootLink:String) {
   }
 }
 
+/** The Localizer provides localization for Text nodes
+ *  and attributes starting with $ */
 object Localizer {
   def loc(in : NodeSeq) : NodeSeq = in.flatMap(loc(_))
   def loc(in : Node) : NodeSeq = in match {
-    case Text(str) if (str.startsWith("$")) => Text(S.?(str.substring(1)))
+    case Text(str) if (str.startsWith("$")) => Text(loc(str))
     case _ => in
   }
+  def loc(in : String) = if (in.startsWith("$")) S.?(in.substring(1)) else in
+
+  /** localize a number of attributes */
+  def loc(attr : MetaData) : MetaData = 
+    if (attr==Null) Null else attr match {
+      case UnprefixedAttribute(key, value, next) =>
+	new UnprefixedAttribute(key, loc(value.text), loc(next))
+      case _ => throw new Exception("Unknown attribute type : "+attr)
+    }	
 }
 
 class MenuMarker {
@@ -189,7 +200,7 @@ class MenuMarker {
         <li><a href={href}><div class={style}>{entry}</div></a></li>
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
-	Elem(prefix, label, attribs, scope, bind(children) : _*)
+	Elem(prefix, label, Localizer.loc(attribs), scope, bind(children) : _*)
 
       case _ => in
     }

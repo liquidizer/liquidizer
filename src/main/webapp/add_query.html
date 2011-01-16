@@ -19,10 +19,10 @@
 	}
       </script>
     </head>
-    <lift:UserInfo.in>
+    <lift:UserInfo.assertIn>
       <lift:AddQuery.create form="POST">
 	<div class="head">
-	  <h2>Neue Forderung stellen:</h2>
+	  <h2><lift:loc>new.query</lift:loc></h2>
 	</div>
 	
 	<hr class="none"/>
@@ -31,12 +31,12 @@
 	  <tr>
 	    <td>
 	      <p>
-		Die Forderung lautet:
+		<lift:loc>new.query.what</lift:loc>
 	      <p/>
 	      <addquery:what/>
 	      </p>
 	      <p>
-		Stichworte für die Suchfunktion
+		<lift:loc>new.query.keys</lift:loc>
 	      <p/>
 	      <addquery:keys/>
 	      </p>
@@ -46,7 +46,7 @@
 	    </td>
 	    <td width="20px"/>
 	    <td>
-	      <p>Kategorien:</p>
+	      <p><lift:loc>filter.tags</lift:loc>:</p>
 	      <div class="keys">
 		<addquery:keyset/>
 	      </div>
@@ -54,11 +54,7 @@
 	  </tr>
 	</table>
       </lift:AddQuery.create>
-
-    </lift:UserInfo.in>
-    <lift:UserInfo:out>
-      Du musst angemeldet sein um neue Forderungen hinzufügen zu können
-    </lift:UserInfo:out>
+    </lift:UserInfo.assertIn>
   </lift:bind-at>
 </lift:surround>
 

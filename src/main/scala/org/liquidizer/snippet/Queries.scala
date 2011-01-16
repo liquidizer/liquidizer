@@ -100,10 +100,10 @@ class AddQuery extends StatefulSnippet {
 
   def create(in:NodeSeq) : NodeSeq = {
     Helpers.bind("addquery", in,
-		 "what" -> SHtml.textarea(what, what = _, "rows"-> "3", "cols"-> "40", "placeholder" -> "Frage"),
+		 "what" -> SHtml.textarea(what, what = _, "rows"-> "3", "cols"-> "40", "placeholder" -> S ? "new.query"),
 		 "keys" -> SHtml.text(keys, keys = _, 
 				      "size"-> "40", "id" -> "keys"),
-		 "submit" -> SHtml.submit("Absenden", ()=>verifyQuery),
+		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>verifyQuery),
 		 "keyset" -> 
 		 new CategoryView(keys, "") {
 		   override def renderTag(tag : String) : Node = {
@@ -119,8 +119,8 @@ class AddQuery extends StatefulSnippet {
     Helpers.bind("addquery", in,
 		 "what" -> Markup.renderHeader(what, link("/add_query", {()=>}, _)),
 		 "keys" -> Markup.renderTagList(TaggedUtils.getTags(keys)),
-		 "cancel" -> SHtml.submit("Abbrechen", ()=>redirectTo("/add_query")),
-		 "submit" -> SHtml.submit("Absenden", ()=>saveQuery))
+		 "cancel" -> SHtml.submit(S ? "new.query.cancel", ()=>redirectTo("/add_query")),
+		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>saveQuery))
   }
 
   def verifyQuery() = {

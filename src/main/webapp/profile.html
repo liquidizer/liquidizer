@@ -4,28 +4,28 @@
   <lift:form>
     <lift:UserInfo.in>
       <div class="balance">
-	<h3>Email Addresse (bei Passwortverlust)</h3>
+	<h3><lift:loc>user.email</lift:loc> (<lift:loc>user.oblivious</lift:loc>)</h3>
 	<hr/>
 	<me:email/><me:emailEdit/>
       </div>
       <div class="balance">
-	<h3>Öffentliches Profil</h3>
+	<h3><lift:loc>user.public.profile</lift:loc></h3>
 	<hr/>
 	<me:profile/>
 	<me:profileEdit/>
       </div>
       <div class="balance">
-	<h3>Verwaltung</h3>
+	<h3><lift:loc>user.maintenance</lift:loc></h3>
 	<div class="navi">
-	  <a href="/user_mgt/change_password.html"><div>Password ändern</div></a>
-	  <a href="/user_mgt/delete.html"><div>Daten löschen</div></a>
-	  <me:logout><div>Logout</div></me:logout>
+	  <a href="/user_mgt/change_password.html"><div><lift:loc>user.change.password</lift:loc></div></a>
+	  <a href="/user_mgt/delete.html"><div><lift:loc>user.delete.data</lift:loc></div></a>
+	  <me:logout><div><lift:loc>logout</lift:loc></div></me:logout>
 	</div>
       </div>
     </lift:UserInfo.in>
   </lift:form>
   <lift:UserInfo.out form="POST">
-    <span class="error">Nicht eingloggt</span>
+    <span class="error"><lift:loc>error.not.logged.in</lift:loc></span>
   </lift:UserInfo.out>
   </lift:bind-at>
   <lift:bind-at name="sidebar">

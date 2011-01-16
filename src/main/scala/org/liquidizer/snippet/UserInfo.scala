@@ -78,27 +78,24 @@ class UserInfo {
       case Some(user) if !user.validated =>  
 	S.error(S.??("account.validation.error"))  
       case Some(user) =>
-	S.error("Ungültiges Passwort")
+	S.error(S ? "error.invalid.password")
       case _ => 
-	S.error("User existiert nicht")
+	S.error(S ? "error.user.not.exists")
     }  
   }  
   
   /** Show this content only if the user is logged out */
-  def in(in:NodeSeq) : NodeSeq = {
-    if (User.currentUser.isEmpty)
-      NodeSeq.Empty
-    else
-      bind(in)
-  }
+  def in(in:NodeSeq) : NodeSeq =
+    if (User.currentUser.isEmpty) NodeSeq.Empty else bind(in)
+
+  /** Assert that the user is logged in, else show error */
+  def assertIn(in : NodeSeq) : NodeSeq =
+    if (User.currentUser.isEmpty) 
+      Text(S ? "error.not.logged.in") else bind(in)
 
   /** Show this content only if the user is logged in */
-  def out(in:NodeSeq) : NodeSeq = {
-    if (User.currentUser.isEmpty)
-      bind(in)
-    else
-      NodeSeq.Empty
-  }
+  def out(in:NodeSeq) : NodeSeq = 
+    if (User.currentUser.isEmpty) bind(in) else NodeSeq.Empty
 
   /** List of recent votes by the current user, to be shown in the index page */
   def votes(in : NodeSeq) : NodeSeq = {
@@ -152,10 +149,10 @@ class UserInfo {
    
      def setPasswd() {  
 	if (passwd1!=passwd2) {
-	  S.error("Passwörter stimmen nicht überein")
+	  S.error(S ? "error.password.not.match")
 	} 
 	else if (passwd1.length<=4) {
-	  S.error("Passwort zu kurz")
+	  S.error(S ? "error.password.too.short")
 	}
         else {
 	  user.password(passwd1)  
@@ -165,7 +162,7 @@ class UserInfo {
        }  
      }  
    
-     Helpers.bind("user", in,
+     Helpers.bind("user", assertIn(in),
           "new_pwd1" -> SHtml.password("", passwd1 = _ ),
           "new_pwd2" -> SHtml.password("", passwd2 = _ ),
           "submit" -> SHtml.submit(S.??("change"), setPasswd _))
@@ -206,7 +203,7 @@ class UserInfo {
              S.redirectTo("/")
 	   }
 	   case _ =>
-	     S.error("Kein User mit dieser Adresse gefunden")
+	     S.error(S ? "error.no.user.for.email")
 	 }
        }  
      }  
@@ -234,7 +231,7 @@ class UserReset extends StatefulSnippet {
 		 "deleteVotes" -> SHtml.checkbox(false, deleteVotes = _),
 		 "deleteComments" -> SHtml.checkbox(false, deleteComments = _),
 		 "deleteAccount" -> SHtml.checkbox(false, deleteAccount = _),
-		 "submit" -> SHtml.submit("Löschen", () => process()))
+		 "submit" -> SHtml.submit(S ? "data.delete.confirm", () => process()))
   }
 
   def process() = {
@@ -244,14 +241,13 @@ class UserReset extends StatefulSnippet {
 	PollingBooth.vote(user, _, 0)
       }
       VoteCounter.refresh()
-      S.notice("Alle Stimmgewichte zurückgesetzt")
+      S.notice(S ? "data.delete.votes.succ")
     }
     if (deleteComments || deleteAccount) {
       PollingBooth.clearComments(user)
-      S.notice("Alle Kommentare gelöscht")
+      S.notice(S ? "data.delete.comment.succ")
     }
     if (deleteAccount) {
-      println("deleteAccount "+user)
       User.logUserOut()
       user
       .profile("")
@@ -259,9 +255,8 @@ class UserReset extends StatefulSnippet {
       .nick("---")
       .validated(false)
       user.save
-      S.notice("Account gelöscht")
+      S.notice(S ? "data.delete.account.succ")
     }
-    println("going home")
     this.unregisterThisSnippet
     S.redirectTo("/index.html")
   }
@@ -294,16 +289,16 @@ class UserSignUp extends StatefulSnippet {
     username= username.trim
     User.getUserByNick(username) match {
       case Some(user) =>
-	S.notice("User '"+username+"' is bereits vergeben")
+	S.notice((S ? "error.user.exists").format(username))
       case None => 
 	if (username.isEmpty) {
-	  S.error("Username darf nicht leer sein")
+	  S.error(S ? "error.name.is.empty")
 	}
 	else if (passwd1!=passwd2) {
-	  S.error("Passwörter stimmen nicht überein")
+	  S.error(S ? "error.password.not.match")
 	} 
 	else if (passwd1.length<=4) {
-	  S.error("Passwort zu kurz")
+	  S.error(S ? "error.password.too.short")
 	}
 	else {
 	  val user= User.create

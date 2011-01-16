@@ -1,29 +1,29 @@
 <lift:surround with="query_head" at="details">
   <table>
     <tr>
-      <td>Author:</td>
+      <td><lift:loc>query.author</lift:loc>:</td>
       <td><query:creator/></td>
     </tr>
     <tr>
-      <td>Erstellt:</td>
+      <td><lift:loc>query.creation</lift:loc>:</td>
       <td><query:time/></td>
     </tr>
     <tr height="10"/>
     <tr>
-      <td>Wähler mit positivem Stimmgewicht:</td>
+      <td><lift:loc>result.no.pro</lift:loc>:</td>
       <td><query:numVoters weight="1"/></td>
     </tr>
     <tr>
-      <td>Wähler mit negativem Stimmgewicht:</td>
+      <td><lift:loc>result.no.contra</lift:loc>:</td>
       <td><query:numVoters weight="-1"/></td>
     </tr>
     <tr height="10"/>
     <tr>
-      <td>Summe des positiven Stimmgewichtes:</td>
+      <td><lift:loc>result.sum.pro</lift:loc>:</td>
       <td><poll:value measure="pro"/></td>
     </tr>
     <tr>
-      <td>Summe des negativen Stimmgewichtes:</td>
+      <td><lift:loc>result.sum.contra</lift:loc>:</td>
       <td><poll:value measure="contra"/></td>
     </tr>
   </table>

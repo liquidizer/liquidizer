@@ -1,0 +1,66 @@
+<lift:UserInfo.votes>
+  <div class="balance">
+    <h3>$menu.votes</h3>
+    <hr/>
+    <table>
+      <user:votes>
+	<tr>
+	  <td align="center"><vote:result format="weight"/></td>
+	  <td><poll:name/></td>
+	</tr>
+      </user:votes>
+      <tr>
+	<div class="navi">
+	  <a href="/users/~/index.html">
+	    <div>... mehr</div>
+	  </a>
+	</div>
+      </tr>
+    </table>
+  </div>
+  <div class="balance">
+    <h3>$menu.delegations</h3>
+    <table width="100%">
+      <tr>
+	<td>$menu.supporters</td>
+	<td/>
+	<td>$menu.delegates</td>
+      </tr>
+      <tr><td colspan="3"><hr/></td></tr>
+      <td>
+	<poll:supporters>
+	  <tr class="votable">
+	    <td align="right"><user:emoticon size="20"/></td>
+	    <td><user:name/></td>
+	  </tr>
+	</poll:supporters>
+      </td>
+      <td width="20px"/>
+      <td>
+	<user:delegates>
+	  <tr>
+	    <td align="right"><user:emoticon size="20"/></td>
+	    <td><poll:name/></td>
+	  </tr>
+	</user:delegates>
+      </td>
+      <tr>
+	<td>
+	  <div class="navi">
+	    <a href="/users/~/support.html">
+	      <div>$home.more</div>
+	    </a>
+	  </div>
+	</td>
+	<td/>
+	<td>
+	  <div class="navi">
+	    <a href="/users/~/delegates.html">
+	      <div>$home.more</div>
+	    </a>
+	  </div>
+	</td>
+      </tr>
+    </table>
+  </div>
+</lift:UserInfo.votes>
