@@ -11,7 +11,7 @@
 	</div>
 	<lift:UserInfo.votes>
 	  <div class="balance">
-	    <h3>Stimmen</h3>
+	    <h3>Stimmen (<lift:UserInfo.bind><me:numVotes/></lift:UserInfo.bind>)</h3>
 	    <hr/>
 	    <table>
 	      <user:votes>
@@ -33,9 +33,9 @@
 	    <h3>Delegationen</h3>
 	    <table width="100%">
 	      <tr>
-		<td>Erhalten</td>
+		<td>Erhalten (<lift:UserInfo.bind><me:numSupporters/></lift:UserInfo.bind>)</td>
 		<td/>
-		<td>Vegeben</td>
+		<td>Vegeben (<lift:UserInfo.bind><me:numDelegates/></lift:UserInfo.bind>)</td>
 	      </tr>
 	      <tr><td colspan="3"><hr/></td></tr>
 	      <td>

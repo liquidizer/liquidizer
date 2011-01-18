@@ -56,25 +56,29 @@ object EmotionView {
       attribs.asAttrMap ++ {
 	User.currentUser match {
 	  case Full(me) => {
+	    // compute face size based on distance metrics
+	    val scale= VoteCounter.getDelegationScale(me)
+	    val dist= if (other==me) 1.0 else {
+	      val w= VoteCounter.getWeight(me, VotableUser(other))
+	      if (scale._2==0)
+		1.0
+	      else
+		1.0 + 0.3*(w/scale._1 - 0.5)*(scale._2 min 3)
+	    }
+	    val fdist= "%1.2f".format(dist min 1.5)
+
+	    // extract corresponding emotion
 	    VoteCounter.getEmotion(me, other) match {
 	    case Some(emo) => {
 	      val p= emo.potency.value
 	      val v= Math.pow(emo.valence.value/(.9*p + .1)/2.0 + 0.5, 2.0)
 	      val a= emo.getArousal min 1.0 max 0.
-	      val dist= if (other==me) 1.0 else {
-		val w= VoteCounter.getWeight(me, VotableUser(other))
-		val scale= VoteCounter.getDelegationScale(me)
-		if (scale._2==0)
-		  1.0
-		else
-		1.0 + 0.3*(w/scale._1 - 0.5)*(scale._2 min 3)
-	      }
 	      Map("v" -> "%1.1f".format(v), 
 		  "a" -> "%1.1f".format(a), 
 		  "p" -> "%1.1f".format(p),
-		  "scale" -> "%1.2f".format(dist min 1.5))
+		  "scale" -> fdist)
 	    }
-	    case None => Map("view" -> "sleeping", "scale" -> "0.5")
+	    case None => Map("view" -> "sleeping", "scale" -> fdist)
 	  }}
 	  case _ => Map("view" -> "sleeping")
 	}}
