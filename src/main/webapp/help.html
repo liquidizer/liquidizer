@@ -1,0 +1,223 @@
+<lift:surround with="default">
+<lift:bind-at name="title">User Guide</lift:bind-at>
+<lift:bind-at name="content">
+<div class="help">
+<h1 class="title">Liquidizer User Guide</h1>
+
+<p><lift:Loc.Intro/></p>
+
+<div style="margin: 10px 20px 10px 20px">
+</div>
+
+<h2 id="sec-menu"><lift:Loc.MainMenu/></h2>
+<p>
+  <table>
+    <tr>
+      <td width="100" align="center">
+	<a href="/queries"><img height="50" src="/images/queries.png"/></a>
+      </td>
+      <td><lift:Loc.Queries/></td>
+    </tr>
+    <tr height="10"/>
+    <tr>
+      <td align="center">
+	<a href="/users"><img height="50" src="/images/users.png"/></a>
+      </td>
+      <td><lift:Loc.Users/></td>
+    </tr>
+    <tr height="10"/>
+    <tr>
+      <td align="center">
+	<a href="/help.html"><img height="50" src="/images/help.png"/></a>
+      </td>
+      <td><lift:Loc.Help/></td>
+    </tr>
+    <tr height="10"/>
+    <tr>
+      <td align="center">
+	<img height="50" src="/images/home.png"/>
+      </td>
+      <td><lift:Loc.PersonalMenu/></td>
+    </tr>
+  </table>
+</p>
+
+<h2 id="sec-vote"><lift:Loc.Voting/></h2>
+<p><lift:Loc.VotingIntro/></p>
+
+<p>
+  <table>
+    <tr>
+      <td class="vote_query">
+	<div class="vote">
+	<div class="inactive">-3</div>
+	<div class="active contra">-2</div>
+	<div class="inactive">-1</div>
+	<div class="inactive">0</div>
+	<div class="inactive">+1</div>
+	<div class="inactive">+2</div>
+	<div class="inactive">+3</div>
+	</div>
+      </td>
+      <td><lift:Loc.VotingPreferences/></td>
+    </tr>
+    <tr height="10"/>
+    <tr>
+      <td class="vote_query">
+	<div class="vote">
+	  <div class="inactive">0</div>
+	  <div class="active pro">+1</div>
+	  <div class="inactive">+2</div>
+	  <div class="inactive">+3</div>
+	</div>
+      </td>
+      <td><lift:Loc.VotingDelegates /></td>
+    </tr>
+    <tr height="10"/>
+    <tr>
+      <td align="center">
+	<img height="35" src="/images/edit.png"/>
+      </td>
+      <td><lift:Loc.EditingText /></td>
+    </tr>
+  </table>
+</p>
+
+
+<h2 id="sec-emos"><lift:Loc.Emoticons /></h2>
+
+<p>
+  <lift:Loc.EmoticonsIntro />
+  <table>
+    <tr>
+      <td width="100"><img src="/images/emos/face-v0.png"/></td>
+      <td width="150"><img src="/images/emos/face-v1.png"/></td>
+      <td>
+	<h3><lift:Loc.Valence /></h3>
+	Die Übereinstimmung mit dem angezeigten User an wird anhand eines wertenden Gesichtsausdruckes visualisiert.
+      </td>
+    </tr>
+    <tr>
+      <td><img src="/images/emos/face-a0.png"/></td>
+      <td><img src="/images/emos/face-a1.png"/></td>
+      <td>
+	<h3><lift:Loc.Arousal/></h3>
+	<lift:Loc.ArousalIntro/>
+      </td>
+    </tr>
+    <tr>
+      <td><img src="/images/emos/face-p0.png"/></td>
+      <td><img src="/images/emos/face-p1.png"/></td>
+      <td>
+	<h3><lift:Loc.Potency/></h3>
+	<lift:Loc.PotencyIntro/>
+      </td>
+    </tr>
+    <tr>
+      <td><img src="/images/emos/face-close.png"/></td>
+      <td><img src="/images/emos/face-dist.png"/></td>
+      <td>
+	<h3><lift:Loc.Distance/></h3>
+	<lift:Loc.DistanceIntro/>
+      </td>
+    </tr>
+  </table>
+</p>
+<p><lift:Loc.EmoticonTesting/> <a href="/emoticons">http://liquidizer.org/emoticons</a></p>
+
+<h2 id="sec-math"><lift:Loc.VotingSystem/></h2>
+
+<p><lift:Loc.SystemIntro1/></p>
+<p><lift:Loc.SystemIntro2/></p>
+
+<p><lift:Loc.SystemExample1/></p>
+<div class="example">
+  <table>
+    <tr><td/>
+      <td>A's <lift:Loc.Preference/></td>
+      <td>B's <lift:Loc.Preference/></td>
+    </tr>
+    <tr><td colspan="3"><hr/></td></tr>
+    <tr><td><lift:Loc.Query/> 1</td><td> 0 </td><td> 5 </td></tr>
+    <tr><td><lift:Loc.Query/> 2</td><td> 3 </td><td> 1 </td></tr>
+    <tr><td><lift:Loc.Query/> 3</td><td> -1 </td><td> 2 </td></tr>
+  </table>
+</div>
+
+
+<p><lift:Loc.SystemExample2/></p>
+<div class="example">
+  0<sup>2</sup> + 0.95<sup>2</sup> + (-0.32)<sup>2</sup> = 0 + 0.9 + 0.1 = 1.
+</div>
+
+<p><lift:Loc.SystemExample3/></p>
+<div class="example">
+  0.91<sup>2</sup> + 0.18<sup>2</sup> + 0.37<sup>2</sup> = 0.83 + 0.033 + 0.13 = 1.
+</div>
+
+<p><lift:Loc.SystemExample4/></p>
+<div class="example">
+  <table>
+    <tr><td/>
+      <td>A's <lift:Loc.VotingWeight/></td>
+      <td>B's <lift:Loc.VotingWeight/></td>
+      <td><lift:Loc.Sum/></td>
+    </tr>
+    <tr><td colspan="4"><hr/></td></tr>
+    <tr><td><lift:Loc.Query/> 1</td><td> 0 </td><td> 0.91 </td><td> 0.91 </td></tr>
+      <tr><td><lift:Loc.Query/> 2</td><td> 0.95 </td><td> 0.18 </td><td> 1.13 </td></tr>
+    <tr><td><lift:Loc.Query/> 3</td><td> -0.32 </td><td> 0.37 </td><td> 0.05 </td></tr>
+  </table>
+</div>
+
+<p><lift:Loc.SystemExample5/></p>
+<p><lift:Loc.SystemExample6/></p>
+<div class="example">
+  <table>
+    <tr><td/>
+      <td>A's <lift:Loc.VotingWeight/></td>
+      <td>B's <lift:Loc.VotingWeight/></td>
+      <td><lift:Loc.Sum/></td>
+    </tr>
+    <tr><td colspan="4"><hr/></td></tr>
+    <tr><td><lift:Loc.Query/> 1</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
+    <tr><td><lift:Loc.Query/> 2</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
+    <tr><td><lift:Loc.Query/> 3</td><td>  0 </td><td> 0 </td><td> 0 </td></tr>
+  </table>
+</div>
+
+<p><lift:Loc.VotingCooperation/></p>
+
+<h2 id="sec-charts"><lift:Loc.AnalysisTools/></h2>
+<p><lift:Loc.AnalysisToolsIntro/></p>
+<p>
+  <table>
+    <tr>
+      <td/><td>	<h3><lift:Loc.Charts/></h3> </td>
+    </tr>
+    <tr>
+      <td width="250"><img src="/images/charts/chart.png"/></td>
+      <td><lift:Loc.ChartsIntro/></td>
+    </tr>
+    <tr>
+      <td/><td>	<h3><lift:Loc.Histogram/></h3> </td>
+    </tr>
+    <tr>
+      <td><img src="/images/charts/histogram.png"/></td>
+      <td><lift:Loc.HistogramIntro/></td>
+    </tr>
+    <tr>
+      <td/><td>	<h3><lift:Loc.DelegationGraph/></h3> </td>
+    </tr>
+    <tr>
+      <td><img src="/images/charts/graph.png"/></td>
+      <td><lift:Loc.DelegationGraphIntro/></td>
+    </tr>
+  </table>
+</p>
+
+<h2 id="sec-menu"><lift:Loc.Links/></h2>
+<p><lift:Loc.LinksList/></p>
+</div>
+</lift:bind-at>
+</lift:surround>

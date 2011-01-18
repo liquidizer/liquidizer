@@ -1,0 +1,223 @@
+<resources>
+  <!-- Introduction to Liquidizer-->
+  <res name="Intro">
+    Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft den
+    Überblick in einer politischen Debatte zu bewahren und Kompromisse
+    spielerisch zu finden.
+
+    <h3>Warum Liquidizer?</h3>
+
+    Weil Einigung ein sozialer Prozess ist und nicht durch ein
+    mathematisches Auszählverfahren ersetzt werden kann.
+
+    <h3>Wie funktioniert der Liquidizer?</h3>
+    
+    In einem interaktiven Wahlspiel müssen die Teilnehmer kooperieren, um
+    ihre Präferenzen in der Gruppe sichtbar zu machen.
+
+    <h3>Was ist der Liquidizer?</h3>
+
+    Eine webbasierte Anwendung mit zahlreichen Visualisierungen und
+    Analysemöglichkeiten.
+  </res>
+
+  <!-- Main menu -->
+  <res name="MainMenu">Das Hauptmenü</res>
+  <res name="Queries">
+    Eine Übersicht über alle Forderungen, die im System gestellt
+    werden.  Von hier aus gelangt man zur Detailansicht mit einer
+    Liste der Wähler und graphischen Analysefunktionen.
+  </res>
+  <res name="Users">
+    Eine Übersicht über alle im System angemeldeten User. Per Klick auf den User
+    gelangt man zur Detailansicht des Users.
+  </res>
+  <res name="Help">
+    Diese Hilfe.
+  </res>
+  <res name="PersonalMenu">
+    Dieser Menüpunkt wird nur im eingeloggten Zustand
+    angezeigt. Er bietet direkten Zugriff auf das eigene Profil
+    und die eigenen Stimmen, sowie ein- und ausgehende
+    Delegationen.
+  </res>
+
+  <!-- Casting Votes -->
+  <res name="Voting">Abstimmen</res>
+  <res name="VotingIntro">
+    Das Wahlverfahren im Liquidizer arbeitet mit einem global
+    beschränkten Stimmgewicht. Das maximale Gewicht, dass man in eine
+    Forderung einbringen kann ist 1.00. Es sinkt jedoch leicht, sobald
+    man sich mehreren Forderungen anschließt, oder längere Zeit inaktiv
+    ist. Um seinen Einfluss zu optimieren, muss man sich also regelmäßig
+    im System anmelden und seine Stimmgewichtungen genau austarieren.
+  </res>
+  <res name="VotingPreferences">
+    Jeder Teilnehmer kann zu einem Vorschlag eine Präferenz zwischen -3
+    und 3 abgeben.  Durch das Klicken auf eine positive Zahl wird der
+    Vorschlag unterstützt, mit eine negativen Zahl abgelehnt.  Diese
+    Präferenzen sind nicht direkt für die anderen Nutzer sichtbar. Sie
+    bestimmen aber das Verhältnis zwichen den resultierenden Stimmgewichten.
+  </res>
+  <res name="VotingDelegates">
+    Andere Teilnehmer können mit Präferenzen zwischen 0 und 3 versehen werden.
+    In diesem Fall wird ein Teil deines Stimmgewichtes delegiert. Basierend auf
+    die Stärke der Delegation with das Wahlverhalten der Delegierten anteilig bei
+    der Berechnung der eigenen Stimmgewichte berücksichtigt.
+  </res>
+  <res name="EditingText">
+    Die effektivste Methode um Unterstützung für eine politische
+    Initiative zu erlangen besteht immer noch darin einen guten
+    Kommentar oder ein passendes Argument zu hinterlassen. Alle
+    Stellen mit diesem Edit Icon können vom eingeloggten User mit Texten
+    versehen werden. Mit Ausnahme der Email-Adresse sind alle Einträge
+    dann öffentlich sichtbar.  
+    <br/> 
+    Die eingegebenen Texte können Links enthalten. In Aufzählungen
+    beginnt jede Zeile mit einem Stern (*). Zusätzlich sind die HTML
+    elemente &lt;img&gt; und &lt;code&gt; erlaubt.
+  </res>
+
+  <!-- Emoticons -->
+  <res name="Emoticons">Emoticons</res>
+  <res name="EmoticonsIntro">
+    Im eingeloggten Zustand wird die Beziehung zu jedem Nutzer über ein
+    Emoticon visualisiert.  Die Berechnung folgt einem
+    mehrdimensionalen psychologischen Modell, mit Komponenten für
+    Wertung, Erregung, Stärke und Distanz. 
+  </res>
+  <res name="Valence">Wertung</res>
+  <res name="Arousal">Erregung</res>
+  <res name="Potency">Stärke</res>
+  <res name="Distance">Distanz</res>
+  <res name="ValenceIntro">
+    Die Übereinstimmung mit dem angezeigten User an wird anhand eines
+    wertenden Gesichtsausdruckes visualisiert.
+  </res>
+  <res name="ArousalIntro">
+    Die Erregung zeigt an, ob sich in letzter Zeit einer Veränderung
+    der Beziehung ergeben hat.
+  </res>
+  <res name="PotencyIntro">
+    Zweifel und Stärke zeigen die Überlappung der Interessensgebiete unabhängig von der eingenommen Position.
+  </res>
+  <res name="DistanceIntro">
+    Die Distanz zeigt den Einfluss der über direkte oder indirekte
+    Delegation ausgeübt wird.
+  </res>
+  <res name="EmoticonTesting">
+    Das emotionale Modell kann hier getestet werden:
+  </res>
+
+  <!-- Voting System -->
+  <res name="VotingSystem">Wahltaktik und Wahlverfahren</res>
+  <res name="VotingWeight">Stimmgewicht</res>
+  <res name="Preference">Präferenz</res>
+  <res name="Query">Vorschlag</res>
+  <res name="Sum">Summe</res>
+  <res name="SystemIntro1">
+    Das Wahlverfahren des Liquidizers basiert auf einem
+    spieltheoretisch optimierten Verfahren. Mit einem beschränkten
+    Stimmgewicht müssen Teilnehmer ihre Forderungen in einer
+    Päferenzliste nach oben bringen. Dabei haben die Abstimmungen kein
+    Enddatum. Es geht darum Forderungen, Vorschläge oder Ideen
+    sichtbar zu machen.
+  </res>
+  <res name="SystemIntro2">
+    Das Stimmgewicht pro Forderung liegt immer zwischen -1 und 1,
+    wobei die Summe der quadrierten Stimmen auf 1 beschränkt ist. Dies
+    führt dazu, dass man mit kleinen Beiträgen (z.B. 0.1) an sehr
+    vielen Forderungen teilnehmen kann, d.h. die Kosten für eine
+    kleine Stimme sind gering (0.1² = 0.01). Entsteht ein Konflikt,
+    und die Teilnehmer versuchen sich mit hohem Stimmgewicht (z.B. 1)
+    zu überbieten, dann entstehen sofort hohe Kosten (1² = 1).
+  </res>
+  <res name="SystemExample1">
+    Im folgenden betrachten wir ein Beispiel in dem sich zwei
+    Teilnehmer A und B an drei Forderungen beteiligen. Wie die
+    nachfolgenden Präferenzen zeigen ist A sehr stark für Forderung 2,
+    lehnt Forderung 3 aber ab. B befürwortet alle drei Forderungen mit
+    starker Präferenz auf die erste davon.
+  </res>
+  <res name="SystemExample2">
+    Daraus ergeben sich für A die Stimmgewichte 0, 0.95 und -0.32, denn
+  </res>
+  <res name="SystemExample3">
+    Für B ergeben sich die Gewichte 0.91, 0.18 und 0.37, denn
+  </res>
+  <res name="SystemExample4">
+    Es gilt zu beachten, dass die Stimmgewichte im selben Verhältnis
+    aufgeteilt werden wie die Päferenzen, allerdings sind sie
+    wesentlich kleiner:
+  </res>
+  <res name="SystemExample5">
+    In obigen Beispiel verschwenden sowohl A als auch B einen Gewissen
+    Teil ihres begrenzten Stimmgewichtes. Auf Forderung 3 haben sie so gut
+    wie keinen Einfluss und könnten diesen wesentlich besser in den Themen
+    einbringen, in denen sie sich einig sind.
+  </res>
+  <res name="SystemExample6">
+    Nehmen wir einmal an, sowohl A, als auch B würden ihre Präferenzen auf
+    1, 1, 0 verändern, dann ergäbe sich ein Stimmgewicht, dass beiden
+    erlaubt sich stärker im Gesammtergebnis sichtbar zu machen.
+  </res>
+  <res name="VotingCooperation">
+    Auf der Suche nach Kooperationsmöglichkeiten, lohnt es sich also
+    nach Verbündeten mit gleichen Wertvorstellungen zu suchen. Äußerst
+    hilfreich kann es zum Beispiel sein, sich einfach mal gegenseitig zu
+    delegieren und zu sehen, ob man sich noch mit seinen Stimmgewichten
+    identifizieren kann.
+  </res>
+
+  <!-- Analysis tools -->
+  <res name="AnalysisTools">Analysefunktionen</res>
+  <res name="Charts">Charts</res>
+  <res name="Histogram">Histogram</res>
+  <res name="DelegationGraph">DelegationsGraph</res>
+  <res name="AnalysisToolsIntro">
+    In der Detailansicht zu den Forderungen sind folgende
+    Analysefunktionen verfügbar.
+  </res>
+  <res name="ChartsIntro">
+    Charts zeigen den historischen Verlauf des Wahlergebnisses an.
+    Die obere Linie zeigt die Summe der positiven Stimmgewichte und
+    die untere die Summe der negativen. In der Mitte ist das
+    Gesammtergebnis je nach Zustimmung gelb oder rot eingefärbt.
+    Durch das mit der Zeit abfallende Stimmgewicht ergeben sich
+    Trendlinien, die gegen Null tendieren, sobald die Wähler nicht
+    mehr aktiv ihre Stimmen auffrischen.
+  </res>
+  <res name="HistogramIntro">
+    Das Histogram gibt Auskunft darüber wie viele Nutzer mit welcher
+    Intensität an einer Forderung beteiligt sind. Alle Stimmen haben
+    ein Gewicht zwischen 1 und -1. Nur wenige Nutzer bringen jedoch
+    ihr gesamtes Gewicht in einer Frage ein. Deshalb sind kleinere
+    Stimmgewichte in der Mitte der Grafik häufiger. Am Histogram kann
+    man erkennen, wie viele Wähler sich mit welcher Intensität an der
+    Frage beteiligen.
+  </res>
+  <res name="DelegationGraphIntro">
+    Der Delegationsgraph zeigt die Beeinflussung durch
+    Stimmdelegation. Jeder Wähler kann mehrere Delegierte
+    auswählen. Sein Stimmgewicht entsteht dann durch Abstimmung unter
+    diesen. Auch bei aktiven Delegation muss der Nutzer regelmäßig
+    angemeldet sein, damit sein Stimmgewicht nicht mit der Zeit
+    verschwindet.
+  </res>
+
+  <!-- Links -->
+  <res name="Links">Linksammlung</res>
+  <res name="LinksList">
+    <ul>
+      <li>
+	<a href="http://piratenpad.de/UNdQDN5QKn">http://piratenpad.de/UNdQDN5QKn</a> - Ideen und Bugs melden
+      </li>
+      <li>
+	<a href="http://ssrn.com/abstract=1679002">http://ssrn.com/abstract=1679002</a> - Mathematische Ausführungen zu dem Wahlverfahren
+      </li>
+      <li>
+	<a href="http://wiki.piratenpartei.de/Liquidizer">http://wiki.piratenpartei.de/Liquidizer</a> - Das Liquidizer Projekt im Piraten-Wiki
+      </li>
+    </ul>
+  </res>
+</resources>

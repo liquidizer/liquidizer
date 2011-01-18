@@ -1,0 +1,218 @@
+<resources>
+  <!-- Introduction to Liquidizer-->
+  <res name="Intro">
+    The Liquidizer is a highly interactive online platform for
+    political discussion and ongoing opinion polling. Its focus lies
+    in the simplicity of the voting system and the rich visual
+    feedback displaying current interests, trends and
+    interdependencies. The system provides swift and precise feedback
+    to the user's expression of preferences. Optimizing their impact
+    on the polling result users must allocate a limited total voting
+    weight. This leads to a game like experience where the formation
+    of allys and coordinated voting tactics can reveal the innate
+    structure of rivalling political fractions along side each
+    participant's political profile.
+  </res>
+
+  <!-- Main menu -->
+  <res name="MainMenu">Main menu</res>
+  <res name="Queries">
+    A summary of all queries in the system. From this list, you can
+    navigate to each queries detail page showing voters' behaviour and
+    graphical analysis options.
+  </res>
+  <res name="Users">
+    A summary of all users registered in the system. From this list,
+    you can navigate to each user's profile page.
+  </res>
+  <res name="Help">
+    This help page.
+  </res>
+  <res name="PersonalMenu">
+    The home button is only shown when you are logged in. From here,
+    you can change your profile, see your voting behaviour and
+    delegations.
+  </res>
+
+  <!-- Casting Votes -->
+  <res name="Voting">Voting</res>
+  <res name="VotingIntro">
+    The voting system of the Liquidizer is based on limited overall,
+    such that participation on each query must be well balanced.  The
+    maximal weight which can be used to support (or reject) a
+    proposition is 1.  If a user supports multiple propositions, the
+    voting weight on each proposition is reduced. To optimize voting
+    influence, you need to log in at regular intervals and pay close
+    attention to what propositions you support. The total voting
+    weight also decreases over time when you do not log into the
+    system, such that the influence slackers and dead accounts is
+    diminished.
+  </res>
+  <res name="VotingPreferences">
+    The user can express her preferences for individual queries on
+    scale between -3 and 3.  By clicking on a positive number you
+    declare your support for a proposition, by clicking a negative
+    value you reject it. The preferences are not directly visible to
+    other users, but they define the proportions between your limited
+    total voting weights.
+  </res>
+  <res name="VotingDelegates">
+    Your can also assign a positive preferences to other users, in
+    which case you delegate a part of your voting weight. Based on
+    delegation strength between 0 and 3 this user's votes will be
+    considered in the calculation of your final voting weights.
+  </res>
+  <res name="EditingText">
+    The most influential strategy to gain support for your political
+    initiative still consists in placing a good argument.  All places
+    that show this edit icon can be commented by the user who is
+    logged in. Except mail addresses, postings are visible to all.
+    <br/> The texts you type can include links. To create a list, type
+    an asterisk (*) at the beginning of each new row. The html tags
+    &lt;img&gt; and &lt;code&gt; are allowed.
+  </res>
+
+  <!-- Emoticons -->
+  <res name="Emoticons">Emoticons</res>
+  <res name="EmoticonsIntro">
+    When you are logged in, your relationships with other users is
+    visualized with the help of emoticons. The generation is based on
+    the components Sympathy, Excitement, Strength and Distance.
+  </res>
+  <res name="Valence">Valence</res>
+  <res name="Arousal">Arousal</res>
+  <res name="Potency">Potency</res>
+  <res name="Distance">Distance</res>
+  <res name="ValenceIntro">
+    The Valence component depends on the extent your positions
+    coincide with the positions of the selected user.
+  </res>
+  <res name="ArousalIntro">
+    The Arousal component shows whether the other components have changed recently.
+  </res>
+  <res name="PotencyIntro">
+    The Potency component shows how many topics you and the selected
+    user have in common (i.e. you both voted on them), independent of
+    the positions on that topics.
+  </res>
+  <res name="DistanceIntro">
+    The Distance component shows how you and the selected user
+    influence each other through direct or indirect delegation.
+  </res>
+  <res name="EmoticonTesting">
+    You can test the emoticons at:
+  </res>
+
+  <!-- Voting System -->
+  <res name="VotingSystem">Voting system and tactics</res>
+  <res name="VotingWeight">Voting weight</res>
+  <res name="Preference">Preference</res>
+  <res name="Query">Query</res>
+  <res name="Sum">Sum</res>
+  <res name="SystemIntro1">
+   The voting system of Liquidizer is optimized from a
+   game-theoretic point of view. As each user's voting weight is
+   limited, they have to optimize their influence to achieve a
+   favorbale result. There is no time limit on polls. Thus, the final
+   goal is not to "win", but to make ideas, proposals and topics more
+   visible.
+  </res>
+  <res name="SystemIntro2">
+    The voting weight of a user on a single topic lies between -1 and
+    1. The sum of the weights' squares across all topics is equal to
+    1. Thus, if you vote on a high number of topics, your vote's
+    weight on each one will be low (e.g., you can participate in 100
+    topics with a weight of 0.1 each, as 0.1² = 0.01). If a topic is
+    important or controversial and you want to influence it more
+    strongly, you may choose to vote on that topic only (then the
+    weight of your vote will become 1).
+  </res>
+  <res name="SystemExample1">
+    In the following example, users A and B participate in the polls
+    on three topics. A is indifferent about topic 1, is strongly in
+    favor of topic 2 and rejects topic 3. B favors all three topics,
+    with A being most important.
+  </res>
+  <res name="SystemExample2">
+    When A votes according to his preferences, the voting weights for
+    the respective topics will be 0, 0.95 and -0.32, as
+  </res>
+  <res name="SystemExample3">
+    B's voting weights will be 0.91, 0.18 und 0.37:
+  </res>
+  <res name="SystemExample4">
+    The voting weight's ratios are equal to the preference ratios, but
+    the weights are limited by the constraint on their absolute value:
+  </res>
+  <res name="SystemExample5">
+    In this example, both A and B "waste" a part of their limited
+    voting weight. Their votes on topic 3 "cancel out", so both can
+    increase their influence by shifting more weight onto topics they
+    agree upon.
+  </res>
+  <res name="SystemExample6">
+    If both A and B decide to change their voring behaviour to
+    (1,1,0), both will be better visible in the results:
+  </res>
+  <res name="VotingCooperation">
+    Thus, it is worthwhile to look for allies with similar
+    positions. You may, for example, delegate your vote to another
+    user and look whether your resulting voting behaviour is still
+    acceptable.
+  </res>
+
+  <!-- Analysis tools -->
+  <res name="AnalysisTools">Analysis tools</res>
+  <res name="Charts">Charts</res>
+  <res name="Histogram">Histogram</res>
+  <res name="DelegationGraph">Delegation graph</res>
+  <res name="AnalysisToolsIntro">
+    The following analysis tools are available on a topic's detail
+    page. They provide in depth visual feedback about the voters'
+    behaviour. This might be usefull to understand trends or to
+    discover frauds.
+  </res>
+  <res name="ChartsIntro">
+    Charts show the history of votes on a topic. The line at the top
+    shows the history of positive votes and the line on the bottom
+    shows the negative votes (weighted). The sum in the middle is
+    shown yellow (if it's positive) or red (if negative). As voting
+    weights decrease with time, the trend lines converge towards 0 if
+    users do not refresh their votes.
+  </res>
+  <res name="HistogramIntro">
+    The histogram shows how many users are participating in a poll and
+    what intensities (preferences) they have. All votes have a weight
+    between -1 and +1, but only few users would spend all their weight
+    on a single topic. Thus, lower weights in the center of the graph
+    are more common.
+  </res>
+  <res name="DelegationGraphIntro">
+    The delegation graph shows the influence of delegations on your
+    votes. You may choose multiple users to whom you delegate, in
+    which case your resulting voting weights will be cast as a
+    average of your delegates.  Even if you have delegated
+    your vote, you need to log in to check your resulting voting
+    behaviour regularly, otherwise your voting weight will decrease
+    with time.
+  </res>
+
+  <!-- Links -->
+  <res name="Links">Links</res>
+  <res name="LinksList">
+    <ul>
+      <li>
+	<a href="http://piratenpad.de/UNdQDN5QKn">http://piratenpad.de/25uhxaVCRf</a> - 
+	Pad for ideas and bug reports
+      </li>
+      <li>
+	<a href="http://ssrn.com/abstract=1679002">http://ssrn.com/abstract=1679002</a> - 
+	Mathematical description of the voting system
+      </li>
+      <li>
+	<a href="http://wiki.piratenpartei.de/Liquidizer">http://wiki.piratenpartei.de/Liquidizer</a> - 
+	Liquidizer project page in the Pirate Wiki (German only)
+      </li>
+    </ul>
+  </res>
+</resources>
