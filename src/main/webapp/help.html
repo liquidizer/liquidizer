@@ -1,327 +1,351 @@
 <lift:surround with="default">
-<lift:bind-at name="title">User Guide</lift:bind-at>
-<lift:bind-at name="content">
-<div class="help">
-<h1 class="title">Liquidizer User Guide</h1>
+  <lift:bind-at name="title">User Guide</lift:bind-at>
+  <lift:bind-at name="content">
+    <div class="help">
+      <h1 class="title">Liquidizer User Guide</h1>
 
-<p>
-Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft den Überblick in einer politischen Debatte zu bewahren und Kompromisse spielerisch zu finden.
-</p>
+      <p>
+	Der Liquidizer ist ein interaktives Wahlspiel das dabei hilft den Überblick in einer politischen Debatte zu bewahren und Kompromisse spielerisch zu finden.
+      </p>
 
-<div style="margin: 10px 20px 10px 20px">
-  <h3>Warum Liquidizer?</h3>
+      <div style="margin: 10px 20px 10px 20px">
+	<h3>Warum Liquidizer?</h3>
 
-  Weil Einigung ein sozialer Prozess ist und nicht durch ein
-  mathematisches Auszählverfahren ersetzt werden kann.
+	Weil Einigung ein sozialer Prozess ist und nicht durch ein
+	mathematisches Auszählverfahren ersetzt werden kann.
 
-  <h3>Wie funktioniert der Liquidizer?</h3>
+	<h3>Wie funktioniert der Liquidizer?</h3>
 
-  In einem interaktiven Wahlspiel müssen die Teilnehmer kooperieren, um
-  ihre Präferenzen in der Gruppe sichtbar zu machen.
+	In einem interaktiven Wahlspiel müssen die Teilnehmer kooperieren, um
+	ihre Präferenzen in der Gruppe sichtbar zu machen.
 
-  <h3>Was ist der Liquidizer?</h3>
+	<h3>Was ist der Liquidizer?</h3>
 
-  Eine webbasierte Anwendung mit zahlreichen Visualisierungen und
-  Analysemöglichkeiten.
+	Eine webbasierte Anwendung mit zahlreichen Visualisierungen und
+	Analysemöglichkeiten.
 
-</div>
+      </div>
 
-<h2 id="sec-menu">Das Hauptmenü</h2>
-<p>
-  <table>
-    <tr>
-      <td width="100">
-	<a href="/queries"><img height="50" src="/images/queries.png"/></a>
-      </td>
-      <td>
-	Eine Übersicht über alle Forderungen, die im System gestellt
-	werden.  Von hier aus gelangt man zur Detailansicht mit einer
-	Liste der Wähler und graphischen Analysefunktionen.
-      </td>
-    </tr>
-    <tr height="10"/>
-    <tr>
-      <td>
-	<a href="/users"><img height="50" src="/images/users.png"/></a>
-      </td>
-      <td>
-	Eine Übersicht über alle im System angemeldeten User. Per Klick auf den User
-	gelangt man zur Detailansicht des Users.
-      </td>
-    </tr>
-    <tr height="10"/>
-    <tr>
-      <td>
-	<a href="/help.html"><img height="50" src="/images/help.png"/></a>
-      </td>
-      <td>
-	Diese Hilfe.
-      </td>
-    </tr>
-    <tr height="10"/>
-    <tr>
-      <td>
-	<img height="50" src="/images/home.png"/>
-      </td>
-      <td>
-	Dieser Menüpunkt wird nur im eingeloggten Zustand
-	angezeigt. Er bietet direkten Zugriff auf das eigene Profil
-	und die eigenen Stimmen, sowie ein- und ausgehende
-	Delegationen.
-      </td>
-    </tr>
-  </table>
-</p>
+      <h2 id="sec-menu">Das Hauptmenü</h2>
+      <p>
+	<table>
+	  <tr>
+	    <td width="100">
+	      <a href="/queries"><img height="50" src="/images/queries.png"/></a>
+	    </td>
+	    <td>
+	      Eine Übersicht über alle Forderungen, die im System gestellt
+	      werden.  Von hier aus gelangt man zur Detailansicht mit einer
+	      Liste der Wähler und graphischen Analysefunktionen.
+	    </td>
+	  </tr>
+	  <tr height="10"/>
+	  <tr>
+	    <td>
+	      <a href="/users"><img height="50" src="/images/users.png"/></a>
+	    </td>
+	    <td>
+	      Eine Übersicht über alle im System angemeldeten User. Per Klick auf den User
+	      gelangt man zur Detailansicht des Users.
+	    </td>
+	  </tr>
+	  <tr height="10"/>
+	  <tr>
+	    <td>
+	      <a href="/help.html"><img height="50" src="/images/help.png"/></a>
+	    </td>
+	    <td>
+	      Diese Hilfe.
+	    </td>
+	  </tr>
+	  <tr height="10"/>
+	  <tr>
+	    <td>
+	      <img height="50" src="/images/home.png"/>
+	    </td>
+	    <td>
+	      Dieser Menüpunkt wird nur im eingeloggten Zustand
+	      angezeigt. Er bietet direkten Zugriff auf das eigene Profil
+	      und die eigenen Stimmen, sowie ein- und ausgehende
+	      Delegationen.
+	    </td>
+	  </tr>
+	</table>
+      </p>
 
-<h2 id="sec-vote">Abstimmen</h2>
-<p>
-  Das Wahlverfahren im Liquidizer arbeitet mit einem global
-  beschränkten Stimmgewicht. Das maximale Gewicht, dass man in eine
-  Forderung einbringen kann ist 1.00. Es sinkt jedoch leicht, sobald
-  man sich mehreren Forderungen anschließt, oder längere Zeit inaktiv
-  ist. Um seinen Einfluss zu optimieren, muss man sich also regelmäßig
-  im System anmelden und seine Stimmgewichtungen genau austarieren.
-</p>
+      <h2 id="sec-vote">Abstimmen</h2>
 
-<p>
-  <table>
-    <tr>
-      <td width="100">
-	<img src="/images/yay.png"/>
-	<img src="/images/nay.png"/>
-      </td>
-      <td>
-	Mit diesen Plus- und Minus-Buttons können immer die
-	eigenen <u>Präferenzen</u> gewählt werden. Per Plus schießt
-	man sich einer Forderung an, mit Minus lehnt man diese
-	ab. Die <u>Päferenzen</u> sind nicht öffentlich und geben das
-	Verhältnis vor, in dem die öffentlichen <u>Stimmgewichte</u>
-	aufgeteilt werden.
-      </td>
-    </tr>
-    <tr height="10"/>
-    <tr>
-      <td width="100">
-	<img height="35" src="/images/edit.png"/>
-      </td>
-      <td>
-	Alle Positionen mit diesem Icon können vom eingeloggten User
-	mit Texten versehen werden. Mit Ausnahme der Email-Adresse
-	sind alle Einträge dann öffentlich sichtbar.  
-	<br/> 
-	Die eingegebenen Texte können Links enthalten. In Aufzählungen
-	beginnt jede Zeile mit einem Stern (*). Zusätzlich sind die HTML 
-	elemente &lt;img&gt; und &lt;code&gt; erlaubt.
-      </td>
-    </tr>
-  </table>
-</p>
+      <p>
+	Das Wahlverfahren im Liquidizer arbeitet mit einem global
+	beschränkten Stimmgewicht. Das maximale Gewicht, dass man in eine
+	Forderung einbringen kann ist 1.00. Es sinkt jedoch leicht, sobald
+	man sich mehreren Forderungen anschließt, oder längere Zeit inaktiv
+	ist. Um seinen Einfluss zu optimieren, muss man sich also regelmäßig
+	im System anmelden und seine Stimmgewichtungen genau austarieren.
+      </p>
 
-<p>
-  Werden die Wähl-Icons neben anderen Usern angezeigt, dann können
-  hier Stimmen delegiert werden. Je nach Delegationspräferenz werden
-  die Stimmen dieses Users bei der Berechnung der eigenen
-  Stimmgewichte berücksichtigt.
-</p>
+      <p>
+	<table>
+	  <tr>
+	    <td class="vote_query">
+	      <div class="vote">
+		<div class="inactive">-3</div>
 
-<h2 id="sec-emos">Emoticons</h2>
+		<div class="active contra">-2</div>
+		<div class="inactive">-1</div>
+		<div class="inactive">0</div>
+		<div class="inactive">+1</div>
+		<div class="inactive">+2</div>
+		<div class="inactive">+3</div>
 
-<p>
-  Im eingeloggten Zustand wird die Beziehung zu jedem Nutzer über ein
-  Emoticon visualisiert.  Die Berechnung folgt einem
-  mehrdimensionalen psychologischen Modell, mit Komponenten für
-  Wertung, Erregung, Stärke und Distanz. 
-  <table>
-    <tr>
-      <td width="100"><img src="/images/emos/face-v0.png"/></td>
-      <td width="150"><img src="/images/emos/face-v1.png"/></td>
-      <td>
-	<h3>Wertung</h3>
-	Die Übereinstimmung mit dem angezeigten User an wird anhand eines wertenden Gesichtsausdruckes visualisiert.
-      </td>
-    </tr>
-    <tr>
-      <td><img src="/images/emos/face-a0.png"/></td>
-      <td><img src="/images/emos/face-a1.png"/></td>
-      <td>
-	<h3>Erregung</h3>
-	Die Erregung zeigt an, ob sich in letzter Zeit einer Veränderung der Beziehung ergeben hat.
-      </td>
-    </tr>
-    <tr>
-      <td><img src="/images/emos/face-p0.png"/></td>
-      <td><img src="/images/emos/face-p1.png"/></td>
-      <td>
-	<h3>Stärke</h3>
-	Zweifel und Stärke zeigen die Überlappung der Interessensgebiete unabhängig von der eingenommen Position.
-      </td>
-    </tr>
-    <tr>
-      <td><img src="/images/emos/face-close.png"/></td>
-      <td><img src="/images/emos/face-dist.png"/></td>
-      <td>
-	<h3>Distanz</h3>
-	Die Distanz zeigt den Einfluss der über direkte oder indirekte Delegation ausgeübt wird.
-      </td>
-    </tr>
-  </table>
-</p>
-<p>
-  Das emotionale Modell kann hier getestet
-  werden: <a href="/emoticons">http://liquidizer.org/emoticons</a>
-</p>
+	      </div>
+	    </td>
+	    <td>
+	      Jeder Teilnehmer kann zu einem Vorschlag eine Präferenz zwischen -3
+	      und 3 abgeben.  Durch das Klicken auf eine positive Zahl wird der
+	      Vorschlag unterstützt, mit eine negativen Zahl abgelehnt.  Diese
+	      Präferenzen sind nicht direkt für die anderen Nutzer sichtbar. Sie
+	      bestimmen aber das Verhältnis zwichen den resultierenden Stimmgewichten.
+	    </td>
+	  </tr>
+	  <tr height="10"></tr>
+	  <tr>
+	    <td class="vote_query">
 
-<h2 id="sec-math">Wahltaktik und Wahlverfahren</h2>
+	      <div class="vote">
+		<div class="inactive">0</div>
+		<div class="active pro">+1</div>
+		<div class="inactive">+2</div>
+		<div class="inactive">+3</div>
+	      </div>
+	    </td>
 
-<p>
-Das Wahlverfahren des Liquidizers basiert auf einem spieltheoretisch optimierten Verfahren. Mit einem beschränkten Stimmgewicht müssen Teilnehmer ihre Forderungen in einer Päferenzliste nach oben bringen. Dabei haben die Abstimmungen kein Enddatum. Es geht darum Forderungen, Vorschläge oder Ideen sichtbar zu machen.
-</p>
+	    <td>
+	      Andere Teilnehmer können mit Präferenzen zwischen 0 und 3 versehen werden.
+	      In diesem Fall wird ein Teil deines Stimmgewichtes delegiert. Basierend auf
+	      die Stärke der Delegation with das Wahlverhalten der Delegierten anteilig bei
+	      der Berechnung der eigenen Stimmgewichte berücksichtigt.
+	    </td>
+	  </tr>
+	  <tr height="10"></tr>
+	  <tr>
+	    <td align="center">
+	      <img height="35" src="/images/edit.png" />
+	    </td>
 
-<p>
-Das Stimmgewicht pro Forderung liegt immer zwischen -1 und 1, wobei die Summe der quadrierten Stimmen auf 1 beschränkt ist. Dies führt dazu, dass man mit kleinen Beiträgen (z.B. 0.1) an sehr vielen Forderungen teilnehmen kann, d.h. die Kosten für eine kleine Stimme sind gering (0.1² = 0.01). Entsteht ein Konflikt, und die Teilnehmer versuchen sich mit hohem Stimmgewicht (z.B. 1) zu überbieten, dann entstehen sofort hohe Kosten (1² = 1).
-</p>
+	    <td>
+	      Die effektivste Methode um Unterstützung für eine politische
+	      Initiative zu erlangen besteht immer noch darin einen guten
+	      Kommentar oder ein passendes Argument zu hinterlassen. Alle
+	      Stellen mit diesem Edit Icon können vom eingeloggten User mit Texten
+	      versehen werden. Mit Ausnahme der Email-Adresse sind alle Einträge
+	      dann öffentlich sichtbar.  
+	      <br /> 
+	      Die eingegebenen Texte können Links enthalten. In Aufzählungen
+	      beginnt jede Zeile mit einem Stern (*). Zusätzlich sind die HTML
+	      elemente &lt;img&gt; und &lt;code&gt; erlaubt.
+	    </td>
+	  </tr>
+	</table>
+      </p>
+      <h2 id="sec-emos">Emoticons</h2>
 
-<p>
-Im folgenden betrachten wir ein Beispiel in dem sich zwei Teilnehmer A
-und B an drei Forderungen beteiligen. Wie die nachfolgenden
-Präferenzen zeigen ist A sehr stark für Forderung 2, lehnt Forderung 3
-aber ab. B befürwortet alle drei Forderungen mit starker Präferenz auf
-die erste davon.
+      <p>
+	Im eingeloggten Zustand wird die Beziehung zu jedem Nutzer über ein
+	Emoticon visualisiert.  Die Berechnung folgt einem
+	mehrdimensionalen psychologischen Modell, mit Komponenten für
+	Wertung, Erregung, Stärke und Distanz. 
+	<table>
+	  <tr>
+	    <td width="100"><img src="/images/emos/face-v0.png"/></td>
+	    <td width="150"><img src="/images/emos/face-v1.png"/></td>
+	    <td>
+	      <h3>Wertung</h3>
+	      Die Übereinstimmung mit dem angezeigten User an wird anhand eines wertenden Gesichtsausdruckes visualisiert.
+	    </td>
+	  </tr>
+	  <tr>
+	    <td><img src="/images/emos/face-a0.png"/></td>
+	    <td><img src="/images/emos/face-a1.png"/></td>
+	    <td>
+	      <h3>Erregung</h3>
+	      Die Erregung zeigt an, ob sich in letzter Zeit einer Veränderung der Beziehung ergeben hat.
+	    </td>
+	  </tr>
+	  <tr>
+	    <td><img src="/images/emos/face-p0.png"/></td>
+	    <td><img src="/images/emos/face-p1.png"/></td>
+	    <td>
+	      <h3>Stärke</h3>
+	      Zweifel und Stärke zeigen die Überlappung der Interessensgebiete unabhängig von der eingenommen Position.
+	    </td>
+	  </tr>
+	  <tr>
+	    <td><img src="/images/emos/face-close.png"/></td>
+	    <td><img src="/images/emos/face-dist.png"/></td>
+	    <td>
+	      <h3>Distanz</h3>
+	      Die Distanz zeigt den Einfluss der über direkte oder indirekte Delegation ausgeübt wird.
+	    </td>
+	  </tr>
+	</table>
+      </p>
+      <p>
+	Das emotionale Modell kann hier getestet
+	werden: <a href="/emoticons">http://liquidizer.org/emoticons</a>
+      </p>
 
-  <div class="example">
-    <table>
-      <tr><td/><td>A's Präferenz</td><td>B's Präferenz</td></tr>
-      <tr><td colspan="3"><hr/></td></tr>
-      <tr><td>Forderung 1</td><td> 0 </td><td> 5 </td></tr>
-      <tr><td>Forderung 2</td><td> 3 </td><td> 1 </td></tr>
-      <tr><td>Forderung 3</td><td> -1 </td><td> 2 </td></tr>
-    </table>
-  </div>
-</p>
+      <h2 id="sec-math">Wahltaktik und Wahlverfahren</h2>
 
-<p>
-  Daraus ergeben sich für A die Stimmgewichte 0, 0.95 und -0.32, denn
+      <p>
+	Das Wahlverfahren des Liquidizers basiert auf einem spieltheoretisch optimierten Verfahren. Mit einem beschränkten Stimmgewicht müssen Teilnehmer ihre Forderungen in einer Päferenzliste nach oben bringen. Dabei haben die Abstimmungen kein Enddatum. Es geht darum Forderungen, Vorschläge oder Ideen sichtbar zu machen.
+      </p>
 
-  <div class="example">
-    0<sup>2</sup> + 0.95<sup>2</sup> + (-0.32)<sup>2</sup> = 0 + 0.9 + 0.1 = 1.
-  </div>
+      <p>
+	Das Stimmgewicht pro Forderung liegt immer zwischen -1 und 1, wobei die Summe der quadrierten Stimmen auf 1 beschränkt ist. Dies führt dazu, dass man mit kleinen Beiträgen (z.B. 0.1) an sehr vielen Forderungen teilnehmen kann, d.h. die Kosten für eine kleine Stimme sind gering (0.1² = 0.01). Entsteht ein Konflikt, und die Teilnehmer versuchen sich mit hohem Stimmgewicht (z.B. 1) zu überbieten, dann entstehen sofort hohe Kosten (1² = 1).
+      </p>
 
-  Für B ergeben sich die Gewichte 0.91, 0.18 und 0.37, denn
+      <p>
+	Im folgenden betrachten wir ein Beispiel in dem sich zwei Teilnehmer A
+	und B an drei Forderungen beteiligen. Wie die nachfolgenden
+	Präferenzen zeigen ist A sehr stark für Forderung 2, lehnt Forderung 3
+	aber ab. B befürwortet alle drei Forderungen mit starker Präferenz auf
+	die erste davon.
 
-  <div class="example">
-    0.91<sup>2</sup> + 0.18<sup>2</sup> + 0.37<sup>2</sup> = 0.83 + 0.033 + 0.13 = 1.
-  </div>
+	<div class="example">
+	  <table>
+	    <tr><td/><td>A's Präferenz</td><td>B's Präferenz</td></tr>
+	    <tr><td colspan="3"><hr/></td></tr>
+	    <tr><td>Forderung 1</td><td> 0 </td><td> 5 </td></tr>
+	    <tr><td>Forderung 2</td><td> 3 </td><td> 1 </td></tr>
+	    <tr><td>Forderung 3</td><td> -1 </td><td> 2 </td></tr>
+	  </table>
+	</div>
+      </p>
 
-  Es gilt zu beachten, dass die Stimmgewichte im selben Verhältnis
-  aufgeteilt werden wie die Päferenzen, allerdings sind sie wesentlich kleiner:
+      <p>
+	Daraus ergeben sich für A die Stimmgewichte 0, 0.95 und -0.32, denn
 
-  <div class="example">
-    <table>
-      <tr><td/><td>A's Stimmgewicht</td><td>B's Stimmgewicht</td><td>Summe</td></tr>
-      <tr><td colspan="4"><hr/></td></tr>
-      <tr><td>Forderung 1</td><td> 0 </td><td> 0.91 </td><td> 0.91 </td></tr>
-      <tr><td>Forderung 2</td><td> 0.95 </td><td> 0.18 </td><td> 1.13 </td></tr>
-      <tr><td>Forderung 3</td><td> -0.32 </td><td> 0.37 </td><td> 0.05 </td></tr>
-    </table>
-  </div>
-</p>
+	<div class="example">
+	  0<sup>2</sup> + 0.95<sup>2</sup> + (-0.32)<sup>2</sup> = 0 + 0.9 + 0.1 = 1.
+	</div>
 
-<p>
-  In obigen Beispiel verschwenden sowohl A als auch B einen Gewissen
-  Teil ihres begrenzten Stimmgewichtes. Auf Forderung 3 haben sie so gut
-  wie keinen Einfluss und könnten diesen wesentlich besser in den Themen
-  einbringen, in denen sie sich einig sind.
-</p>
+	Für B ergeben sich die Gewichte 0.91, 0.18 und 0.37, denn
 
-<p>
-  Nehmen wir einmal an, sowohl A, als auch B würden ihre Präferenzen auf
-  1, 1, 0 verändern, dann ergäbe sich ein Stimmgewicht, dass beiden
-  erlaubt sich stärker im Gesammtergebnis sichtbar zu machen.
-  <div class="example">
-    <table>
-      <tr><td/><td>A's Stimmgewicht</td><td>B's Stimmgewicht</td><td>Summe</td></tr>
-      <tr><td colspan="4"><hr/></td></tr>
-      <tr><td>Forderung 1</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
-      <tr><td>Forderung 2</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
-      <tr><td>Forderung 3</td><td>  0 </td><td> 0 </td><td> 0 </td></tr>
-    </table>
-  </div>
-</p>
+	<div class="example">
+	  0.91<sup>2</sup> + 0.18<sup>2</sup> + 0.37<sup>2</sup> = 0.83 + 0.033 + 0.13 = 1.
+	</div>
 
-<p>
-  Auf der Suche nach Kooperationsmöglichkeiten, lohnt es sich also
-  nach Verbündeten mit gleichen Wertvorstellungen zu suchen. Äußerst
-  hilfreich kann es zum Beispiel sein, sich einfach mal gegenseitig zu
-  delegieren und zu sehen, ob man sich noch mit seinen Stimmgewichten
-  identifizieren kann.
-</p>
+	Es gilt zu beachten, dass die Stimmgewichte im selben Verhältnis
+	aufgeteilt werden wie die Päferenzen, allerdings sind sie wesentlich kleiner:
 
-<h2 id="sec-charts">Analysefunktionen</h2>
-<p>
-  In der Detailansicht zu den Forderungen sind folgende
-  Analysefunktionen verfügbar.
-</p>
-<p>
-  <table>
-    <tr>
-      <td/><td>	<h3>Charts</h3> </td>
-    </tr>
-    <tr>
-      <td width="250"><img src="/images/charts/chart.png"/></td>
-      <td>
-	Charts zeigen den historischen Verlauf des Wahlergebnisses an.
-	Die obere Linie zeigt die Summe der positiven Stimmgewichte
-	und die untere die Summe der negativen. In der Mitte ist das
-	Gesammtergebnis je nach Zustimmung gelb oder rot eingefärbt.
-	Durch das mit der Zeit abfallende Stimmgewicht ergeben sich
-	Trendlinien, die gegen Null tendieren, sobald die Wähler nicht
-	mehr aktiv ihre Stimmen auffrischen.
-      </td>
-    </tr>
-    <tr>
-      <td/><td>	<h3>Histogram</h3> </td>
-    </tr>
-    <tr>
-      <td><img src="/images/charts/histogram.png"/></td>
-      <td>
-	Das Histogram gibt Auskunft darüber wie viele Nutzer mit
-	welcher Intensität an einer Forderung beteiligt sind. Alle
-	Stimmen haben ein Gewicht zwischen 1 und -1. Nur wenige Nutzer
-	bringen jedoch ihr gesamtes Gewicht in einer Frage
-	ein. Deshalb sind kleinere Stimmgewichte in der Mitte der
-	Grafik häufiger. Am Histogram kann man erkennen, wie viele
-	Wähler sich mit welcher Intensität an der Frage beteiligen.
-      </td>
-    </tr>
-    <tr>
-      <td/><td>	<h3>Delegationsgraph</h3> </td>
-    </tr>
-    <tr>
-      <td><img src="/images/charts/graph.png"/></td>
-      <td>
-	Der Delegationsgraph zeigt die Beeinflussung durch
-	Stimmdelegation. Jeder Wähler kann mehrere Delegierte
-	auswählen. Sein Stimmgewicht entsteht dann durch Abstimmung
-	unter diesen. Auch bei aktiven Delegation muss der Nutzer
-	regelmäßig angemeldet sein, damit sein Stimmgewicht nicht mit
-	der Zeit verschwindet.
-      </td>
-    </tr>
-  </table>
-</p>
+	<div class="example">
+	  <table>
+	    <tr><td/><td>A's Stimmgewicht</td><td>B's Stimmgewicht</td><td>Summe</td></tr>
+	    <tr><td colspan="4"><hr/></td></tr>
+	    <tr><td>Forderung 1</td><td> 0 </td><td> 0.91 </td><td> 0.91 </td></tr>
+	    <tr><td>Forderung 2</td><td> 0.95 </td><td> 0.18 </td><td> 1.13 </td></tr>
+	    <tr><td>Forderung 3</td><td> -0.32 </td><td> 0.37 </td><td> 0.05 </td></tr>
+	  </table>
+	</div>
+      </p>
 
-<h2 id="sec-menu">Linksammlung</h2>
-<ul>
-  <li>
-    <a href="http://piratenpad.de/UNdQDN5QKn">http://piratenpad.de/UNdQDN5QKn</a> - Ideen und Bugs melden
-  </li>
-  <li>
-    <a href="http://ssrn.com/abstract=1679002">http://ssrn.com/abstract=1679002</a> - Mathematische Ausführungen zu dem Wahlverfahren
-  </li>
-  <li>
-    <a href="http://wiki.piratenpartei.de/Liquidizer">http://wiki.piratenpartei.de/Liquidizer</a> - Das Liquidizer Projekt im Piraten-Wiki
-  </li>
-</ul>
-</div>
-</lift:bind-at>
+      <p>
+	In obigen Beispiel verschwenden sowohl A als auch B einen Gewissen
+	Teil ihres begrenzten Stimmgewichtes. Auf Forderung 3 haben sie so gut
+	wie keinen Einfluss und könnten diesen wesentlich besser in den Themen
+	einbringen, in denen sie sich einig sind.
+      </p>
+
+      <p>
+	Nehmen wir einmal an, sowohl A, als auch B würden ihre Präferenzen auf
+	1, 1, 0 verändern, dann ergäbe sich ein Stimmgewicht, dass beiden
+	erlaubt sich stärker im Gesammtergebnis sichtbar zu machen.
+	<div class="example">
+	  <table>
+	    <tr><td/><td>A's Stimmgewicht</td><td>B's Stimmgewicht</td><td>Summe</td></tr>
+	    <tr><td colspan="4"><hr/></td></tr>
+	    <tr><td>Forderung 1</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
+	    <tr><td>Forderung 2</td><td> 0.71 </td><td> 0.71 </td><td> 1.41 </td></tr>
+	    <tr><td>Forderung 3</td><td>  0 </td><td> 0 </td><td> 0 </td></tr>
+	  </table>
+	</div>
+      </p>
+
+      <p>
+	Auf der Suche nach Kooperationsmöglichkeiten, lohnt es sich also
+	nach Verbündeten mit gleichen Wertvorstellungen zu suchen. Äußerst
+	hilfreich kann es zum Beispiel sein, sich einfach mal gegenseitig zu
+	delegieren und zu sehen, ob man sich noch mit seinen Stimmgewichten
+	identifizieren kann.
+      </p>
+
+      <h2 id="sec-charts">Analysefunktionen</h2>
+      <p>
+	In der Detailansicht zu den Forderungen sind folgende
+	Analysefunktionen verfügbar.
+      </p>
+      <p>
+	<table>
+	  <tr>
+	    <td/><td>	<h3>Charts</h3> </td>
+	  </tr>
+	  <tr>
+	    <td width="250"><img src="/images/charts/chart.png"/></td>
+	    <td>
+	      Charts zeigen den historischen Verlauf des Wahlergebnisses an.
+	      Die obere Linie zeigt die Summe der positiven Stimmgewichte
+	      und die untere die Summe der negativen. In der Mitte ist das
+	      Gesammtergebnis je nach Zustimmung gelb oder rot eingefärbt.
+	      Durch das mit der Zeit abfallende Stimmgewicht ergeben sich
+	      Trendlinien, die gegen Null tendieren, sobald die Wähler nicht
+	      mehr aktiv ihre Stimmen auffrischen.
+	    </td>
+	  </tr>
+	  <tr>
+	    <td/><td>	<h3>Histogram</h3> </td>
+	  </tr>
+	  <tr>
+	    <td><img src="/images/charts/histogram.png"/></td>
+	    <td>
+	      Das Histogram gibt Auskunft darüber wie viele Nutzer mit
+	      welcher Intensität an einer Forderung beteiligt sind. Alle
+	      Stimmen haben ein Gewicht zwischen 1 und -1. Nur wenige Nutzer
+	      bringen jedoch ihr gesamtes Gewicht in einer Frage
+	      ein. Deshalb sind kleinere Stimmgewichte in der Mitte der
+	      Grafik häufiger. Am Histogram kann man erkennen, wie viele
+	      Wähler sich mit welcher Intensität an der Frage beteiligen.
+	    </td>
+	  </tr>
+	  <tr>
+	    <td/><td>	<h3>Delegationsgraph</h3> </td>
+	  </tr>
+	  <tr>
+	    <td><img src="/images/charts/graph.png"/></td>
+	    <td>
+	      Der Delegationsgraph zeigt die Beeinflussung durch
+	      Stimmdelegation. Jeder Wähler kann mehrere Delegierte
+	      auswählen. Sein Stimmgewicht entsteht dann durch Abstimmung
+	      unter diesen. Auch bei aktiven Delegation muss der Nutzer
+	      regelmäßig angemeldet sein, damit sein Stimmgewicht nicht mit
+	      der Zeit verschwindet.
+	    </td>
+	  </tr>
+	</table>
+      </p>
+
+      <h2 id="sec-menu">Linksammlung</h2>
+      <ul>
+	<li>
+	  <a href="http://piratenpad.de/UNdQDN5QKn">http://piratenpad.de/UNdQDN5QKn</a> - Ideen und Bugs melden
+	</li>
+	<li>
+	  <a href="http://ssrn.com/abstract=1679002">http://ssrn.com/abstract=1679002</a> - Mathematische Ausführungen zu dem Wahlverfahren
+	</li>
+	<li>
+	  <a href="http://wiki.piratenpartei.de/Liquidizer">http://wiki.piratenpartei.de/Liquidizer</a> - Das Liquidizer Projekt im Piraten-Wiki
+	</li>
+      </ul>
+    </div>
+  </lift:bind-at>
 </lift:surround>
