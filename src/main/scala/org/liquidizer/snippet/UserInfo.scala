@@ -25,25 +25,34 @@ class UserInfo {
 
   /** Standard profile settings of the user */
   def bind(in : Node) : NodeSeq = {
+    // check if user is logged in
     User.currentUser match {
-      case Full(user) =>
+      case Full(me) =>
       in match { 
 	case Elem("me", label, attribs, scope, children @ _*) => label match {
-	  case "name" => <span>{user.displayName}</span>
+	  // session info
+	  case "name" => <span>{me.displayName}</span>
 	  case "logout" => SHtml.a(() => {
 	    User.logUserOut()
 	    RedirectTo("/index.html") }, children)
+
+	  // profile management
 	  case "profile" =>
-	    buttonFactory.newCommentRecord(() => user.profile.is, value => { user.profile(value); user.save })
+	    buttonFactory.newCommentRecord(() => me.profile.is, value => { me.profile(value); me.save })
 	  buttonFactory.toggleText
-	  case "profileEdit" =>
-	    buttonFactory.toggleButton
-	  
 	  case "email" =>
-	    buttonFactory.newLineRecord(() => user.email.is, value => { user.email(value); user.save })
+	    buttonFactory.newLineRecord(() => me.email.is, value => { me.email(value); me.save })
 	  buttonFactory.toggleText
-	  case "emailEdit" =>
-	    buttonFactory.toggleButton
+	  case "editButton" => buttonFactory.toggleButton
+
+	  // user statistics
+	  case "numVotes" => 
+	    Text(VoteCounter.getActiveVotes(me).filter { _.isInstanceOf[VotableQuery] }.size.toString)
+	  case "numDelegates" =>
+	    Text(VoteCounter.getActiveVotes(me).filter { _.isInstanceOf[VotableUser] }.size.toString)
+	  case "numSupporters" =>
+	    Text(VoteCounter.getActiveVoters(VotableUser(me)).size.toString)
+
 	  case _ => Elem("me", label, attribs, scope, bind(children) : _*)
 
 	}
