@@ -1,6 +1,6 @@
 <lift:UserInfo.votes>
   <div class="balance">
-    <h3>$menu.votes</h3>
+    <h3>$menu.votes (<lift:UserInfo.bind><me:numVotes/></lift:UserInfo.bind>)</h3>
     <hr/>
     <table>
       <user:votes>
@@ -22,9 +22,9 @@
     <h3>$menu.delegations</h3>
     <table width="100%">
       <tr>
-	<td>$menu.supporters</td>
+	<td>$menu.supporters (<lift:UserInfo.bind><me:numSupporters/></lift:UserInfo.bind>)</td>
 	<td/>
-	<td>$menu.delegates</td>
+	<td>$menu.delegates (<lift:UserInfo.bind><me:numDelegates/></lift:UserInfo.bind>)</td>
       </tr>
       <tr><td colspan="3"><hr/></td></tr>
       <td>

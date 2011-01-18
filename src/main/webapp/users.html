@@ -2,7 +2,7 @@
   <lift:bind-at name="title"><lift:loc>title.users</lift:loc></lift:bind-at>
   <lift:bind-at name="content">
     <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
-    <lift:MenuMarker>
+    <lift:MenuMarker eager_eval="true">
       <ul class="popup" id="sort">
 	<lift:UserInfo.out>
 	  <menu:a action="sort" value="inflow" default="true" icon="inflow">$sort.inflow</menu:a>

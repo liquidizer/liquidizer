@@ -22,7 +22,7 @@
       }
     </script>
     <div id="header">
-      <lift:MenuMarker>
+      <lift:MenuMarker eager_eval="true">
       <ul id="topmenu">
 	<li>
 	  <a href="/index.html" title="$home.index">
@@ -39,8 +39,8 @@
 		<menu:a href="/index.html" icon="view">$home.index</menu:a>
 		<menu:a href="/profile.html" icon="profile">$home.profile</menu:a>
 		<menu:a href="/users/~/index.html" icon="weight">$home.votes</menu:a>
-		<menu:a href="/users/~/support.html" icon="inflow">$home.supporters</menu:a>
 		<menu:a href="/users/~/delegates.html" icon="distance">$home.delegates</menu:a>
+		<menu:a href="/users/~/support.html" icon="inflow">$home.supporters</menu:a>
 	      </ul>
 	    </div>
 	  </li>
