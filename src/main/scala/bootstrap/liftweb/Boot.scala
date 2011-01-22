@@ -23,16 +23,16 @@ import org.liquidizer.lib._
 class Boot {
   def boot {
 
-	  if (!DB.jndiJdbcConnAvailable_?) {
-		  val vendor = 
-			  new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
-					  Props.get("db.url") openOr "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
-					  Props.get("db.user"), Props.get("db.password"))
+    if (!DB.jndiJdbcConnAvailable_?) {
+      val vendor = 
+	new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
+			     Props.get("db.url") openOr "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
+			     Props.get("db.user"), Props.get("db.password"))
 
-		  LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
+      LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
 
-		  DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
-	  }
+      DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
+    }
     Schemifier.schemify(true, Schemifier.infoF _, User, Query, Vote, Comment)
 
     println("Starting LIQUIDIZER")
@@ -54,7 +54,9 @@ class Boot {
     // Internationalization
     LiftRules.early.append(makeUtf8)
     LiftRules.localeCalculator = req => localeCalculator(req)
-    LiftRules.resourceNames = "liquidizer" ::  LiftRules.resourceNames
+    LiftRules.resourceNames = 
+      "instance" :: 
+      "liquidizer" ::  LiftRules.resourceNames
     
     // dynamic pages
     LiftRules.dispatch.append {
@@ -117,26 +119,22 @@ class Boot {
     req.setCharacterEncoding("UTF-8")
   }
 
-  def localeCalculator(request : Box[HTTPRequest]): Locale =
-    request.flatMap(r => {
-      def localeCookie(in: String): HTTPCookie = 
-        HTTPCookie("org.liquidizer.language",Full(in),
-		   Full(S.hostName),Full(S.contextPath),Full(2629743),Empty,Empty)
-      def localeFromString(in: String): Locale = {
-        val x = in.split("_").toList; new Locale(x.head,x.last)
-      }
-      def calcLocale: Box[Locale] = 
-        S.findCookie("org.liquidizer.language").map(
-          _.value.map(localeFromString)
-        ).openOr(Full(LiftRules.defaultLocaleCalculator(request)))
-      S.param("locale") match {
-        case Full(null) => calcLocale
-        case f@Full(selectedLocale) => 
-          S.addCookie(localeCookie(selectedLocale))
-        tryo(localeFromString(selectedLocale))
-        case _ => calcLocale
-      }
-    }).openOr(Locale.getDefault())
+  def localeFromString(in: String): Locale = {
+    val x = in.split("_").toList
+    new Locale(x.head,x.last)
+  }
 
+  def localeCalculator(request : Box[HTTPRequest]): Locale = {
+    S.param("locale").map { localeFromString _ }.getOrElse {
+      Props.get("locale")
+      .map { localeFromString }
+      .openOr {
+	if (request.isEmpty)
+	  Locale.getDefault
+	else
+	  LiftRules.defaultLocaleCalculator(request)
+      }
+    }
+  }
 }
 
