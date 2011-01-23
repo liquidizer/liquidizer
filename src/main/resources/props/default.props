@@ -1,2 +1,4 @@
 # Properties in this file will be read when running in dev mode
-locale=de_DE
+
+# Uncomment this line to overwrite the locale sent by the Http request
+#locale=de_DE
