@@ -3,9 +3,14 @@ package org.liquidizer.view
 import scala.util.matching.Regex
 import scala.xml._
 import java.io._
+import java.text._
+import java.util.Locale
 
 object SVGUtil {
-  
+
+  val df= new DecimalFormat("0.##", new DecimalFormatSymbols(Locale.US))
+  def format(value : Double) = df.format(value)
+
   def hexParser(value : CharSequence):Int = {
     def hexDigitParser(value : Char):Int = {
       if (value>='0' && value<='9') value-'0'
@@ -25,7 +30,7 @@ object SVGUtil {
   def hexFormat(value: Int, len:Int):String =
     (0 to len-1).reverse.map { digit => DIGITS((value >> (4*digit))&15) }.mkString
 
-  def formatColor(r: Int, g:Int, b:Int) = 
+  def formatColor(r: Int, g:Int, b:Int) : String = 
     "#"+(List(r,g,b).map { channel => hexFormat(Math.min(255,Math.max(0,channel)),2) }.mkString)
 
 
@@ -94,7 +99,7 @@ object SVGUtil {
 	 	 	 	  val dy= seg.group(3).toDouble
 	 	 	 	  x= x0+dx
 	 	 	 	  y= y0+dy
-	 	 	 	  ("%1.2f" format x)+","+("%1.2f" format y)
+	 	 	 	  format(x)+","+format(y)
 	 	 	  }
 	 	  }
 	  }).replaceAll("  "," ")
