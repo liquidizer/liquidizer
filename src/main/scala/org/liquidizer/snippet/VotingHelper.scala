@@ -194,6 +194,9 @@ class VotingHelper {
       case Elem("user", tag, attribs, scope, children @ _*) =>
 	nominee match {
 	  case VotableUser(user) => tag match {
+	    case "weightof" =>
+	      val str= (S?"user.weightof").split("\\$")
+	      Text(str.head)++formatNominee(nominee)++Text(str.last)
 	    case "profile" => 
 	      val maxlen= attribs.get("maxlen").map { _.text.toInt }.getOrElse(0)
 	      buttonFactory.newCommentRecord(() => user.profile.is, 

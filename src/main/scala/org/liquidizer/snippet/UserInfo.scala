@@ -65,7 +65,7 @@ class UserInfo {
 	in match {
 	  case <me:name/> => SHtml.text(username, username = _)
 	  case <me:password/> => SHtml.password(passwd, passwd = _)
-	  case <me:submit/> => SHtml.ajaxSubmit("login", () => {
+	  case <me:submit/> => SHtml.ajaxSubmit(S?"system.login", () => {
 	    login(username, passwd)
 	    S.redirectTo(S.uri) 
 	  })
@@ -288,7 +288,7 @@ class UserSignUp extends StatefulSnippet {
 		 "email" -> SHtml.text(email, email = _),
 		 "passwd1" -> SHtml.password(passwd1, passwd1 = _),
 		 "passwd2" -> SHtml.password(passwd2, passwd2 = _),
-		 "submit" -> SHtml.submit("signup", () => {
+		 "submit" -> SHtml.submit(S?"system.signup", () => {
 		   signup(passwd1, passwd2)
 		 })
 	       )
