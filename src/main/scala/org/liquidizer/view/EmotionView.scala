@@ -65,7 +65,7 @@ object EmotionView {
 	      else
 		1.0 + 0.3*(w/scale._1 - 0.5)*(scale._2 min 3)
 	    }
-	    val fdist= "%1.2f".format(dist min 1.5)
+	    val fdist= SVGUtil.format(dist min 1.5)
 
 	    // extract corresponding emotion
 	    VoteCounter.getEmotion(me, other) match {
@@ -73,9 +73,9 @@ object EmotionView {
 	      val p= emo.potency.value
 	      val v= Math.pow(emo.valence.value/(.9*p + .1)/2.0 + 0.5, 2.0)
 	      val a= emo.getArousal min 1.0 max 0.
-	      Map("v" -> "%1.1f".format(v), 
-		  "a" -> "%1.1f".format(a), 
-		  "p" -> "%1.1f".format(p),
+	      Map("v" -> SVGUtil.format(v), 
+		  "a" -> SVGUtil.format(a), 
+		  "p" -> SVGUtil.format(p),
 		  "scale" -> fdist)
 	    }
 	    case None => Map("view" -> "sleeping", "scale" -> fdist)

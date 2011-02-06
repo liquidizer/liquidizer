@@ -1,19 +1,19 @@
 package bootstrap.liftweb
 
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.common._
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.http.provider._
-import _root_.net.liftweb.sitemap._
-import _root_.net.liftweb.sitemap.Loc._
+import net.liftweb.util._
+import net.liftweb.common._
+import net.liftweb.http._
+import net.liftweb.http.provider._
+import net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import Helpers._
-import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
-import _root_.java.sql.{Connection, DriverManager}
 
-import _root_.org.liquidizer.view._
-import _root_.org.liquidizer.model._
-import _root_.org.liquidizer.snippet._
-import _root_.org.liquidizer.lib._
+import java.sql._
+import java.util.Locale
+
+import org.liquidizer.view._
+import org.liquidizer.model._
+import org.liquidizer.snippet._
+import org.liquidizer.lib._
 
 
 /**
@@ -23,16 +23,16 @@ import _root_.org.liquidizer.lib._
 class Boot {
   def boot {
 
-	  if (!DB.jndiJdbcConnAvailable_?) {
-		  val vendor = 
-			  new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
-					  Props.get("db.url") openOr "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
-					  Props.get("db.user"), Props.get("db.password"))
+    if (!DB.jndiJdbcConnAvailable_?) {
+      val vendor = 
+	new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
+			     Props.get("db.url") openOr "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
+			     Props.get("db.user"), Props.get("db.password"))
 
-		  LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
+      LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
 
-		  DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
-	  }
+      DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
+    }
     Schemifier.schemify(true, Schemifier.infoF _, User, Query, Vote, Comment)
 
     println("Starting LIQUIDIZER")
@@ -51,10 +51,16 @@ class Boot {
     LiftRules.ajaxEnd =
       Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
+    // Internationalization
     LiftRules.early.append(makeUtf8)
-
+    LiftRules.localeCalculator = req => localeCalculator(req)
+    LiftRules.resourceNames = 
+      "instance" :: 
+      "liquidizer" ::  LiftRules.resourceNames
+    
+    // dynamic pages
     LiftRules.dispatch.append {
-    case Req(List("queries",query,"chart.svg"),_,_) => () => TimeseriesView.queryChart(query)
+      case Req(List("queries",query,"chart.svg"),_,_) => () => TimeseriesView.queryChart(query)
       case Req(List("queries",query,"delegation.svg"),_,_) => () => DelegationGraphView.queryGraph(query)
       case Req(List("queries",query,"histogram.svg"),_,_) => () => HistogramView.hist(query)
       case Req(List("users",user,"delegation.svg"),_,_) => () => DelegationGraphView.userGraph(user)
@@ -102,8 +108,8 @@ class Boot {
         RewriteResponse("vote_analyzer" :: Nil, Map("user" -> user, "user2" -> user2))
     }
 
-//  make all DB updates atomic
-//    S.addAround(DB.buildLoanWrapper)
+    //  make all DB updates atomic
+    //  S.addAround(DB.buildLoanWrapper)
   }
 
   /**
@@ -111,6 +117,24 @@ class Boot {
    */
   private def makeUtf8(req: HTTPRequest) {
     req.setCharacterEncoding("UTF-8")
+  }
+
+  def localeFromString(in: String): Locale = {
+    val x = in.split("_").toList
+    new Locale(x.head,x.last)
+  }
+
+  def localeCalculator(request : Box[HTTPRequest]): Locale = {
+    S.param("locale").map { localeFromString _ }.getOrElse {
+      Props.get("locale")
+      .map { localeFromString }
+      .openOr {
+	if (request.isEmpty)
+	  Locale.getDefault
+	else
+	  LiftRules.defaultLocaleCalculator(request)
+      }
+    }
   }
 }
 

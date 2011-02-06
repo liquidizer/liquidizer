@@ -23,10 +23,10 @@
 	    <tr>
 	      <th/>
 	      <lift:UserInfo.in>
-		<th class="vote_query">Deine Präferenz</th>
-		<th class="vote_result">Dein Beitrag</th>
+		<th class="vote_query">$your.preference</th>
+		<th class="vote_result">$your.contribution</th>
 	      </lift:UserInfo.in>
-	      <th class="vote_result">Ergebnis</th>
+	      <th class="vote_result">$result</th>
 	    </tr>	    
 	    <tr>
 	      <td/>
@@ -53,15 +53,15 @@
   <lift:bind-at name="sidebar">
     <lift:MenuMarker>
       <div class="keys">
-	<menu:a href="index.html">Wähler</menu:a>
+	<menu:a href="index.html">$menu.voters</menu:a>
 	<div style="clear:both"/>
-	<menu:a href="analyzer.html">Chart</menu:a>
+	<menu:a href="analyzer.html">$menu.chart</menu:a>
 	<div style="clear:both"/>
-	<menu:a href="histogram.html">Histogram</menu:a>
+	<menu:a href="histogram.html">$menu.histogram</menu:a>
 	<div style="clear:both"/>
-	<menu:a href="graph.html">Delegationsgraph</menu:a>
+	<menu:a href="graph.html">$menu.graph</menu:a>
 	<div style="clear:both"/>
-	<menu:a href="info.html">Info</menu:a>
+	<menu:a href="info.html">$menu.info</menu:a>
       </div>
       <div style="margin:20px">&nbsp;</div>
     </lift:MenuMarker>

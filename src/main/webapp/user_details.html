@@ -4,17 +4,17 @@
 	<tr height="50">
 	  <td/><td/>
 	  <user:itsme>
-	    <th class="vote_query">Deine Präferenz</th>
-	    <th class="vote_result">Stimmgewicht</th>
+	    <th class="vote_query">$your.preference</th>
+	    <th class="vote_result">$vote.weight</th>
 	  </user:itsme>
 	  <lift:UserInfo.in>
 	    <user:notme>
-	      <th class="vote_result"><poll:title/>'s Gewicht</th>
-	      <th class="vote_result">Dein Gewicht</th>
+	      <th class="vote_result"><user:weightof/></th>
+	      <th class="vote_result">$your.weight</th>
 	    </user:notme>
 	  </lift:UserInfo.in>
 	  <lift:UserInfo.out>
-	    <th class="vote_result">Stimmgewicht</th>
+	    <th class="vote_result">$vote.weight</th>
 	  </lift:UserInfo.out>
 	</tr>
 	<user:votes>
@@ -60,18 +60,10 @@
       <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
       <lift:MenuMarker>
 	<ul class="popup" id="sort">
-	  <li><menu:a action="sort" value="weight" default="true" icon="weight">
-	      Gewicht</menu:a>
-	  </li>
-	  <li><menu:a action="sort" value="comment_age" icon="comment">
-	      Kommentarzeit</menu:a>
-	  </li>
-	  <li><menu:a action="sort" value="approval" icon="pro">
-	      Zustimmung</menu:a>
-	  </li>
-	  <li><menu:a action="sort" value="objection" icon="contra">
-	      Ablehnung</menu:a>
-	  </li>
+	  <menu:a action="sort" value="weight" default="true" icon="weight">$sort.weight</menu:a>
+	  <menu:a action="sort" value="comment_age" icon="comment">$sort.comment_age</menu:a>
+	  <menu:a action="sort" value="approval" icon="pro">$sort.pro</menu:a>
+	  <menu:a action="sort" value="objection" icon="contra">$sort.contra</menu:a>
 	</ul>
       </lift:MenuMarker>
     </div>

@@ -1,48 +1,36 @@
 <lift:surround with="default" at="content">
-  <lift:UserInfo.in>
+  <lift:UserInfo.assertIn>
 
     <lift:AddQuery.confirm form="POST">
-      <div class="head">
-	<h2>Neue Forderung stellen:</h2>
+      <div style="font-size:medium">
+	<h2><lift:loc>new.query</lift:loc></h2>
+	
+	<hr/>
+	
+	<table cellpadding="5px">
+	  <tr>
+	    <td><lift:loc>new.query.what</lift:loc></td>
+	    <td width="30px"/>
+	    <td><addquery:what/></td>
+	  </tr>
+	  <tr>
+	    <td><lift:loc>new.query.keys</lift:loc></td>
+	    <td width="30px"/>
+	    <td><addquery:keys/></td>
+	  </tr>
+	</table>
+	<hr/>
+	<p>
+	  <lift:loc>new.query.you.have.been.warned</lift:loc>
+	</p>
+	<div style="height:15px"/>
+	<p>
+	  <addquery:cancel/>
+	  <addquery:submit/>
+	</p>
       </div>
-      <p>
-	Folgende Forderung wurde eingegeben:
-      </p>
-      
-      <hr/>
-      
-      <p>
-	Die Forderung lautet:
-	<p/>
-	<addquery:what/>
-      </p>
-      <p>
-	Stichworte:
-	<p/>
-	<addquery:keys/>
-      </p>
-      <hr/>
-      <p>
-	<span style="color:red; font-weight:bold">Hinweis: </span> Der
-	Wortlaut der Forderung kann später nicht mehr verändert
-	werden. Die Forderung bleibt also auch ohne deine explizite
-	Zustimmung im System bestehen. Es gibt keine Möglichkeit diese
-	Forderung wieder zu löschen.
-      </p>
-      <p>
-	Wirklich anlegen?
-      </p>
-      <p>
-	<addquery:cancel/>
-	<addquery:submit/>
-      </p>
 
     </lift:AddQuery.confirm>
-
-  </lift:UserInfo.in>
-  <lift:UserInfo:out>
-    Du musst angemeldet sein um Neue Forderung hinzufügen zu können
-  </lift:UserInfo:out>
-
+  </lift:UserInfo.assertIn>
 </lift:surround>
 

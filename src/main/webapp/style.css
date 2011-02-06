@@ -63,6 +63,8 @@ a.extern {
 .keys { 
     color: gray;
     font-size: 90%;
+    list-style-type: none;
+    padding: 0px;
 }
 .keys .inactive {
     padding: 4px;

@@ -41,22 +41,12 @@
       <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
       <lift:MenuMarker>
 	<ul class="popup" id="sort">
-	  <li><menu:a action="sort" value="flow" default="true" icon="weight">
-	      Gewicht</menu:a>
-	  </li>
-	  <li><menu:a action="sort" value="comment_age" icon="comment">
-	      Kommentarzeit</menu:a>
-	  </li>
+	  <menu:a action="sort" value="flow" default="true" icon="weight">$sort.weight</menu:a>
+	  <menu:a action="sort" value="comment_age" icon="comment">$sort.comment_age</menu:a>
 	  <lift:UserInfo.in>
-	    <li><menu:a action="sort" value="valence" icon="sympathy">
-		Sympathie</menu:a>
-	    </li>
-	    <li><menu:a action="sort" value="avalence" icon="apathy">
-		Apathie</menu:a>
-	    </li>
-	    <li><menu:a action="sort" value="arousal" icon="arousal">
-		Erregung</menu:a>
-	    </li>
+	    <menu:a action="sort" value="valence" icon="sympathy">$sort.sympathy</menu:a>
+	    <menu:a action="sort" value="avalence" icon="apathy">$sort.apathy</menu:a>
+	    <menu:a action="sort" value="arousal" icon="arousal">$sort.arousal</menu:a>
 	  </lift:UserInfo.in>
 	</ul>
       </lift:MenuMarker>

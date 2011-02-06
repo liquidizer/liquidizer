@@ -103,7 +103,7 @@ class Mesmerizer() {
      if (value == value.toInt)
        value.toInt.toString
      else
-       "%1.2f" format value
+       SVGUtil.format(value)
      case ColorParam(r,g,b) => SVGUtil.formatColor(r.toInt,g.toInt,b.toInt)
    }
    

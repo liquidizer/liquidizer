@@ -5,76 +5,12 @@
       <lift:UserInfo.in>
 	<div class="balance">
 	  <h2 class="orange">
-	    Willkommen <span class="purple"><me:name/></span>!
+	    <lift:loc>welcome.to.liquidizer</lift:loc>,
+	    <span class="purple"><me:name/></span>!
 	  </h2>
 	  <div style="color:red"><lift:Msgs showAll="true"/></div>
 	</div>
-	<lift:UserInfo.votes>
-	  <div class="balance">
-	    <h3>Stimmen (<lift:UserInfo.bind><me:numVotes/></lift:UserInfo.bind>)</h3>
-	    <hr/>
-	    <table>
-	      <user:votes>
-		<tr>
-		  <td align="center"><vote:result format="weight"/></td>
-		  <td><poll:name/></td>
-		</tr>
-	      </user:votes>
-	      <tr>
-		<div class="navi">
-		  <a href="/users/~/index.html">
-		    <div>... mehr</div>
-		  </a>
-		</div>
-	      </tr>
-	    </table>
-	  </div>
-	  <div class="balance">
-	    <h3>Delegationen</h3>
-	    <table width="100%">
-	      <tr>
-		<td>Erhalten (<lift:UserInfo.bind><me:numSupporters/></lift:UserInfo.bind>)</td>
-		<td/>
-		<td>Vegeben (<lift:UserInfo.bind><me:numDelegates/></lift:UserInfo.bind>)</td>
-	      </tr>
-	      <tr><td colspan="3"><hr/></td></tr>
-	      <td>
-		<poll:supporters>
-		  <tr class="votable">
-		    <td align="right"><user:emoticon size="20"/></td>
-		    <td><user:name/></td>
-		  </tr>
-		</poll:supporters>
-	      </td>
-	      <td width="20px"/>
-	      <td>
-		<user:delegates>
-		  <tr>
-		    <td align="right"><user:emoticon size="20"/></td>
-		    <td><poll:name/></td>
-		  </tr>
-		</user:delegates>
-	      </td>
-	      <tr>
-		<td>
-		  <div class="navi">
-		    <a href="/users/~/support.html">
-		      <div>... mehr</div>
-		    </a>
-		  </div>
-		</td>
-		<td/>
-		<td>
-		  <div class="navi">
-		    <a href="/users/~/delegates.html">
-		      <div>... mehr</div>
-		    </a>
-		  </div>
-		</td>
-	      </tr>
-	    </table>
-	  </div>
-	</lift:UserInfo.votes>
+	<lift:embed what="overview"/>
       </lift:UserInfo.in>
     </lift:form>
     <lift:UserInfo.out form="POST">
@@ -98,11 +34,11 @@
 		<td colspan="3"><hr/></td>
 	      </tr>
 	      <tr>
-      		<th>Username</th>
+      		<td><lift:loc>user.name</lift:loc></td>
       		<td><me:name/></td>
 	      </tr>
 	      <tr>
-      		<th>Passwort</th>
+      		<td><lift:loc>user.password</lift:loc></td>
       		<td><me:password/></td>
       		<td> <me:submit/></td>
 	      </tr>
@@ -110,10 +46,10 @@
 		<td colspan="3"><hr/></td>
 	      </tr>
 	      <tr>
-		<td colspan="3"><a href="/user_mgt/signup.html">Neu Anmelden</a></td>
+		<td colspan="3"><a href="/user_mgt/signup.html"><lift:loc>user.signup</lift:loc></a></td>
 	      </tr>
 	      <tr>
-		<td colspan="3"><a href="/user_mgt/lost_password.html">Neues Passwort senden</a></td>
+		<td colspan="3"><a href="/user_mgt/lost_password.html"><lift:loc>user.new.password</lift:loc></a></td>
 	      </tr>
 	    </table>
 	  </td>
@@ -142,6 +78,7 @@
 		<td>Zurück zur Startseite.</td>
 	      </tr>
 	    </table>
+	    <lift:embed what="intro"/>
 	  </td>
 	</tr>
       </table>

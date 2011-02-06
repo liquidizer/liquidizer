@@ -1,28 +1,16 @@
 <lift:surround with="default">
-  <lift:bind-at name="title">Vorschläge</lift:bind-at>
+  <lift:bind-at name="title"><lift:loc>title.queries</lift:loc></lift:bind-at>
   <lift:bind-at name="content">
 
     <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
     <lift:MenuMarker>
       <ul class="popup" id="sort">
-	<li><menu:a action="sort" value="pro" icon="pro" default="true">
-	    Zustimmung</menu:a>
-	</li>
-	<li><menu:a action="sort" value="contra" icon="contra">
-	    Ablehnung</menu:a>
-	</li>
-	<li><menu:a action="sort" value="swing" icon="swing">
-	    Swing</menu:a>
-	</li>
-	<li><menu:a action="sort" value="conflict" icon="conflict">
-	    Konflikt</menu:a>
-	</li>
-	<li><menu:a action="sort" value="comment" icon="comment">
-	    Kommentar</menu:a>
-	</li>
-	<li><menu:a action="sort" value="age" icon="new">
-	    Neuigkeit</menu:a>
-	</li>
+	<menu:a action="sort" value="pro" icon="pro" default="true">$sort.pro</menu:a>
+	<menu:a action="sort" value="contra" icon="contra">$sort.contra</menu:a>
+	<menu:a action="sort" value="swing" icon="swing">$sort.swing</menu:a>
+	<menu:a action="sort" value="conflict" icon="conflict">$sort.conflict</menu:a>
+	<menu:a action="sort" value="comment" icon="comment">$sort.comment</menu:a>
+	<menu:a action="sort" value="age" icon="new">$sort.age</menu:a>
       </ul>
     </lift:MenuMarker>
     <div style="float:right">
@@ -65,15 +53,15 @@
   <lift:UserInfo.in>
     <lift:Queries.lastpage>
       <lift:Queries.addQuery>
-	  <img src="/images/addquery.png" alt="neuer Vorschlag"/>
-	  Vorschlag hinzufügen
+	  <img src="/images/addquery.png" alt="new.query"/>
+	  <lift:loc>new.query</lift:loc>
       </lift:Queries.addQuery>
     </lift:Queries.lastpage>
   </lift:UserInfo.in>
   </lift:bind-at>
 
   <lift:bind-at name="sidebar">
-    <div style="margin: 50px 10px 10px 10px">Kategorien</div>
+    <div style="margin: 50px 10px 10px 10px"><lift:loc>filter.tags</lift:loc></div>
     <div class="keys">
       <lift:Queries.categories/>
     </div>
@@ -81,8 +69,8 @@
     <lift:UserInfo.in>
       <lift:Queries.view>
 	<lift:Queries.addQuery>
-	  <p style="margin: 50px 0px 5px 0">Vorschlag <br/>hinzufügen</p>
-	  <img src="/images/addquery.png" alt="neue Forderung"/>
+	  <p style="margin: 50px 0px 5px 0"><lift:loc>new.query</lift:loc></p>
+	  <img src="/images/addquery.png" alt="new.query"/>
 	</lift:Queries.addQuery>
       </lift:Queries.view>
     </lift:UserInfo.in>

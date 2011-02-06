@@ -73,14 +73,14 @@ class EditButtonToggler() {
     SetHtml(data.textId, 
 	    if (data.h==1) {
 	      SHtml.text(data.getText(), 
-			 { text => {data.setText(text); println("new data: "+text)} }, 
+			 { text => {data.setText(text)} }, 
 			 "size"->data.w.toString)
 	    } else {
 	      SHtml.textarea(data.getText(), 
 			     { text => data.setText(text) }, 
 			     "rows"->data.h.toString, "cols"->data.w.toString)
 	    }) &
-    SetHtml(data.buttonId, SHtml.ajaxSubmit("Save",() => {
+    SetHtml(data.buttonId, SHtml.ajaxSubmit(S ? "user.data.save",() => {
       SetHtml(data.textId, data.getHtml()) &
       SetHtml(data.buttonId, editButton(data))
     }))
