@@ -47,7 +47,6 @@ a.extern {
 
 .navi { display:table; }
 .navi div {
-    display:table;
     float:left;
     color:white;
     text-align:center;
