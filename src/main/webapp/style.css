@@ -227,6 +227,9 @@ textarea {
     width: 100px; 
     text-align: center;
 }
+.vote_result img {
+    vertical-align: -25%;
+}
 .vote_query { 
     width: 180px; 
     text-align: center;
