@@ -199,7 +199,7 @@ textarea {
 .vote div {
     -moz-border-radius: 5px;
     border-radius: 5px;
-    background-color: gray;
+    border: 1px solid gray;
     color: white;
     display: table;
     float: left;
@@ -211,7 +211,12 @@ textarea {
     width: 24px;
 }
 .vote .inactive {
-    width: 20px;
+    width: 18px;
+    background-color: lightgray;
+    color: gray;
+}
+.vote .pass {
+    background-color: gray;
 }
 .vote .pro {
     background-color: #FF9900;
