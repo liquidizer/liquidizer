@@ -210,7 +210,7 @@ class VotingHelper {
 	      <a href={nominee.uri+"/delegates.html"}>{
 		renderVote(() => {
 		  val outflow= VoteCounter.getDelegationOutflow(user)
-		  formatResult(outflow, (if (outflow>0) "contra" else "pass")) 
+		  formatResult(outflow, if (outflow>5e-3) "contra" else "pass")
 		})
 	      }</a>
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty

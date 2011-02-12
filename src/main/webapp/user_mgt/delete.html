@@ -1,28 +1,28 @@
 <lift:surround with="default">
-<lift:bind-at name="title">Daten löschen</lift:bind-at>
-<lift:bind-at name="content">
-  <h3><lift:loc>user.delete.data</lift:loc></h3>
-  
-  <lift:UserReset form="POST">
-  <table>
-    <tr> 
-      <td><user:deleteVotes/></td>
-      <td><lift:loc>data.delete.votes</lift:loc></td>
-    </tr>
-    <tr>
-      <td><user:deleteComments/></td>
-      <td><lift:loc>data.delete.comment</lift:loc></td>
-    </tr>
-    <tr>
-      <td><user:deleteAccount/></td>
-      <td><lift:loc>data.delete.account</lift:loc></td>
-    </tr>
-    <tr height="20"/>
-    <tr>
-      <td/>
-      <td><user:submit/></td>
-    </tr>
-  </table>	
-  </lift:UserReset>
-</lift:bind-at>
+  <lift:bind-at name="title"><lift:loc>user.delete.data</lift:loc></lift:bind-at>
+  <lift:bind-at name="content">
+    <h3><lift:loc>user.delete.data</lift:loc></h3>
+    
+    <lift:UserReset form="POST">
+      <table>
+	<tr> 
+	  <td><user:deleteVotes/></td>
+	  <td><lift:loc>data.delete.votes</lift:loc></td>
+	</tr>
+	<tr>
+	  <td><user:deleteComments/></td>
+	  <td><lift:loc>data.delete.comment</lift:loc></td>
+	</tr>
+	<tr>
+	  <td><user:deleteAccount/></td>
+	  <td><lift:loc>data.delete.account</lift:loc></td>
+	</tr>
+	<tr height="20"/>
+	<tr>
+	  <td/>
+	  <td><user:submit/></td>
+	</tr>
+      </table>	
+    </lift:UserReset>
+  </lift:bind-at>
 </lift:surround>
