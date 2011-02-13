@@ -1,17 +1,17 @@
 package org.liquidizer.snippet
 
-import _root_.scala.xml._
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.http.js._
-import _root_.net.liftweb.http.js.JsCmds._
-import _root_.net.liftweb.common._
-import _root_.net.liftweb.mapper._
-import _root_.net.liftweb.util.Mailer._  
+import scala.xml._
+import net.liftweb.util._
+import net.liftweb.http._
+import net.liftweb.http.js._
+import net.liftweb.http.js.JsCmds._
+import net.liftweb.common._
+import net.liftweb.mapper._
+import net.liftweb.util.Mailer._  
 import Helpers._
 
-import _root_.org.liquidizer.model._
-import _root_.org.liquidizer.lib._
+import org.liquidizer.model._
+import org.liquidizer.lib._
 
 class UserInfo {
   val buttonFactory = new EditButtonToggler()
