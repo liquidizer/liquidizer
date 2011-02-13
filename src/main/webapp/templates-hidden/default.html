@@ -62,12 +62,13 @@
 	</li>
       </ul>
       </lift:MenuMarker>
-      <lift:UserInfo.in>
-	<div id="loginfo">
-      	  <lift:loc>logged.in</lift:loc> <b><me:name/></b>
+      <div id="loginfo">
+      	<lift:loc>system.language</lift:loc>: <lift:LocaleSelector/>
+	<lift:UserInfo.in>
+	  <br/><lift:loc>logged.in</lift:loc> <b><me:name/></b>
 	  <br/><me:logout><lift:loc>logout</lift:loc></me:logout>
-	</div>
-      </lift:UserInfo.in>
+	</lift:UserInfo.in>
+      </div>
     </div>
     <hr style="clear:both"/>
 
