@@ -31,7 +31,7 @@ class UserInfo {
       in match { 
 	case Elem("me", label, attribs, scope, children @ _*) => label match {
 	  // session info
-	  case "name" => <span>{me.displayName}</span>
+	  case "name" => <span>{me.nick.is}</span>
 	  case "logout" => SHtml.a(() => {
 	    User.logUserOut()
 	    RedirectTo("/index.html") }, children)
@@ -47,9 +47,9 @@ class UserInfo {
 
 	  // user statistics
 	  case "numVotes" => 
-	    Text(VoteCounter.getActiveVotes(me).filter { _.isInstanceOf[VotableQuery] }.size.toString)
+	    Text(VoteCounter.getActiveVotes(me).filter { _.isQuery }.size.toString)
 	  case "numDelegates" =>
-	    Text(VoteCounter.getActiveVotes(me).filter { _.isInstanceOf[VotableUser] }.size.toString)
+	    Text(VoteCounter.getActiveVotes(me).filter { _.isUser }.size.toString)
 	  case "numSupporters" =>
 	    Text(VoteCounter.getActiveVoters(VotableUser(me)).size.toString)
 
@@ -115,7 +115,7 @@ class UserInfo {
 	  override def getVotes() : List[Votable] =
 	    VoteCounter.getActiveVotes(me)
 	    .filter {
-	      case d : VotableQuery => true
+	      case d @ VotableQuery(_) => true
 	      case _ => false
 	    }.slice(0,length)
 
@@ -129,7 +129,7 @@ class UserInfo {
 	      case _ => Nil
 	    }.slice(0,length)
 	}
-      helper.render(in, VotableUser(me))
+      helper.bind(in, VotableUser(me))
       case _ => NodeSeq.Empty
     }
   }
@@ -139,7 +139,7 @@ class UserInfo {
     val helper= new VotingHelper
     User
     .findAll(By(User.validated, true), OrderBy(User.id,Descending)).slice(0,5)
-    .flatMap { user => helper.render(in, VotableUser(user)) }
+    .flatMap { user => helper.bind(in, VotableUser(user)) }
   }
 
   /** List of new queries to be shown in the sidebar */
@@ -147,7 +147,7 @@ class UserInfo {
     val helper= new VotingHelper
     Query
     .findAll(OrderBy(Query.id,Descending)).slice(0,4)
-    .flatMap { query => helper.render(in, VotableQuery(query)) }
+    .flatMap { query => helper.bind(in, VotableQuery(query)) }
   }
 
   /** change the password */
@@ -316,6 +316,8 @@ class UserSignUp extends StatefulSnippet {
 	  .password(passwd1)
 	  .validated(User.skipEmailValidation)
 	  user.save
+	  user.createNominee
+
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet
 	  redirectTo("/index.html")

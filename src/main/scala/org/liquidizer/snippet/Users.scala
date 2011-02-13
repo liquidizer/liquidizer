@@ -36,7 +36,7 @@ class Users extends MultipageSnippet {
     getData()
     .slice(from,to)
     .flatMap {
-      user =>  helper.render(in, user)
+      user =>  helper.bind(in, user)
     }
   }
 }
@@ -84,7 +84,7 @@ class UserDetails extends MultipageSnippet {
 	data.slice(from,to).map { case VotableUser(user) => user }
       }
     }
-    helper.render(in, VotableUser(user))
+    helper.bind(in, VotableUser(user))
   }
 }
 

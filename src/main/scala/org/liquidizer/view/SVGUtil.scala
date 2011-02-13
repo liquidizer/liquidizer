@@ -41,7 +41,7 @@ object SVGUtil {
       oldWidth*(1-1/scale)/2,
       oldHeight*(1-1/scale)/2,
       oldWidth/scale,
-      oldWidth/scale)
+      oldHeight/scale)
     svg match {
       case Elem(prefix, label, attribs, scope, children @ _*) => {
 	val newAttr= attribs
