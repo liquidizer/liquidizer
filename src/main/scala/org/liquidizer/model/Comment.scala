@@ -8,16 +8,12 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
   def getSingleton = Comment
 
   object date extends MappedLong(this)
-  object vote extends MappedLongForeignKey(this, Vote)
+  object author extends MappedLongForeignKey(this, User)
+  object nominee extends MappedLongForeignKey(this, Votable)
   object content extends MappedText(this)
   
-  def getAuthor() : User = {
-    vote.obj.get.owner.obj.get
-  }
-  
-  def getVotable() : Votable = {
-    vote.obj.get.getVotable
-  }
+  def getAuthor() : User = author.obj.get
+  def getVotable() : Votable = nominee.obj.get
 
   val format= new java.text.SimpleDateFormat("HH:mm:ss")
   override def toString() : String = {
@@ -27,7 +23,7 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
 
 object Comment extends Comment with LongKeyedMetaMapper[Comment] {
   override def dbTableName = "comments"
-  override def fieldOrder = List(date, vote, content)
+  override def fieldOrder = List(date, author, nominee, content)
 
   def getComment(id : Long) : Option[Comment] = find(By(Comment.id, id))
 }

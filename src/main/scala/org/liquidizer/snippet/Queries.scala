@@ -41,7 +41,7 @@ class Queries extends MultipageSnippet {
     getData()
     .slice(from, to)
     .flatMap {
-      item =>  helper.render(in, item)
+      item =>  helper.bind(in, item)
     }
   }
 }
@@ -84,7 +84,7 @@ class QueryDetails extends MultipageSnippet {
     if (query.isEmpty)
       <div class="error">Error: query does not exist</div>
     else
-      helper.render(in, VotableQuery(query.get))
+      helper.bind(in, VotableQuery(query.get))
   }
 }
 

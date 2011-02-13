@@ -92,17 +92,16 @@ class VotingHelper {
     }
   }
 
-  def render(in:NodeSeq, nominee:Votable) : NodeSeq = {
-    bind(in, nominee)
-  }
-
+  /** bind the input html segment to a given nominee, either a query or a user */
   def bind(in : NodeSeq, nominee:Votable) : NodeSeq = {
     in.flatMap(bind(_, nominee))
   }
 
+  /** bind the input html segment to a given nominee, either a query or a user */
   def bind(in : Node, nominee:Votable) : NodeSeq = {
     in match {
-      
+
+      // The poll name space for tags that apply for all kind of nominees
       case Elem("poll", tag, attribs, scope, children @ _*) => tag match {
 	case "name" => formatNominee(nominee)
 	case "id" => Text(nominee.id.toString)
@@ -140,9 +139,10 @@ class VotingHelper {
 	  val nodes= S.param("nodes").getOrElse("10").toInt
 	  val grapher= new DelegationGraphView(nominee, nodes)
 	  grapher.getGraph ++
-	  grapher.getQueries.flatMap { render( children, _ ) }
+	  grapher.getQueries.flatMap { bind( children, _ ) }
       }
       
+      // The me namespace for tags that apply to the current user
       case Elem("me", tag, attribs, scope, children @ _*) =>
 	currentUser match {
 	  case Full(me) => tag match {
@@ -151,7 +151,7 @@ class VotingHelper {
 		val format= attribs.get("format").getOrElse(Text("numer"))
 		formatWeight(me, nominee, format.text)} )
 	    case "vote" =>
-	      val isUser= nominee.isInstanceOf[VotableUser]
+	      val isUser= nominee.isUser
 	      new VoteControl(VoteCounter.getPreference(me, nominee),
 			      displayedVotes.size, 
 			      if (isUser) 0 else -3, 3) {
@@ -170,6 +170,7 @@ class VotingHelper {
 	  case _ => NodeSeq.Empty
 	}
 
+      // The query namespace only applies to query nominees
       case Elem("query", tag, attribs, scope, _*) =>
 	nominee match {
 	  case VotableQuery(query) => tag match { 
@@ -191,6 +192,7 @@ class VotingHelper {
 	  case _ => in
 	}
 
+      // The user name space for users as nominees
       case Elem("user", tag, attribs, scope, children @ _*) =>
 	nominee match {
 	  case VotableUser(user) => tag match {
@@ -230,6 +232,7 @@ class VotingHelper {
 	  }
 	}
 
+      // Default treatment of unknown tags
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children, nominee) : _*)
 
@@ -251,6 +254,7 @@ class VotingHelper {
     in.flatMap(bind(_, user, nominee))
   }
 
+  /** bind the input html fragment to a given user and a given nominee */
   def bind(in : Node, user : User, nominee : Votable): NodeSeq= {
 
     // conditional recursive processing
