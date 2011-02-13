@@ -63,22 +63,27 @@ object Markup {
     }
   }
 
-  def renderLine(in : String) = renderHeader(in, x=>x)
+  def renderLine(in : String) = renderHeader(in, x=>x, x=>x)
 
   def renderTagList(in:List[String]) : Node = {
     <span class="keys">{in.mkString(", ")}</span>
   }
 
-  def renderHeader(in : String, link : String) : NodeSeq = 
+  def renderHeader(in : String, link : String) : NodeSeq =
     renderHeader(in, { node => <a href={link}>{node}</a> })
 
-  /** render a header replacing links with a generic short cut */
   def renderHeader(in : String, link : Node=>Node) : NodeSeq = {
+    var c=0
+    renderHeader(in, link, x=> {c=c+1; "["+c+"]"})
+  }
+
+  /** render a header replacing links with a generic short cut */
+  def renderHeader(in : String, link : Node=>Node, short : String=>String) : NodeSeq = {
     url.findFirstMatchIn(in) match {
       case Some(m) =>
         link(Text(m.before.toString)) ++ 
-        <a href={m.matched} title={m.matched} class="extern">LINK</a> ++ 
-        renderHeader(m.after.toString, link)
+        <a href={m.matched} title={m.matched} class="extern">{short(m.matched)}</a> ++ 
+        renderHeader(m.after.toString, link, short)
       case _ =>
 	link(Text(in))
     }

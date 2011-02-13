@@ -86,6 +86,14 @@ a.extern {
     margin: 8px 5px 2px 5px;
     color: black;
 }
+.path {
+    color: gray;
+}
+.path ul {
+    list-style-type:none;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
 input.searchSubmit {
   color: transparent;
   margin: 0 0 0 10px;
@@ -255,7 +263,7 @@ textarea {
 }
 .user_space {
     width: 140px;
-    height: 120px;
+    height: 100px;
     overflow: hidden;
 }
 .chart {
