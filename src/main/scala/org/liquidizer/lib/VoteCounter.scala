@@ -65,17 +65,6 @@ object VoteCounter {
   }
   def refresh() = mapper !? 'PUSH
 
-  // Deprecated
-  def registerComment(vote : Vote) = {
-    // update data model
-    if (vote.comment.defined_?) {
-      val comment= vote.comment.obj.get
-      comment.nominee(vote.getVotable)
-      comment.author(vote.getOwner)
-      comment.save
-    }
-  }
-
   def register(vote : Vote) {
     mapper !? vote
   }
@@ -84,7 +73,6 @@ object VoteCounter {
     mapper.start
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
       vote =>
-	registerComment(vote)
         // recompute results 
         if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
         if ((vote.date.is / Tick.day) > (time / Tick.day)) {
