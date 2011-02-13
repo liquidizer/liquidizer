@@ -31,7 +31,7 @@ class UserInfo {
       in match { 
 	case Elem("me", label, attribs, scope, children @ _*) => label match {
 	  // session info
-	  case "name" => <span>{me.displayName}</span>
+	  case "name" => <span>{me.nick.is}</span>
 	  case "logout" => SHtml.a(() => {
 	    User.logUserOut()
 	    RedirectTo("/index.html") }, children)
@@ -316,6 +316,8 @@ class UserSignUp extends StatefulSnippet {
 	  .password(passwd1)
 	  .validated(User.skipEmailValidation)
 	  user.save
+	  user.createNominee
+
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet
 	  redirectTo("/index.html")

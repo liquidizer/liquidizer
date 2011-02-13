@@ -25,29 +25,22 @@ with MegaProtoUser[User] {
   
   def getSingleton = User
 
+  object nominee extends MappedLongForeignKey(this, Votable)
   object nick extends MappedString(this,32)
   object profile extends MappedText(this)
 
-  
-  def getUser(id : String) : Option[User] = {
-    if (id=="~")
-      User.currentUser
-    else
-      User.find(By(User.id,id.toLong))
-  }
+  def getUser(id : String) : Option[User] = User.find(By(User.id,id.toLong))
   
   def getUserByNick(nick : String) : Option[User] = {
     User.find(By(User.nick, nick))
   }
 
-  def getId() = id.is
-  
-  def displayName() : String = {
-    toString
+  def createNominee() : Unit = {
+    val n= Votable.create.user(this)
+    n.save
+    nominee(n)
+    save
   }
-  
-  override def toString() : String = {
-    nick.is
-  }
-}
 
+  override def toString() : String = nick.is
+}

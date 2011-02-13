@@ -123,24 +123,28 @@ class AddQuery extends StatefulSnippet {
 		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>saveQuery))
   }
 
-  def verifyQuery() = {
-    if (what.trim.length==0)
-      redirectTo("/add_query")
-    else
-      redirectTo("/add_query_confirm")
-  }
+  def isValid() = what.trim.length>0 && Query.find(By(Query.what, what)).isEmpty
+
+  def verifyQuery() =
+    if (isValid) redirectTo("/add_query_confirm") else redirectTo("/add_query")
 
   def saveQuery() = {
-    val query= 
-      Query.create
+    if (isValid) {
+      val query= 
+	Query.create
       .what(what)
       .keys(keys)
       .creator(User.currentUser.get)
       .creation(Tick.now)
-    query.save
+      query.save
+      query.createNominee
 
-    unregisterThisSnippet
-    S.redirectTo("/queries/"+query.id+"/index.html")
+      unregisterThisSnippet
+      S.redirectTo("/queries/"+query.id+"/index.html")
+    } else {
+      what=""
+      redirectTo("/add_query")
+    }
   }
 }
 
