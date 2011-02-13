@@ -70,9 +70,6 @@ object VoteCounter {
   }
   
   def init() = {
-    User.findAll.foreach { u => if (!u.nominee.defined_?) { u.createNominee; u.save }}
-    Query.findAll.foreach { u => if (!u.nominee.defined_?) { u.createNominee; u.save }}
-
     mapper.start
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
       vote =>
