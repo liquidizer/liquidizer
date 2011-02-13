@@ -95,7 +95,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
     order match {
       case "value" => result(_).value.abs
-      case "age" => q => q.id
+      case "age" => q => q.baseId
       case "pro" => isActive(result(_).value)
       case "contra" => isActive(-result(_).value)
       case "conflict" => v => { val r=result(v); r.pro min r.contra }

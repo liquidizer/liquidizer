@@ -33,7 +33,7 @@ class Boot {
 
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
-    Schemifier.schemify(true, Schemifier.infoF _, User, Query, Vote, Comment)
+    Schemifier.schemify(true, Schemifier.infoF _, Votable, User, Query, Vote, Comment)
 
     println("Starting LIQUIDIZER")
     VoteCounter.init
@@ -119,22 +119,12 @@ class Boot {
     req.setCharacterEncoding("UTF-8")
   }
 
-  def localeFromString(in: String): Locale = {
-    val x = in.split("_").toList
-    new Locale(x.head,x.last)
-  }
-
   def localeCalculator(request : Box[HTTPRequest]): Locale = {
-    S.param("locale").map { localeFromString _ }.getOrElse {
-      Props.get("locale")
-      .map { localeFromString }
-      .openOr {
-	if (request.isEmpty)
-	  Locale.getDefault
-	else
-	  LiftRules.defaultLocaleCalculator(request)
-      }
+    if (LocaleSelector.myLocale.is.isEmpty) {
+      val locale= LiftRules.defaultLocaleCalculator(request)
+      LocaleSelector.suggestLocale(locale)
     }
+    LocaleSelector.getLocale
   }
 }
 

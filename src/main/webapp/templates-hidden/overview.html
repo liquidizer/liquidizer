@@ -1,6 +1,7 @@
 <lift:UserInfo.votes>
   <div class="balance">
     <h3>
+      <img src="/images/menu/weight.png" alt=""/>
       <lift:loc>menu.votes</lift:loc>
       (<lift:UserInfo.bind><me:numVotes/></lift:UserInfo.bind>)</h3>
     <hr/>
@@ -25,10 +26,12 @@
     <table width="100%">
       <tr>
 	<td>
+	  <img src="/images/menu/follow.png" alt=""/>
 	  <lift:loc>menu.supporters</lift:loc>
 	  (<lift:UserInfo.bind><me:numSupporters/></lift:UserInfo.bind>)</td>
 	<td/>
 	<td>
+	  <img src="/images/menu/distance.png" alt=""/>
 	  <lift:loc>$menu.delegates</lift:loc>
 	  (<lift:UserInfo.bind><me:numDelegates/></lift:UserInfo.bind>)</td>
       </tr>

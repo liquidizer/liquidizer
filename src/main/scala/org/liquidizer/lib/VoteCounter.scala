@@ -10,39 +10,12 @@ import _root_.net.liftweb.common._
 import org.liquidizer.model._
 import java.io._
 
-class CommentMap {
-  val map= mutable.Map.empty[(User, Votable), Long]
-  val latestCommentor= mutable.Map.empty[Votable, User]
-  val latestCommented= mutable.Map.empty[User, Votable]
-
-  def add(vote:Vote) ={
-    if (vote.comment.defined_?) {
-      val user= vote.owner.obj.get
-      val nominee= vote.getVotable
-      val comment= vote.comment.obj.get
-      val key= (user, nominee)
-      if (comment.content.is.trim=="")
-	map -= key
-      else {
-	map.put(key, comment.id.is)
-	latestCommentor.put(nominee, user)
-	latestCommented.put(user, nominee)
-      }
-    }
-  }
-  
-  def get(user : User, nominee : Votable) : Option[Comment] = {
-    map.get((user, nominee)).map { Comment.getComment(_).get }
-  }
-}
-
 /** The VoteCounter keeps track of all cast votes. It provides fast access to the latest 
- results and feeds snapshots to the QuoteHistory object for historic data analysis.
+ results and statistical data.
  */
 object VoteCounter {
 
   private val voteMap= new VoteMap
-  val comments= new CommentMap
   val mapper= new VoteMapper
   var time = 0L
   
@@ -92,22 +65,7 @@ object VoteCounter {
   }
   def refresh() = mapper !? 'PUSH
 
-  def registerComment(vote : Vote) = {
-    // update data model
-    if (vote.comment.defined_?) {
-      if (!vote.comment.obj.get.vote.defined_?) {
-	val comment= vote.comment.obj.get
-	comment.vote(vote)
-	comment.save
-      }
-    }
-    
-    // fill legacy comment map
-    comments.add(vote)
-  }
-
   def register(vote : Vote) {
-    registerComment(vote)
     mapper !? vote
   }
   
@@ -115,7 +73,6 @@ object VoteCounter {
     mapper.start
     Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
       vote =>
-	registerComment(vote)
         // recompute results 
         if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
         if ((vote.date.is / Tick.day) > (time / Tick.day)) {
@@ -151,7 +108,7 @@ object VoteCounter {
     var pref=0
     getActiveVotes(user)
     .map { 
-      case u : VotableUser => 
+      case u @ VotableUser(_) => 
 	scale= scale max getWeight(user, u)
         pref= pref max getPreference(user, u)
       case _ =>  }
@@ -240,18 +197,20 @@ object VoteCounter {
     getComment(author, nominee). map { _.date.is }.getOrElse(0L)
 
   def getComment(author : User, nominee : Votable) : Option[Comment] = {
-    comments.get(author, nominee)
+    Comment.find(By(Comment.author, author), By(Comment.nominee, nominee))
   }
 
   def getLatestComment(nominee : Votable) : Option[Comment] =
-    comments.latestCommentor.get(nominee) match {
-      case Some(user) => comments.get(user, nominee)
+    Comment.findAll(By(Comment.nominee, nominee), 
+		    OrderBy(Comment.date, Descending), MaxRows(1)) match {
+      case List(comment, _*) => Some(comment)
       case _ => None
     }
 
   def getLatestComment(user : User) : Option[Comment] =
-    comments.latestCommented.get(user) match {
-      case Some(nominee) => comments.get(user, nominee)
+    Comment.findAll(By(Comment.author, user), 
+		    OrderBy(Comment.date, Descending), MaxRows(1)) match {
+      case List(comment, _*) => Some(comment)
       case _ => None
     }
 }

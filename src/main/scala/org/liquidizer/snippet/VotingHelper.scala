@@ -59,7 +59,7 @@ class VotingHelper {
 	formatResult(VoteCounter.getWeight(user,nominee))
       case _ => 
 	val weight= VoteCounter.getPreference(user, nominee)
-	val style= if (weight>0) "pro" else if (weight<0) "contra" else "pass" 
+	val style= if (weight>5e-3) "pro" else if (weight< -5e-3) "contra" else "pass" 
 	<span class={style}>{
 	  if (weight>0) { "+" + weight } else weight.toString }</span>
     }
@@ -92,17 +92,16 @@ class VotingHelper {
     }
   }
 
-  def render(in:NodeSeq, nominee:Votable) : NodeSeq = {
-    bind(in, nominee)
-  }
-
+  /** bind the input html segment to a given nominee, either a query or a user */
   def bind(in : NodeSeq, nominee:Votable) : NodeSeq = {
     in.flatMap(bind(_, nominee))
   }
 
+  /** bind the input html segment to a given nominee, either a query or a user */
   def bind(in : Node, nominee:Votable) : NodeSeq = {
     in match {
-      
+
+      // The poll name space for tags that apply for all kind of nominees
       case Elem("poll", tag, attribs, scope, children @ _*) => tag match {
 	case "name" => formatNominee(nominee)
 	case "id" => Text(nominee.id.toString)
@@ -140,9 +139,10 @@ class VotingHelper {
 	  val nodes= S.param("nodes").getOrElse("10").toInt
 	  val grapher= new DelegationGraphView(nominee, nodes)
 	  grapher.getGraph ++
-	  grapher.getQueries.flatMap { render( children, _ ) }
+	  grapher.getQueries.flatMap { bind( children, _ ) }
       }
       
+      // The me namespace for tags that apply to the current user
       case Elem("me", tag, attribs, scope, children @ _*) =>
 	currentUser match {
 	  case Full(me) => tag match {
@@ -151,7 +151,7 @@ class VotingHelper {
 		val format= attribs.get("format").getOrElse(Text("numer"))
 		formatWeight(me, nominee, format.text)} )
 	    case "vote" =>
-	      val isUser= nominee.isInstanceOf[VotableUser]
+	      val isUser= nominee.isUser
 	      new VoteControl(VoteCounter.getPreference(me, nominee),
 			      displayedVotes.size, 
 			      if (isUser) 0 else -3, 3) {
@@ -170,6 +170,7 @@ class VotingHelper {
 	  case _ => NodeSeq.Empty
 	}
 
+      // The query namespace only applies to query nominees
       case Elem("query", tag, attribs, scope, _*) =>
 	nominee match {
 	  case VotableQuery(query) => tag match { 
@@ -191,6 +192,7 @@ class VotingHelper {
 	  case _ => in
 	}
 
+      // The user name space for users as nominees
       case Elem("user", tag, attribs, scope, children @ _*) =>
 	nominee match {
 	  case VotableUser(user) => tag match {
@@ -210,7 +212,7 @@ class VotingHelper {
 	      <a href={nominee.uri+"/delegates.html"}>{
 		renderVote(() => {
 		  val outflow= VoteCounter.getDelegationOutflow(user)
-		  formatResult(outflow, (if (outflow>0) "contra" else "pass")) 
+		  formatResult(outflow, if (outflow>5e-3) "contra" else "pass")
 		})
 	      }</a>
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
@@ -230,6 +232,7 @@ class VotingHelper {
 	  }
 	}
 
+      // Default treatment of unknown tags
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, attribs, scope, bind(children, nominee) : _*)
 
@@ -251,6 +254,7 @@ class VotingHelper {
     in.flatMap(bind(_, user, nominee))
   }
 
+  /** bind the input html fragment to a given user and a given nominee */
   def bind(in : Node, user : User, nominee : Votable): NodeSeq= {
 
     // conditional recursive processing
@@ -298,6 +302,17 @@ class VotingHelper {
 	      VoteCounter.getDelegationInflow(user) * 
 	      VoteCounter.getCumulativeWeight(user, nominee), style.text))
 	  }
+	  case "delegation" => 
+	    // format the delegation path
+	    if (VoteCounter.getPreference(user,nominee)!=0 || 
+		VoteCounter.getWeight(user,nominee)==0) NodeSeq.Empty else 
+		  <div class="path">{ S ? "vote.delegated.by" }<ul>{
+		  for (path <- getDelegationPath(user, nominee)) yield {
+		    <li>{ path.reverse.tail.flatMap { 
+		      sec => {Text(" → ") ++ formatUser(sec) } } 
+		    }</li>
+		  }
+		}</ul></div>
 	}
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
@@ -305,6 +320,31 @@ class VotingHelper {
 
       case other => other
     }
+  }
+
+  def getDelegationPath(user : User, nominee : Votable) : List[List[User]] = {
+    var visited : List[User]= Nil
+    var result : List[List[User]]= List(Nil)
+    var list : List[List[User]]= List(List(user))
+    var finished = false
+    while (!finished && !list.isEmpty) {
+      result= list.filter { p => VoteCounter.getPreference( p.head, nominee)!=0 }
+      if (result.isEmpty) {
+	list= list.flatMap { 
+	  path => VoteCounter.getActiveVotes(path.head).map { _ match {
+	    case VotableUser(user)
+	      if (!visited.contains(user) && VoteCounter.getWeight(user, nominee)!=0) 
+		=> 
+		  user :: path
+	    case _ => Nil
+	  }}.filter { !_.isEmpty }
+        }
+	visited= visited ++ list.map { _.head }
+      } else {
+	finished= true
+      }
+    }
+    result
   }
 
   def getVotes() : List[Votable] = {

@@ -1,5 +1,5 @@
 <lift:surround with="default">
-  <lift:bind-at name="title">Startseite</lift:bind-at>
+  <lift:bind-at name="title"><lift:loc>system.homepage</lift:loc></lift:bind-at>
   <lift:bind-at name="content">
     <lift:form>
       <lift:UserInfo.in>
@@ -39,7 +39,7 @@
 	      </tr>
 	      <tr>
       		<td><lift:loc>user.password</lift:loc></td>
-      		<td><me:password/></td>
+      		<td> <me:password/></td>
       		<td> <me:submit/></td>
 	      </tr>
 	      <tr>

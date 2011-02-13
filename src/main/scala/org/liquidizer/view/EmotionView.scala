@@ -59,13 +59,13 @@ object EmotionView {
 	    // compute face size based on distance metrics
 	    val scale= VoteCounter.getDelegationScale(me)
 	    val dist= if (other==me) 1.0 else {
-	      val w= VoteCounter.getWeight(me, VotableUser(other))
+	      val w= Math.sqrt(VoteCounter.getWeight(me, VotableUser(other)))
 	      if (scale._2==0)
 		1.0
 	      else
-		1.0 + 0.3*(w/scale._1 - 0.5)*(scale._2 min 3)
+		1.0 + 0.2*(w/Math.sqrt(scale._1) - 0.5)*(scale._2 min 3)
 	    }
-	    val fdist= SVGUtil.format(dist min 1.5)
+	    val fdist= SVGUtil.format(dist min 1.25)
 
 	    // extract corresponding emotion
 	    VoteCounter.getEmotion(me, other) match {

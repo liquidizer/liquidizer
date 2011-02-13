@@ -40,7 +40,7 @@
 		<menu:a href="/profile.html" icon="profile">$home.profile</menu:a>
 		<menu:a href="/users/~/index.html" icon="weight">$home.votes</menu:a>
 		<menu:a href="/users/~/delegates.html" icon="distance">$home.delegates</menu:a>
-		<menu:a href="/users/~/support.html" icon="inflow">$home.supporters</menu:a>
+		<menu:a href="/users/~/support.html" icon="follow">$home.supporters</menu:a>
 	      </ul>
 	    </div>
 	  </li>
@@ -62,12 +62,13 @@
 	</li>
       </ul>
       </lift:MenuMarker>
-      <lift:UserInfo.in>
-	<div id="loginfo">
-      	  <lift:loc>logged.in</lift:loc> <b><me:name/></b>
+      <div id="loginfo">
+      	<lift:loc>system.language</lift:loc>: <lift:LocaleSelector/>
+	<lift:UserInfo.in>
+	  <br/><lift:loc>logged.in</lift:loc> <b><me:name/></b>
 	  <br/><me:logout><lift:loc>logout</lift:loc></me:logout>
-	</div>
-      </lift:UserInfo.in>
+	</lift:UserInfo.in>
+      </div>
     </div>
     <hr style="clear:both"/>
 
