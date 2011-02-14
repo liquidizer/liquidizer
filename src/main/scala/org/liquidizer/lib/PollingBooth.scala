@@ -11,15 +11,17 @@ object PollingBooth {
 
   /** create a comment for a given user, for a given nominee */
   def comment(author : User, nominee : Votable, text : String):Unit = {
+    val obj= VoteCounter.getComment(author, nominee)
     if (text.trim.isEmpty) {
-      VoteCounter.getComment(author, nominee).map { _.delete_! }
+      obj.map { _.delete_! }
     } else {
-      Comment.create
+      obj.getOrElse(Comment.create)
       .date(Tick.now)
       .author(author)
       .nominee(nominee)
       .content(text).save
     }
+
   }
 
   def vote(owner : User, nominee : Votable, weight : Int) = {
