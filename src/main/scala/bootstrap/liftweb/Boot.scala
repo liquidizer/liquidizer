@@ -14,6 +14,7 @@ import org.liquidizer.view._
 import org.liquidizer.model._
 import org.liquidizer.snippet._
 import org.liquidizer.lib._
+import org.liquidizer.lib.ssl._
 
 
 /**
@@ -33,7 +34,7 @@ class Boot {
 
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
-    Schemifier.schemify(true, Schemifier.infoF _, Votable, User, Query, Vote, Comment)
+    Schemifier.schemify(true, Schemifier.infoF _, Votable, User, Query, Vote, Comment, Certificate)
 
     println("Starting LIQUIDIZER")
     VoteCounter.init
@@ -57,6 +58,9 @@ class Boot {
     LiftRules.resourceNames = 
       "instance" :: 
       "liquidizer" ::  LiftRules.resourceNames
+
+    LiftSession.onBeginServicing =
+      certificateLogin _ :: LiftSession.onBeginServicing
     
     // dynamic pages
     LiftRules.dispatch.append {
@@ -125,6 +129,17 @@ class Boot {
       LocaleSelector.suggestLocale(locale)
     }
     LocaleSelector.getLocale
+  }
+
+  private def certificateLogin(session: LiftSession, req: Req) {
+    import net.liftweb.mapper.{By, ByList}
+    if (!User.loggedIn_?) {
+      for {
+        certs <- SSLClient.valid_certificates
+        known_cert <- Certificate.find(ByList(Certificate.id, certs.map(SSLClient.certificate_id(_))))
+        owner <- User.find(By(User.id, known_cert.owner))
+      } User.logUserIn(owner)
+    }
   }
 }
 

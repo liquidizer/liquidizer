@@ -12,6 +12,7 @@ import Helpers._
 
 import org.liquidizer.model._
 import org.liquidizer.lib._
+import org.liquidizer.lib.ssl._
 
 class UserInfo {
   val buttonFactory = new EditButtonToggler()
@@ -273,7 +274,12 @@ class UserReset extends StatefulSnippet {
 
 /** Signup snippet. */
 class UserSignUp extends StatefulSnippet {
-  var username= ""
+  var username= SSLClient.valid_certificates map { certs =>
+      certs.headOption map { head =>
+          PrincipalUtils.name_as_map(head.getSubjectX500Principal)("CN")
+      } getOrElse ""
+      //PrincipalUtils.name_as_map(certs(0).getSubjectX500Principal)("CN")
+  } openOr ""
   var email= ""
   
   var dispatch : DispatchIt = {
