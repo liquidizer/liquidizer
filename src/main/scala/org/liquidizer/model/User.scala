@@ -4,7 +4,7 @@ import _root_.net.liftweb.mapper._
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 
-import lib.ssl._
+import org.liquidizer.lib.ssl._
 
 /**
  * The singleton that has methods for accessing the database
