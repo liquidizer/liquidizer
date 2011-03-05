@@ -5,13 +5,6 @@ import scala.collection.mutable
 import _root_.net.liftweb.mapper._
 import _root_.org.liquidizer.model._
 
-class Emotion {
-  val valence= new PoissonMemory(0.0)
-  val potency= new PoissonMemory(0.0)
-  def getArousal() = (valence.swing.abs max potency.swing.abs)
-
-  override def toString() = valence.toString + " " + potency.value
-}
 
 class LinkedVote(val owner:User, val nominee:Votable) {
   
@@ -35,7 +28,6 @@ class NomineeHead {
 class UserHead(id : Int) {
   val vec = new VoteVector(id)
   var votes : List[LinkedVote] = Nil
-  val emos = mutable.Map.empty[User, Emotion]
   var denom = 0
   var lastVote = 0L
   def isActive() = denom>0.0 && vec.getActiveWeight>0.0
@@ -214,23 +206,27 @@ class VoteMap {
       users.get(user).map { _.votes }.getOrElse(Nil)
   }
 
-  def getEmotion(user1 : User, user2 : User, time : Long) : Option[Emotion] = {
-    val key1= if (id(user1) < id(user2)) user1 else user2
-    val key2= if (id(user1) < id(user2)) user2 else user1
-    if (users.contains(key1) && users.contains(key2)) {
-      val head1= users.get(key1).get
-      val head2= users.get(key2).get
+  def isActive(user : User) : Boolean =
+    user.validated && users.get(user).map { _.isActive }.getOrElse(false)
 
-      if (!head1.isActive || !head2.isActive) {
-	None
-      } else {
-	if (!head1.emos.contains(key2)) head1.emos.put(key2, new Emotion())
-	val emo= head1.emos.get(key2).get
-      
-	emo.valence.set(time, head1.vec.dotProd(head2.vec, false))
-	emo.potency.set(time, head1.vec.dotProd(head2.vec, true))
-	Some(emo)
-      }
+  def getEmotion(user1 : User, user2 : User, time : Long) : Option[Emotion] = {
+    if (isActive(user1) && isActive(user2)) {
+      val emo= Emotion.get(user1, user2)
+
+      // decay of emotional arousal
+      emo.update(time, VoteMap.DECAY)
+
+      //TODO check if emotion needs to be updated
+      val head1= users.get(user1).get
+      val head2= users.get(user2).get
+
+      // compute new emotion
+      emo.valence(head1.vec.dotProd(head2.vec, false))
+      emo.potency(head1.vec.dotProd(head2.vec, true))
+      emo.update(time, VoteMap.DECAY)
+      emo.save
+
+      Some(emo)
     } else
       None
   }

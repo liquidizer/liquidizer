@@ -75,11 +75,6 @@ object VoteCounter {
       vote =>
         // recompute results 
         if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
-        if ((vote.date.is / Tick.day) > (time / Tick.day)) {
-	  for (user1 <- voteMap.users.keySet)
-	    for (user2 <- voteMap.users.keySet)
-	      voteMap.getEmotion(user1, user2, time)
-	}
         mapper.push(vote)
     }
     refresh()

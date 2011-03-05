@@ -70,9 +70,9 @@ object EmotionView {
 	    // extract corresponding emotion
 	    VoteCounter.getEmotion(me, other) match {
 	    case Some(emo) => {
-	      val p= emo.potency.value
-	      val v= Math.pow(emo.valence.value/(.9*p + .1)/2.0 + 0.5, 2.0)
-	      val a= emo.getArousal min 1.0 max 0.
+	      val p= emo.potency.is
+	      val v= Math.pow(emo.valence.is / (.9*p + .1) / 2.0 + 0.5, 2.0)
+	      val a= emo.arousal.is min 1.0 max 0.
 	      Map("v" -> SVGUtil.format(v), 
 		  "a" -> SVGUtil.format(a), 
 		  "p" -> SVGUtil.format(p),
