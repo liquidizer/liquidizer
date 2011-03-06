@@ -71,12 +71,28 @@ object VoteCounter {
   
   def init() = {
     mapper.start
-    Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
-      vote =>
-        // recompute results 
-        if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
+    
+    // Refactor DB
+    if (Tick.findAll.isEmpty) {
+      // recompute history
+      Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
+	vote =>
+          // recompute results 
+          if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
         mapper.push(vote)
+      }
+      // delete historic votes
+      var map= Set[(User,Votable)]()
+      Vote.findAll(OrderBy(Vote.date, Descending)).foreach {
+	vote =>
+	  val key= (vote.owner.obj.get, vote.nominee.obj.get)
+	    if (map.contains(key)) vote.delete_! else {
+	      map+=key
+	    }
+      }
     }
+    Vote.findAll.foreach { vote => mapper.push(vote) }
+    mapper.updateFactors
     refresh()
   }
   
@@ -84,11 +100,13 @@ object VoteCounter {
     voteMap.dump()
   }
 
+  //TODO deprecated
   /** get the theoretical voting power, if all delegations are turned into votes */
   def getDelegationInflow(user : User) : Double = {
     voteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse (0.0)
   }
 
+  //TODO deprecated
   def getDelegationOutflow(user : User) : Double = {
     getActiveVotes(user).foldLeft (0.0) { (sum, nominee) =>
       nominee match {
@@ -110,6 +128,7 @@ object VoteCounter {
     (scale, pref)
   }
 
+  //TODO deprecated
   /** cumulative weight are counted, as if the sum total voting weight was 1.0
    * This is used as an indication of delegation influence */
   def getCumulativeWeight(user : User, nominee : Votable) =
@@ -121,7 +140,9 @@ object VoteCounter {
   }
 
   def getSwing(nominee : Votable) : Double = {
-    voteMap.nominees.get(nominee).map{ _.smooth.swing }.getOrElse(0.0)
+    //TODO compute swing
+    //voteMap.nominees.get(nominee).map{ _.smooth.swing }.getOrElse(0.0)
+    0.0
   }
 
   def getMaxPref(user : User) : Int = 
@@ -178,8 +199,11 @@ object VoteCounter {
   def isDelegated(user : User, nominee : User) : Boolean = 
     user==nominee || getWeight(user,VotableUser(nominee))>1e-10
 
-  def getTimeSeries(nominee : Votable) : List[Tick[Quote]] =
-    voteMap.nominees.get(nominee).map { _.history.getAll }.getOrElse(Nil)
+  def getTimeSeries(nominee : Votable) : List[Tick] = {
+    val ts= Tick.getTimeSeries(nominee)
+    Tick.compress(ts)
+    ts
+  }
 
   def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
     voteMap.getEmotion(user1, user2, Tick.now)
@@ -191,21 +215,15 @@ object VoteCounter {
   def getCommentTime(author : User, nominee : Votable) : Long =
     getComment(author, nominee). map { _.date.is }.getOrElse(0L)
 
-  def getComment(author : User, nominee : Votable) : Option[Comment] = {
-    Comment.find(By(Comment.author, author), By(Comment.nominee, nominee))
-  }
+  def getComment(author : User, nominee : Votable) : Option[Comment] = 
+    Comment.get(author, nominee)
 
   def getLatestComment(nominee : Votable) : Option[Comment] =
-    Comment.findAll(By(Comment.nominee, nominee), 
-		    OrderBy(Comment.date, Descending), MaxRows(1)) match {
-      case List(comment, _*) => Some(comment)
-      case _ => None
-    }
+    Comment.find(By(Comment.nominee, nominee), 
+		 OrderBy(Comment.date, Descending), MaxRows(1))
 
   def getLatestComment(user : User) : Option[Comment] =
-    Comment.findAll(By(Comment.author, user), 
-		    OrderBy(Comment.date, Descending), MaxRows(1)) match {
-      case List(comment, _*) => Some(comment)
-      case _ => None
-    }
+    Comment.find(By(Comment.author, user), 
+		 OrderBy(Comment.date, Descending), MaxRows(1))
+
 }

@@ -10,7 +10,6 @@ import net.liftweb.http.js.JsCmds._
 import net.liftweb.common._
 
 import org.liquidizer.model._
-import org.liquidizer.lib.Tick
 
 object Markup {
 

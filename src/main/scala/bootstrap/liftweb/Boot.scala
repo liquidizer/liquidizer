@@ -35,7 +35,7 @@ class Boot {
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
     Schemifier.schemify(true, Schemifier.infoF _, Votable, User, 
-			Query, Vote, Comment, Certificate, Emotion)
+			Query, Vote, Comment, Certificate, Emotion, Tick)
 
     println("Starting LIQUIDIZER")
     VoteCounter.init

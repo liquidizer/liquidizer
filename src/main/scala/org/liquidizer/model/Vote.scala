@@ -32,5 +32,11 @@ class Vote extends LongKeyedMapper[Vote] with IdPK {
 object Vote extends Vote with LongKeyedMetaMapper[Vote] {
   override def dbTableName = "votes"
   override def fieldOrder = List(date, owner, nominee, weight)
+
+  def get(owner : User, nominee : Votable) : Option[Vote] =
+    find(By(Vote.owner, owner), By(Vote.nominee, nominee))
+
+  def get(owner : User) : List[Vote] = findAll(By(Vote.owner, owner))
+  def get(nominee : Votable) : List[Vote] = findAll(By(Vote.nominee, nominee))
 }
 

@@ -25,6 +25,9 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
   override def dbTableName = "comments"
   override def fieldOrder = List(date, author, nominee, content)
 
-  def getComment(id : Long) : Option[Comment] = find(By(Comment.id, id))
+  def get(id : Long) : Option[Comment] = find(By(Comment.id, id))
+
+  def get(author : User, nominee : Votable) : Option[Comment] =
+    find(By(Comment.author, author), By(Comment.nominee, nominee))
 }
 

@@ -3,10 +3,12 @@ package org.liquidizer.view
 import scala.xml._
 import scala.collection.mutable
 
-import _root_.org.liquidizer.lib._
+import org.liquidizer.lib.VoteCounter
+import org.liquidizer.model.Tick
 
 class ResultCache[T] {
-  val cache= mutable.Map.empty[(String, Map[String,String]), Tick[T]]
+  case class Entry(time : Long, value : T)
+  val cache= mutable.Map.empty[(String, Map[String,String]), Entry]
   val timeout= 30000
   var cacheTime= Tick.now
 
@@ -43,7 +45,7 @@ class ResultCache[T] {
   }
 
   def put(key:String, options:Map[String,String], value:T) : T = {
-    cache.put((key, options), Tick(Tick.now,value))
+    cache.put((key, options), Entry(Tick.now,value))
     value
   }
 

@@ -16,13 +16,7 @@ class LinkedVote(val owner:User, val nominee:Votable) {
 
 class NomineeHead {
   var result = Quote(0, 0)
-  val smooth = new PoissonMemory(0.0)
-  val history = new TimeSeries()
   var votes  : List[LinkedVote] = Nil
-  def update(time : Long) = { 
-    history.add(time, result); 
-    smooth.set(time, result.value) 
-  }
 }
 
 class UserHead(id : Int) {
@@ -103,7 +97,9 @@ class VoteMap {
       nominees.get(nominee).foreach { _.result= Tick.toQuote(userHead._2.vec.getInflow()) }
     }
     // include the new results in the time series
-    for (head <- nominees) head._2.update(time)
+    for (head <- nominees) {
+      Tick.create.time(time).votable(head._1).quote(head._2.result).save
+    }
     dirty = false
   }
 
