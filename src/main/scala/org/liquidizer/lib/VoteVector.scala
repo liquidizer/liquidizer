@@ -1,12 +1,14 @@
 package org.liquidizer.lib
 
-class VoteVector(
-  val userID : Int,
-  var votes : Array[Double],
-  var supporters : Array[Double]) {
-  
+class VoteVector(val userID : Int, 
+		 var votes : Array[Double], 
+		 var supporters : Array[Double]) {
+
   def this(userID : Int) = this(userID, new Array[Double](0), new Array[Double](userID+1))
-  
+
+  def this(other : VoteVector) = 
+    this(other.userID, other.votes.clone, other.supporters.clone)
+
   def normalize(vec : Array[Double], norm : Double) =
     for (i <- 0 to vec.length-1)
       vec(i)= vec(i)/norm;
@@ -30,6 +32,7 @@ class VoteVector(
     supporters(userID)= weight
   }
 
+  /** enlarge a vector if necessary */
   def enlarge(vec : Array[Double], minLength : Int) = {
     if (vec.length >= minLength)
       vec
@@ -75,6 +78,15 @@ class VoteVector(
     scalar
   }
   
+  def distanceTo(other : VoteVector) : Double = {
+    var dist= 0.0
+    for (i <- 0 to Math.min(votes.length, other.votes.length)-1)
+      dist = dist.max((votes(i)-other.votes(i)).abs)
+    for (i <- 0 to Math.min(supporters.length, other.supporters.length)-1)
+      dist = dist.max((supporters(i)-other.supporters(i)).abs)
+    dist
+  }
+
   def getVotingWeight(queryId : Int) : Double = 
     if (queryId < votes.length) getActiveWeight * votes(queryId) else 0.0
   

@@ -4,10 +4,14 @@ import _root_.net.liftweb.mapper._
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 
-case class Quote(pro:Double, contra:Double) {
+case class Quote(var pro:Double, var contra:Double) {
   def /(denom : Int):Quote = if (denom==0) Quote(0.0, 0.0) else Quote(pro/denom, contra/denom)
-  def +(quote : Quote):Quote = Quote(pro+quote.pro, contra+quote.contra)
-  def *(factor: Double):Quote= Quote(pro*factor, contra*factor)
+  def +(quote : Quote) : Quote = Quote(pro+quote.pro, contra+quote.contra)
+  def *(factor : Double) : Quote= Quote(pro*factor, contra*factor)
+  def += (value : Double) : Unit = {
+    pro += value max 0
+    contra -= value min 0
+  }
   def value : Double = pro - contra
   def volume : Double = pro + contra
 }

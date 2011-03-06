@@ -29,7 +29,7 @@ object PollingBooth {
       Vote.create.owner(owner).nominee(nominee)
     }.date(Tick.now).weight(weight)
     vote.save
-    VoteCounter.register(vote)
+    VoteCounter.refresh
   }
 
   def clearComments(owner : User) = {

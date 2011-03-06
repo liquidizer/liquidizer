@@ -15,7 +15,6 @@ import java.io._
  */
 object VoteCounter {
 
-  private val voteMap= new VoteMap
   val mapper= new VoteMapper
   var time = 0L
   
@@ -23,13 +22,9 @@ object VoteCounter {
     def act = {
       loop {
 	react {
-	  case vote:Vote =>  {
-	    push(vote)
+	  case 'PUSH =>  {
 	    var senders = sender :: Nil
 	    while (mailboxSize>0) receive {
-	      case vote:Vote => 
-		push(vote)
-	        senders ::= sender
 	      case 'PUSH =>
 	        senders ::= sender
 	      case 'STOP =>
@@ -39,36 +34,21 @@ object VoteCounter {
 	    senders.foreach { _ ! 'FINISHED }
 	  }
 	  case 'STOP =>  exit()
-	  case 'PUSH =>  sender ! 'FINISHED
 	}
       }
     }
 
-    def push(vote : Vote) = {
-      time= vote.date.is
-      voteMap.put(vote)
-    }
-
     def updateFactors() = {
-      if (voteMap.dirty) {
-	val t0= Tick.now
-	voteMap.update(time)
-	val t1= Tick.now
-	info("Vote results update took "+(t1-t0)+" ms")
-      }
+      val t0= Tick.now
+      VoteMap.update(time)
+      val t1= Tick.now
+      info("Vote results update took "+(t1-t0)+" ms")
     }
   }
   
-  def stop() = {
-    println("stopping") 
-    mapper ! 'STOP
-  }
+  def stop() = mapper ! 'STOP
   def refresh() = mapper !? 'PUSH
 
-  def register(vote : Vote) {
-    mapper !? vote
-  }
-  
   def init() = {
     mapper.start
     
@@ -79,7 +59,6 @@ object VoteCounter {
 	vote =>
           // recompute results 
           if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
-        mapper.push(vote)
       }
       // delete historic votes
       var map= Set[(User,Votable)]()
@@ -91,19 +70,14 @@ object VoteCounter {
 	    }
       }
     }
-    Vote.findAll.foreach { vote => mapper.push(vote) }
     mapper.updateFactors
     refresh()
   }
   
-  def dump:Unit = {
-    voteMap.dump()
-  }
-
   //TODO deprecated
   /** get the theoretical voting power, if all delegations are turned into votes */
   def getDelegationInflow(user : User) : Double = {
-    voteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse (0.0)
+    VoteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse (0.0)
   }
 
   //TODO deprecated
@@ -131,37 +105,30 @@ object VoteCounter {
   //TODO deprecated
   /** cumulative weight are counted, as if the sum total voting weight was 1.0
    * This is used as an indication of delegation influence */
-  def getCumulativeWeight(user : User, nominee : Votable) =
-    voteMap.getPreference(user, nominee).toDouble / (voteMap.getDenom(user) max 1)
+  def getCumulativeWeight(user : User, nominee : Votable) = 0.0
 
   /** Total voting result for a votable nominee */
   def getResult(nominee : Votable) : Quote = {
-    voteMap.getResult(nominee).getOrElse(Quote(0.0, 0.0))
+    VoteMap.getResult(nominee).getOrElse(Quote(0.0, 0.0))
   }
 
   def getSwing(nominee : Votable) : Double = {
-    //TODO compute swing
-    //voteMap.nominees.get(nominee).map{ _.smooth.swing }.getOrElse(0.0)
-    0.0
+    VoteMap.nominees.get(nominee).map { 
+      head => (head.smooth - head.result.value).abs }.getOrElse(0.0)
   }
 
-  def getMaxPref(user : User) : Int = 
-    voteMap.users.get(user).map { 
-      _.votes.foldLeft(0) { (a,b) =>  a max (b.preference.abs) }
-    }.getOrElse(0)
-
   def getPreference(user : User, nominee : Votable) : Int = {
-    voteMap.getPreference(user, nominee)
+    VoteMap.getPreference(user, nominee)
   }
 
   def getWeight(user : User, nominee : Votable) : Double = {
-    voteMap.getWeight(user, nominee)
+    VoteMap.getWeight(user, nominee)
   }
 
   def getAllVoters(query : Query) : List[User] = {
-    val id= voteMap.id(query)
-    voteMap synchronized {
-      voteMap.users
+    val id= VoteMap.id(query)
+    VoteMap synchronized {
+      VoteMap.users
       .filter { 
 	case (u,head) => 
 	  Math.abs(head.vec.getVotingWeight(id)) >= 5e-3 || 
@@ -173,8 +140,8 @@ object VoteCounter {
   }
 
   def getAllVotes(user : User) : List[Query] = {
-    voteMap synchronized {
-      voteMap.nominees
+    VoteMap synchronized {
+      VoteMap.nominees
       .flatMap {
 	case (n @ VotableQuery(query), head) 
 	  if Math.abs(getWeight(user,n)) >= 5e-3 ||
@@ -185,15 +152,15 @@ object VoteCounter {
   }
 
   def getActiveVoters(nominee : Votable) : List[User] = {
-    voteMap.getSupporters(nominee)
-    .filter { _.preference!=0 }
-    .map { _.owner }
+    Vote.findAll(By(Vote.nominee, nominee))
+    .filter { _.weight!=0 }
+    .map { _.owner.obj.get }
   }
 
   def getActiveVotes(user : User) : List[Votable] = {
-    voteMap.getVotes(user)
-    .filter { _.preference!=0 }
-    .map { _.nominee }
+    Vote.findAll(By(Vote.owner, user))
+    .filter { _.weight!=0 }
+    .map { _.nominee.obj.get }
   }
 
   def isDelegated(user : User, nominee : User) : Boolean = 
@@ -206,7 +173,7 @@ object VoteCounter {
   }
 
   def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
-    voteMap.getEmotion(user1, user2, Tick.now)
+    VoteMap.getEmotion(user1, user2, Tick.now)
   }
 
   def getCommentText(author : User, nominee : Votable) : String =
