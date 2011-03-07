@@ -1,16 +1,16 @@
 package org.liquidizer.snippet
 
-import _root_.scala.xml._
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.http.js._
-import _root_.net.liftweb.http.js.JsCmds._
-import _root_.net.liftweb.common._
-import _root_.net.liftweb.mapper._
+import scala.xml.{Node,NodeSeq,Elem,Text}
+import net.liftweb.util._
+import net.liftweb.http._
+import net.liftweb.http.js._
+import net.liftweb.http.js.JsCmds._
+import net.liftweb.common._
+import net.liftweb.mapper._
 import Helpers._
 
-import _root_.org.liquidizer.model._
-import _root_.org.liquidizer.lib._
+import org.liquidizer.model._
+import org.liquidizer.lib._
 
 abstract class MultipageSnippet extends StatefulSnippet {
   var dispatch : DispatchIt = { 
@@ -41,8 +41,8 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
   /** Create a sort ordering function for users voting on a fixed nominee */
   def sortFunction(order: String, nominee:Votable) : (Votable => Double) = {
-    def weight(user:User) = VoteCounter.getWeight(user, nominee)
-    def comment(user:User) = VoteCounter.getComment(user, nominee)
+    def weight(user:User) = VoteMap.getWeight(user, nominee)
+    def comment(user:User) = Comment.get(user, nominee)
     def bonus(user:User) = 
       if (comment(user).isEmpty && Full(user)!=User.currentUser) 0 else 1000
     def isUser(q:Votable, f:(User=>Double)) = 
@@ -52,7 +52,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "weight" => isUser(_, user => weight(user).abs)
       case "approval" => isUser(_, weight(_))
       case "objection" => isUser(_, -weight(_))
-      case "comment_age" => isUser(_, VoteCounter.getCommentTime(_, nominee))
+      case "comment_age" => isUser(_, Comment.getTime(_, nominee))
       case _ => 
 	val superSorter= sortFunction(order)
 	isUser(_, u => bonus(u) + superSorter(VotableUser(u)))
@@ -61,12 +61,12 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
   /** Create a sort ordering function for votes cast by a fixed user */
   def sortFunction(order: String, user:User) : (Votable => Double) = {
-    def weight(nominee : Votable) = VoteCounter.getWeight(user, nominee)
+    def weight(nominee : Votable) = VoteMap.getWeight(user, nominee)
     order match {
       case "weight" => weight(_).abs
       case "approval" => weight(_)
       case "objection" => -weight(_)
-      case "comment_age" => VoteCounter.getCommentTime(user, _)
+      case "comment_age" => Comment.getTime(user, _)
       case _ => sortFunction(order)
     }
   }
@@ -75,14 +75,13 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def sortFunction(order : String) : (Votable => Double) = {
     def result(q:Votable)= VoteCounter.getResult(q)
     def isUser(q:Votable, f:(User=>Double)) = 
-      q match { case VotableUser(u) => f(u) case _ => -1e10 }
+      q match { 
+	case VotableUser(u) if VoteMap.isActive(u)=> f(u) 
+	case _ => -1e10 }
     def isMe(f : (User, Votable) => Double) : Votable => Double =
       nominee => User.currentUser match {
 	case Full(me) => f(me, nominee) + 1e-5*result(nominee).value
 	case _ => 0 }
-    def emotion(f:(Emotion=>Double)) =
-	isMe( (u,v) => isUser(v, VoteCounter.getEmotion(u, _).
-			      map{ f(_) }.getOrElse(-1e9)))
     def isActive(f : Votable => Double) : Votable => Double = 
       n => { if (VoteCounter.getActiveVoters(n).isEmpty) -1e5 else f(n) }
 
@@ -92,14 +91,17 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "pro" => isActive(result(_).value)
       case "contra" => isActive(-result(_).value)
       case "conflict" => v => { val r=result(v); r.pro min r.contra }
-      case "comment" => 
-	VoteCounter.getLatestComment(_).map{ _.date.is.toDouble }.getOrElse(0.0)
-      case "myweight" => isMe(VoteCounter.getWeight(_ , _))
+      case "myweight" => isMe(VoteMap.getWeight(_ , _))
       case "swing" => VoteCounter.getSwing(_).abs
       case "volume" => result(_).volume
-      case "valence" => emotion(_.valence.is)
-      case "avalence" => emotion(-_.valence.is)
-      case "arousal" => emotion(_.arousal.is)
+      case "comment" => 
+	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)
+      case "valence" => 
+	isMe((me,v) => isUser(v,VoteCounter.getSympathy(me,_)))
+      case "avalence" =>
+	isMe((me,v) => isUser(v,- VoteCounter.getSympathy(me,_)))
+      case "arousal" =>
+	isMe((me,v) => isUser(v,VoteCounter.getArousal(me,_)))
     }
   }
 

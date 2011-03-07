@@ -144,25 +144,17 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
   }
 
   /** Plot a time series */
-  def plotTS(data : List[Tick], options : Map[String, String],
-	   shade:Boolean, pro:Boolean, contra:Boolean) : Node = {
+  def plotTS(data : List[Tick], options : Map[String, String]) : Node = {
     setOptions(options)
     run("plot "+
-	(if (shade) {
 	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro_light+"', "+
-	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra_light+"', " } else "")+
-	(if (contra) {
-	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra+"', " } else "")+
-	(if (pro) {
-	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro+"' " } else ""))
-      
-    if (shade) {
-      formatData(data, quote => quote.pro);
-      formatData(data, quote => -quote.contra);
-    }
-    if (contra)         formatData(data, quote => Math.min(quote.pro-quote.contra,0));
-    if (pro && contra)  formatData(data, quote => Math.max(quote.pro-quote.contra,0));
-    if (pro && !contra) formatData(data, quote => quote.pro);
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra_light+"', " +
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra+"', " +
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro+"' ")
+    formatData(data, quote => quote.pro);
+    formatData(data, quote => -quote.contra);
+    formatData(data, quote => Math.min(quote.pro-quote.contra,0))
+    formatData(data, quote => Math.max(quote.pro-quote.contra,0));
     
     getSVG.first
   }

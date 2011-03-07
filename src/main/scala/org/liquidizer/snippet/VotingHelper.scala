@@ -1,19 +1,19 @@
 package org.liquidizer.snippet
 
-import scala.xml._
+import scala.xml.{Node, NodeSeq, Text, Elem, MetaData}
 
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.http.js._
-import _root_.net.liftweb.http.js.JsCmds._
-import _root_.net.liftweb.common._
-import _root_.net.liftweb.mapper._
+import net.liftweb.util._
+import net.liftweb.http._
+import net.liftweb.http.js._
+import net.liftweb.http.js.JsCmds._
+import net.liftweb.common._
+import net.liftweb.mapper._
 import Helpers._
 
-import _root_.org.liquidizer.lib._
-import _root_.org.liquidizer.model._
-import _root_.org.liquidizer.view.DelegationGraphView
-import _root_.org.liquidizer.view.EmotionView
+import org.liquidizer.lib._
+import org.liquidizer.model._
+import org.liquidizer.view.DelegationGraphView
+import org.liquidizer.view.EmotionView
 
 class VotingHelper {
   val currentUser= User.currentUser
@@ -60,7 +60,7 @@ class VotingHelper {
   }
 
   def formatWeight(user: User, nominee : Votable):Node =
-    formatResult(VoteCounter.getWeight(user,nominee))
+    formatResult(VoteMap.getWeight(user,nominee))
 
   def formatUser(user : User) : NodeSeq = formatNominee(VotableUser(user))
   def formatNominee(nominee : Votable) : NodeSeq = 
@@ -123,7 +123,7 @@ class VotingHelper {
 	    user => bind(bind(children, user, nominee), VotableUser(user))
 	  }
 	case "aboutLastComment" => 
-	  VoteCounter.getLatestComment(nominee) match {
+	  Comment.getLatest(nominee) match {
 	    case Some(comment) => 
 	      Text(S.?("time.commented")+" "+ 
 		   Markup.formatRelTime(comment.date.is)+" (") ++
@@ -147,7 +147,7 @@ class VotingHelper {
 	    case "weight" => renderVote(() => formatWeight(me, nominee))
 	    case "vote" =>
 	      val isUser= nominee.isUser
-	      new VoteControl(VoteCounter.getPreference(me, nominee),
+	      new VoteControl(VoteMap.getPreference(me, nominee),
 			      displayedVotes.size, 
 			      if (isUser) 0 else -3, 3) {
 		override def updateValue(newValue : Int) : JsCmd = 
@@ -182,7 +182,7 @@ class VotingHelper {
 	      renderVote(() => 
 		Text(VoteCounter
 		     .getAllVoters(VotableQuery(query))
-		     .filter{ sign*VoteCounter.getWeight(_, nominee)>0 } 
+		     .filter{ sign*VoteMap.getWeight(_, nominee)>0 } 
 		     .size.toString))
 	    case _ => in
 	  }
@@ -261,11 +261,11 @@ class VotingHelper {
 	case "comment" => {
 	  // editable comment text
 	  buttonFactory.newCommentRecord(
-	    () => VoteCounter.getCommentText(user, nominee),
+	    () => Comment.getText(user, nominee),
 	    text => PollingBooth.comment(user, nominee, text))
 	  buttonFactory.toggleText ++
 	  // add comment time
-	  VoteCounter.getComment(user, nominee).map { c => 
+	  Comment.get(user, nominee).map { c => 
 	    <span class="keys">{ Markup.formatRelTime( c.date.is) }</span> }
 	  .getOrElse(Nil)
 	}
@@ -290,8 +290,8 @@ class VotingHelper {
 	  }})
 	  case "delegation" => 
 	    // format the delegation path
-	    if (VoteCounter.getPreference(user,nominee)!=0 || 
-		VoteCounter.getWeight(user,nominee)==0) NodeSeq.Empty else 
+	    if (VoteMap.getPreference(user,nominee)!=0 || 
+		VoteMap.getWeight(user,nominee)==0) NodeSeq.Empty else 
 		  <div class="path">{ S ? "vote.delegated.by" }<ul>{
 		  for (path <- getDelegationPath(user, nominee)) yield {
 		    <li>{ path.reverse.tail.flatMap { 
@@ -314,12 +314,12 @@ class VotingHelper {
     var list : List[List[User]]= List(List(user))
     var finished = false
     while (!finished && !list.isEmpty) {
-      result= list.filter { p => VoteCounter.getPreference( p.head, nominee)!=0 }
+      result= list.filter { p => VoteMap.getPreference( p.head, nominee)!=0 }
       if (result.isEmpty) {
 	list= list.flatMap { 
 	  path => VoteCounter.getActiveVotes(path.head).map { _ match {
 	    case VotableUser(user)
-	      if (!visited.contains(user) && VoteCounter.getWeight(user, nominee)!=0) 
+	      if (!visited.contains(user) && VoteMap.getWeight(user, nominee)!=0) 
 		=> 
 		  user :: path
 	    case _ => Nil

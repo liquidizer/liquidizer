@@ -66,14 +66,6 @@ object VoteCounter {
       head => (head.smooth - head.result.value).abs }.getOrElse(0.0)
   }
 
-  def getPreference(user : User, nominee : Votable) : Int = {
-    VoteMap.getPreference(user, nominee)
-  }
-
-  def getWeight(user : User, nominee : Votable) : Double = {
-    VoteMap.getWeight(user, nominee)
-  }
-  
   def getAllVoters(nominee : Votable) : List[User] = {
     var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
     // find voters recursively as voters and followers
@@ -82,7 +74,6 @@ object VoteCounter {
       val votes= proc.flatMap{ n => Vote.findAll(By(Vote.nominee, n)) }
       val next= votes
       .filter{ _.weight.is!=0 }.map{ _.owner.obj.get }
-      .filter{ getWeight(_, nominee).abs > VoteMap.EPS }
       .removeDuplicates -- list
       proc=  next.map { VotableUser(_) }
       list ++= next
@@ -121,7 +112,7 @@ object VoteCounter {
   }
 
   def isDelegated(user : User, nominee : User) : Boolean = 
-    user==nominee || getWeight(user,VotableUser(nominee))>1e-10
+    user==nominee || VoteMap.getWeight(user,VotableUser(nominee))>1e-10
 
   def getTimeSeries(nominee : Votable) : List[Tick] = {
     val ts= Tick.getTimeSeries(nominee)
@@ -137,21 +128,9 @@ object VoteCounter {
     VoteMap.getCurrentWeight(user2) *
     getEmotion(user1,user2).map{ _.valence.is }.getOrElse(0.0)
 
-  def getCommentText(author : User, nominee : Votable) : String =
-    getComment(author, nominee). map { _.content.is }.getOrElse("")
-
-  def getCommentTime(author : User, nominee : Votable) : Long =
-    Comment.get(author, nominee). map { _.date.is }.getOrElse(0L)
-
-  def getComment(author : User, nominee : Votable) : Option[Comment] = 
-    Comment.get(author, nominee)
-
-  def getLatestComment(nominee : Votable) : Option[Comment] =
-    Comment.find(By(Comment.nominee, nominee), 
-		 OrderBy(Comment.date, Descending), MaxRows(1))
-
-  def getLatestComment(user : User) : Option[Comment] =
-    Comment.find(By(Comment.author, user), 
-		 OrderBy(Comment.date, Descending), MaxRows(1))
+  def getArousal(user1 : User, user2 : User) : Double =
+    VoteMap.getCurrentWeight(user1) *
+    VoteMap.getCurrentWeight(user2) *
+    getEmotion(user1,user2).map{ _.arousal.is }.getOrElse(0.0)
 
 }

@@ -29,5 +29,21 @@ object Comment extends Comment with LongKeyedMetaMapper[Comment] {
 
   def get(author : User, nominee : Votable) : Option[Comment] =
     find(By(Comment.author, author), By(Comment.nominee, nominee))
+
+  def getText(author : User, nominee : Votable) : String =
+    get(author, nominee). map { _.content.is }.getOrElse("")
+
+  def getTime(author : User, nominee : Votable) : Long =
+    get(author, nominee). map { _.date.is }.getOrElse(0L)
+
+  def getLatest(nominee : Votable) : Option[Comment] =
+    find(By(Comment.nominee, nominee), 
+	 OrderBy(Comment.date, Descending), MaxRows(1))
+
+  def getLatest(user : User) : Option[Comment] =
+    find(By(Comment.author, user), 
+	 OrderBy(Comment.date, Descending), MaxRows(1))
+
+
 }
 

@@ -26,11 +26,11 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     def sqr(x:Double)= x*x
     root match {
       case VotableUser(user1) => node match {
-	case VotableQuery(_) =>  sqr(VoteCounter.getWeight(user1, node))
+	case VotableQuery(_) =>  sqr(VoteMap.getWeight(user1, node))
 	case VotableUser(user2) => VoteCounter.getSympathy(user1, user2)
       }
       case _ => node match {
-	case VotableUser(user) => sqr(VoteCounter.getWeight(user, node))
+	case VotableUser(user) => sqr(VoteMap.getWeight(user, node))
 	case _ => 0.0
       }
     }
@@ -93,7 +93,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     .foreach{ e=>
       var opt=""
       if (e.to.isQuery) {
-	val w= VoteCounter.getWeight(e.from, e.to)
+	val w= VoteMap.getWeight(e.from, e.to)
 	opt= "[color=\""+(if (w>=0) "black" else "red")+"\"]"
       }
       out("\""+VotableUser(e.from).uri+
