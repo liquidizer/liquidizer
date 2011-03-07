@@ -153,7 +153,9 @@ class VotingHelper {
 		override def updateValue(newValue : Int) : JsCmd = 
 		  super.updateValue(newValue) & vote(nominee, newValue) }
 	      .render(children)
-
+	    case "a" =>
+	      val href= attribs.get("href").get.text
+	      <a href={VotableUser(me).uri+"/"+href}>{ children }</a>
 	    case "editButton" =>
 	      buttonFactory.toggleButton
 	    case "isDelegated" => if (nominee match {
