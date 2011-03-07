@@ -8,6 +8,8 @@ object VoteMap {
   val WEIGHT_DECAY= 0.02 / Tick.day
   val EPS= 1e-5
 
+  var convertDB= 0L
+
   /** In memory representation for the latest tick */
   class NomineeHead(val nominee : Votable) {
     var smooth = 0.0
@@ -65,7 +67,13 @@ object VoteMap {
   def id(user : User) = user.id.is.toInt
   def id(query : Query) = query.id.is.toInt
   def queryFromId(id : Int) = Query.getQuery(id.toLong)
-
+  
+  def getUserHead(user : User) = users.get(user).getOrElse {
+    val head= new UserHead(user)
+    users += user -> head
+    head
+  }
+  
   def update(time : Long) : Unit = synchronized {
     // iterative matrix solving
     sweep(time, 1000, 1e-4)
@@ -123,14 +131,12 @@ object VoteMap {
   def sweep(time : Long, maxIter : Int, eps : Double) : Unit = {
     val t0= latestUpdate
     latestUpdate= time // new Votes must be cast after this time
-    var votes = Vote.findAll(By_>(Vote.date, t0))
+    var votes = Vote.findAll(By_>(Vote.date, t0), By_<(Vote.date, convertDB))
 
     // update latest vote counter
     for (vote <- votes) {
       val user= vote.owner.obj.get
-      if (!users.contains(user))
-	users += (user -> new UserHead(user))
-      users.get(user).get.update(vote.date.is)
+      getUserHead(user).update(vote.date.is)
     }
 
     var list= votes.map {_.owner.obj.get}.removeDuplicates
@@ -140,7 +146,7 @@ object VoteMap {
     while (!list.isEmpty && iterCount<maxIter) {
       var nextList= List[User]()
       for (user <- list) {
-	val head= users.get(user).get
+	val head= getUserHead(user)
 
 	// reset the voting vector
 	val decay= head.weight(time)
@@ -151,10 +157,9 @@ object VoteMap {
 	for (vote <- Vote.findAll(By(Vote.owner, user)).filter(_.weight!=0)) {
 	  vote.nominee.obj.get match {
             case VotableUser(user) => 
-              // the vote is a delegation, mix in delegate's voting weights
-		val uHead= users.get(user)
-               if (!uHead.isEmpty)
-                 vec.addDelegate(vote.weight.is, uHead.get.vec)
+              // mix in the delegate's voting weights
+		users.get(user).foreach { 
+		  h => vec.addDelegate(vote.weight.is, h.vec) }
 	    case VotableQuery(query) => 
 	      // the vote is cast on a query
 	      vec.addVote(vote.weight.is, id(query))

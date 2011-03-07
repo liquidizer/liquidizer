@@ -23,7 +23,11 @@ object VoteCounter {
       Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
 	vote =>
           // recompute results 
-          if ((vote.date.is / Tick.day) > (time / Tick.day)) refresh()
+          if ((vote.date.is / Tick.day) > (time / Tick.day)) {
+	    VoteMap.convertDB= (time/Tick.day)*Tick.day
+	    println("converting tick "+Tick.format(VoteMap.convertDB))
+	    VoteMap.update(VoteMap.convertDB)
+	  }
 	  time= vote.date.is
       }
       // delete historic votes
@@ -36,6 +40,7 @@ object VoteCounter {
 	    }
       }
     }
+    VoteMap.convertDB=Tick.now+10000*Tick.day
     refresh()
   }
   
