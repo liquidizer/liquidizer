@@ -7,22 +7,22 @@ object VoteVectorTest {
     val v4= new VoteVector(4)
 
     for (i <- 1 to 5) {
-      println(v1 + " -> "+ v1.getInflow)
-      println(v2 + " -> "+ v2.getInflow)
-      println(v3 + " -> "+ v3.getInflow)
-      println(v4 + " -> "+ v4.getInflow)
+      println(v1)
+      println(v2)
+      println(v3)
+      println(v4)
       println()
 
       val w= 1.0
-      v1.clear(1.0)
-      v1.addSupporter(w/2.0, v2)
+      v1.clear()
+      v1.addDelegate(w/2.0, v2)
 
-      v2.clear(1.0)
-      v2.addSupporter(w, v3)
-      v2.addSupporter(w, v4)
+      v2.clear()
+      v2.addDelegate(w, v3)
+      v2.addDelegate(w, v4)
       
-      v3.clear(1.0)
-      v3.addSupporter(w/2.0, v2)
+      v3.clear()
+      v3.addDelegate(w/2.0, v2)
 
     }
     exit(0)
