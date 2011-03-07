@@ -2,12 +2,12 @@ package org.liquidizer.lib
 
 class VoteVector(val userID : Int, 
 		 var votes : Array[Double], 
-		 var supporters : Array[Double]) {
+		 var idols : Array[Double]) {
 
   def this(userID : Int) = this(userID, new Array[Double](0), new Array[Double](userID+1))
 
   def this(other : VoteVector) = 
-    this(other.userID, other.votes.clone, other.supporters.clone)
+    this(other.userID, other.votes.clone, other.idols.clone)
 
   def normalize(vec : Array[Double], norm : Double) =
     for (i <- 0 to vec.length-1)
@@ -17,8 +17,11 @@ class VoteVector(val userID : Int,
     val norm= votes.foldLeft(0.0) { (a,b) => a+b*b }
     if (norm > 1e-8)
       normalize(votes, Math.sqrt(norm))
-    else
-      supporters(userID)= 0.0
+    val maxD= Math.max(
+      idols.slice(0, userID).foldLeft(0.) { _ max _},
+      idols.drop(userID+1).foldLeft(0.) { _ max _})
+    if (maxD > 1e-8)
+      normalize(idols, maxD)
   }
   
   def clear(vec : Array[Double], value : Double) = {
@@ -26,10 +29,10 @@ class VoteVector(val userID : Int,
   }
   
   /** clear all weights */
-  def clear(weight: Double) : Unit = {
+  def clear() : Unit = {
     clear(votes, 0.0)
-    clear(supporters, 0.0)
-    supporters(userID)= weight
+    clear(idols, 0.0)
+    idols(userID)= 1.0
   }
 
   /** enlarge a vector if necessary */
@@ -45,26 +48,24 @@ class VoteVector(val userID : Int,
       vec1(i) += vec2(i)
   }
 
-  def addSupporter(weight : Double, other : VoteVector) = {
-    val len= supporters.length
-    val olen= other.supporters.length
-    val sup= other.getInflow
-    supporters= enlarge(supporters, olen)
-    // add the delegation weights for all users
-    val circular= if (olen>userID) other.supporters(userID) else 0.0
-    for (i <- 0 to olen-1)
-      supporters(i) += weight * (other.supporters(i) - circular*supporters(i)).max(0)
-  }
-  
   def addVote(weight : Double, queryId : Int) = {
     votes= enlarge(votes, queryId+1)
     votes(queryId) += weight
   }
 
-  def addDelegate(weight : Double, delegate : VoteVector) = {
-    votes= enlarge(votes, delegate.votes.length);
-    for (i <- 0 to delegate.votes.length-1)
-      votes(i)+= weight * delegate.votes(i)
+  def addDelegate(weight : Double, other : VoteVector) = {
+    votes= enlarge(votes, other.votes.length);
+    for (i <- 0 to other.votes.length-1)
+      votes(i)+= weight * other.votes(i)
+
+    val len= idols.length
+    val olen= other.idols.length
+    idols= enlarge(idols, olen)
+    // add the delegation weights for all users
+    val circular= if (olen>userID) other.idols(userID) else 0.0
+    for (i <- 0 to olen-1)
+      idols(i) += weight * (other.idols(i) - circular*idols(i)).max(0)
+
   }
 
   def dotProd(other : VoteVector, abs: Boolean) : Double = {
@@ -82,23 +83,21 @@ class VoteVector(val userID : Int,
     var dist= 0.0
     for (i <- 0 to Math.min(votes.length, other.votes.length)-1)
       dist = dist.max((votes(i)-other.votes(i)).abs)
-    for (i <- 0 to Math.min(supporters.length, other.supporters.length)-1)
-      dist = dist.max((supporters(i)-other.supporters(i)).abs)
+    for (i <- 0 to Math.min(idols.length, other.idols.length)-1)
+      dist = dist.max((idols(i)-other.idols(i)).abs)
     dist
   }
 
   def getVotingWeight(queryId : Int) : Double = 
-    if (queryId < votes.length) getActiveWeight * votes(queryId) else 0.0
+    if (queryId < votes.length) votes(queryId) else 0.0
   
-  def getActiveWeight() = supporters(userID)
+  def getDelegationWeight(idolId : Int) =
+    if (idolId < idols.length) idols(idolId) else 0.0
 
-  def getSupportWeight(userId : Int) =
-    if (userId < supporters.length) supporters(userId) else 0.0
-
-  def getInflow() : Double = supporters.reduceLeft { _+_ }
+  def getMaxDelegation() : Double = idols.reduceLeft { _ max _ }
 
   override def toString() = userID+" : "+
-    votes.map { x=> Math.round(x*100.0)/100.0 }.mkString("[",", ","]") + " : "+
-    supporters.map { x=> Math.round(x*100.0)/100.0 }.mkString("[",", ","]")
+    votes.map { "#.##".format(_) }.mkString("[",", ","]") + " : "+
+    idols.map { "#.##".format(_) }.mkString("[",", ","]")
 }
 

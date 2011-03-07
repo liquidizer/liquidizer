@@ -45,7 +45,7 @@ object HistogramView {
     val histMap= mutable.Map.empty[Int, Int]
     
     VoteCounter
-    .getAllVoters(query)
+    .getAllVoters(VotableQuery(query))
     .filter { VoteCounter.getWeight(_, VotableQuery(query)).abs > 5e-3 }
     .foreach { user => 
       val weight= VoteCounter.getWeight(user, VotableQuery(query)) 

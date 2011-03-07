@@ -3,7 +3,7 @@ package org.liquidizer.view
 import scala.xml._
 import scala.collection.mutable
 
-import org.liquidizer.lib.VoteCounter
+import org.liquidizer.lib.VoteMap
 import org.liquidizer.model.Tick
 
 class ResultCache[T] {
@@ -18,8 +18,7 @@ class ResultCache[T] {
   }
 
   def get(key:String, options:Map[String,String]) : Option[T] = {
-    VoteCounter.refresh
-    val time= VoteCounter.time
+    val time= VoteMap.latestUpdate
     if (time > cacheTime) {
       clear(time)
     }

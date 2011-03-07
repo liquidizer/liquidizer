@@ -29,9 +29,9 @@ object EmotionView {
     val v= doubleParam("v", 0.5)
     val a= doubleParam("a", 0.5)
     val p= doubleParam("p", 0.5)
+//    val s= doubleParam("s", 0.5)
     val size= doubleParam("size", 100).toInt
-    //TODO val scale= doubleParam("scale", 1.0)
-    val scale=1.0
+    val scale= doubleParam("scale", 1.0)
     val view= S.param("view").getOrElse("front")
 
     var node= view match {
@@ -58,13 +58,10 @@ object EmotionView {
 	User.currentUser match {
 	  case Full(me) => {
 	    // compute face size based on distance metrics
-	    val scale= VoteCounter.getDelegationScale(me)
+	    val maxPref= VoteCounter.getMaxDelegation(me)
 	    val dist= if (other==me) 1.0 else {
 	      val w= Math.sqrt(VoteCounter.getWeight(me, VotableUser(other)))
-	      if (scale._2==0)
-		1.0
-	      else
-		1.0 + 0.2*(w/Math.sqrt(scale._1) - 0.5)*(scale._2 min 3)
+		1.0 + 0.2*(w - 0.5)*(maxPref min 3)
 	    }
 	    val fdist= SVGUtil.format(dist min 1.25)
 

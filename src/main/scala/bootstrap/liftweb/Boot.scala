@@ -39,7 +39,6 @@ class Boot {
 
     println("Starting LIQUIDIZER")
     VoteCounter.init
-    LiftRules.unloadHooks.append(() => VoteCounter.stop())     
 
     // where to search snippet
     LiftRules.addToPackages("org.liquidizer")

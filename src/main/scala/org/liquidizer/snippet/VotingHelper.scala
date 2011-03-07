@@ -181,7 +181,7 @@ class VotingHelper {
 	      val sign= attribs.get("weight").get.text.toInt
 	      renderVote(() => 
 		Text(VoteCounter
-		     .getAllVoters(query)
+		     .getAllVoters(VotableQuery(query))
 		     .filter{ sign*VoteCounter.getWeight(_, nominee)>0 } 
 		     .size.toString))
 	    case _ => in

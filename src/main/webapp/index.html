@@ -2,7 +2,7 @@
   <lift:bind-at name="title"><lift:loc>system.homepage</lift:loc></lift:bind-at>
   <lift:bind-at name="content">
     <lift:form>
-      <lift:UserInfo.in>
+      <lift:UserInfo.in eager_eval="true">
 	<div class="balance">
 	  <h2 class="orange">
 	    <lift:loc>welcome.to.liquidizer</lift:loc>,

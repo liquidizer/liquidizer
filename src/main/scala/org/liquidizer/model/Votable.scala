@@ -5,12 +5,12 @@ import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 
 object VotableQuery {
-  def apply(query : Query) : Votable = query.nominee.obj.get
+  def apply(query : Query) : Votable = query.nominee
   def unapply(nominee : Votable) : Option[Query] =
     if (nominee.isQuery) Some(nominee.query.obj.get) else None
 }
 object VotableUser {
-  def apply(user : User) : Votable = user.nominee.obj.get
+  def apply(user : User) : Votable = user.nominee
   def unapply(nominee : Votable) : Option[User] =
     if (nominee.isUser) Some(nominee.user.obj.get) else None
 }
@@ -19,8 +19,8 @@ class Votable extends LongKeyedMapper[Votable] with IdPK {
   def getSingleton = Votable
 
   // subject of vote
-  object query extends MappedLongForeignKey(this, Query)
-  object user extends MappedLongForeignKey(this, User)
+  object query extends MappedLongForeignKey(this, Query) with DBIndexed
+  object user extends MappedLongForeignKey(this, User) with DBIndexed
   
   def isQuery() = query.defined_?
   def isUser() = user.defined_?

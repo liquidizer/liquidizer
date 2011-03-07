@@ -319,7 +319,6 @@ class UserSignUp extends StatefulSnippet {
 	  .password(passwd1)
 	  .validated(User.skipEmailValidation)
 	  user.save
-	  user.createNominee
 
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet

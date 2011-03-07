@@ -10,55 +10,21 @@ import _root_.net.liftweb.common._
 import org.liquidizer.model._
 import java.io._
 
-/** The VoteCounter keeps track of all cast votes. It provides fast access to the latest 
- results and statistical data.
+/** The VoteCounter keeps track of all cast votes.
+ *  It provides fast access to the latest results and statistical data.
  */
 object VoteCounter {
 
-  val mapper= new VoteMapper
-  var time = 0L
-  
-  class VoteMapper extends Actor with Logger {
-    def act = {
-      loop {
-	react {
-	  case 'PUSH =>  {
-	    var senders = sender :: Nil
-	    while (mailboxSize>0) receive {
-	      case 'PUSH =>
-	        senders ::= sender
-	      case 'STOP =>
-		exit()
-	    }
-	    updateFactors()
-	    senders.foreach { _ ! 'FINISHED }
-	  }
-	  case 'STOP =>  exit()
-	}
-      }
-    }
-
-    def updateFactors() = {
-      val t0= Tick.now
-      VoteMap.update(t0)
-      val t1= Tick.now
-      info("Vote results update took "+(t1-t0)+" ms")
-    }
-  }
-  
-  def stop() = mapper ! 'STOP
-  def refresh() = mapper !? 'PUSH
-
   def init() = {
-    mapper.start
-    
     // Refactor DB
     if (Tick.findAll.isEmpty) {
       // recompute history
+      var time=0L
       Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
 	vote =>
           // recompute results 
-          if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
+          if ((vote.date.is / Tick.day) > (time / Tick.day)) refresh()
+	  time= vote.date.is
       }
       // delete historic votes
       var map= Set[(User,Votable)]()
@@ -70,20 +36,23 @@ object VoteCounter {
 	    }
       }
     }
-    mapper.updateFactors
     refresh()
   }
   
-  def getDelegationScale(user : User) : (Double, Int)= {
-    var scale=0.0
-    var pref=0
-    getActiveVotes(user)
-    .map { 
-      case u @ VotableUser(_) => 
-	scale= scale max getWeight(user, u)
-        pref= pref max getPreference(user, u)
-      case _ =>  }
-    (scale, pref)
+  /** recompte the results for all newly cast votes */
+  def refresh() = synchronized {
+    val t0= Tick.now
+    VoteMap.update(t0)
+    val t1= Tick.now
+    println("Vote results update took "+(t1-t0)+" ms")
+  }
+
+  /** Maximum delegation weight. Used to compute emoticon size */
+  def getMaxDelegation(user : User) : Int = {
+    Vote.findAll(By(Vote.owner,user))
+    .filter { _.nominee.obj.get.isUser }
+    .map { _.weight.is }
+    .foldLeft(0) { _ max _ }
   }
 
   /** Total voting result for a votable nominee */
@@ -91,6 +60,7 @@ object VoteCounter {
     VoteMap.getResult(nominee).getOrElse(Quote(0.0, 0.0))
   }
 
+  /** Get a measure of how much the vote changed recently */
   def getSwing(nominee : Votable) : Double = {
     VoteMap.nominees.get(nominee).map { 
       head => (head.smooth - head.result.value).abs }.getOrElse(0.0)
@@ -104,11 +74,9 @@ object VoteCounter {
     VoteMap.getWeight(user, nominee)
   }
   
-  //TODO deprecate
-  def getAllVoters(query : Query) : List[User] = getAllVoters(VotableQuery(query))
-
   def getAllVoters(nominee : Votable) : List[User] = {
     var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
+    // find voters recursively as voters and followers
     var proc= List(nominee)
     while (!proc.isEmpty) {
       val votes= proc.flatMap{ n => Vote.findAll(By(Vote.nominee, n)) }
@@ -123,19 +91,21 @@ object VoteCounter {
   }
 
   def getAllVotes(user : User) : List[Query] = {
-    var list= Comment.findAll(By(Comment.author, user)).map { _.nominee.obj.get }
-    var proc= List(user)
-    while (!proc.isEmpty) {
-      val votes= proc.flatMap{ u => Vote.findAll(By(Vote.owner, u)) }
-      val next= votes
-      .filter{ _.weight.is!=0 }.map{ _.nominee.obj.get }
-      .filter{ getWeight(user, _).abs > VoteMap.EPS }
-      .removeDuplicates -- list
-      proc=  next.filter{ _.isUser }.map { _.user.obj.get }
-      list ++= next
+    // extract list from voting vector
+    var list= List[Query]()
+    VoteMap.getVoteVector(user).foreach { vec =>
+      for (i <- 0 to vec.votes.length-1) {
+	val w= vec.getVotingWeight(i)
+	if (w.abs > VoteMap.EPS)
+	  VoteMap.queryFromId(i).foreach { list ::= _ }
+      }
     }
-    //TODO return list of votables
-    list.filter{ _.isQuery }.map{ _.query.obj.get }
+    // include commentors
+    val commentors= Comment.findAll(By(Comment.author, user))
+    .map { _.nominee.obj.get }
+    .filter{_.isQuery}.map { _.query.obj.get }
+    // remove duplicates
+    (list -- commentors) ++ commentors
   }
 
   def getActiveVoters(nominee : Votable) : List[User] = {
@@ -163,6 +133,8 @@ object VoteCounter {
     VoteMap.getEmotion(user1, user2)
 
   def getSympathy(user1 : User, user2 : User) : Double =
+    VoteMap.getCurrentWeight(user1) *
+    VoteMap.getCurrentWeight(user2) *
     getEmotion(user1,user2).map{ _.valence.is }.getOrElse(0.0)
 
   def getCommentText(author : User, nominee : Votable) : String =
