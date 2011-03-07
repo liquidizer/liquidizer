@@ -8,42 +8,43 @@
 	<div>
 	  <table width="100%">
 	    <tr>
-	      <td colspan="4">
+	      <td colspan="5">
 		<h3><span>$user</span> : <poll:name/></h3>
 	      </td>
 	    </tr>
 	    <tr>
-	      <td colspan="4">
+	      <td colspan="5">
 		<user:profile/>
 		<user:itsme>
 		  <me:editButton/>
 		</user:itsme>
 	      </td>
 	    </tr>
-	    <td rowspan="3" height="80" width="80">
-	      <user:emoticon size="80"/>
-	    </td>
 	    <tr>
-	      <td rowspan="2"/>
+	      <td rowspan="3" height="80" width="80">
+		<user:emoticon size="80"/>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td/>
 	      <lift:UserInfo.in>
 		<user:notme>
 		  <th class="vote_user">$your.preference</th>
+		  <th class="vote_result">$sort.sympathy</th>
 		</user:notme>
 	      </lift:UserInfo.in>
-	      <th class="vote_result">$inflow</th>
-	      <th class="vote_result">$outflow</th>
+	      <th class="vote_result">$sort.popularity</th>
 	    </tr>
 	    <tr>
+	      <td/>
 	      <lift:UserInfo.in>
 		<user:notme>
 		  <td class="vote_user"><me:vote/></td>
+		  <td align="center"><user:sympathy/></td>
 		</user:notme>
 	      </lift:UserInfo.in>
 	      <td align="center">
-		<user:inflow/>
-	      </td>
-	      <td align="center">
-		<user:outflow/>
+		<user:popularity/>
 	      </td>
 	    </tr>
 	  </table>

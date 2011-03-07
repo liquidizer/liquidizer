@@ -5,6 +5,7 @@ import org.liquidizer.model._
 
 object VoteMap {
   val DECAY= 5e-10
+  val EPS= 1e-5
 
   /** In memory representation for the latest tick */
   class NomineeHead(val nominee : Votable) {
@@ -27,15 +28,17 @@ object VoteMap {
     
     /** Set the new Result */
     def update(time : Long, quote : Quote) = {
-      // record a new tick every minute
-      if (tick.exists { _.time.is/Tick.min < time/Tick.min}) tick=None
-      // otherwise update the existing tick
-      tick = Some(
-	tick.getOrElse { Tick.create.votable(nominee) }
-	.time(time)
-	.quote(quote))
-      // persist result
-      tick.get.save
+      if (!tick.exists( _.quote.distanceTo(quote)<EPS)) {
+	// record a new tick every minute
+	if (tick.exists { _.time.is/Tick.min < time/Tick.min}) tick=None
+	// otherwise update the existing tick
+	tick = Some(
+	  tick.getOrElse { Tick.create.votable(nominee) }
+	  .time(time)
+	  .quote(quote))
+	// persist result
+	tick.get.save
+      }
     }
   }
 
@@ -50,7 +53,7 @@ object VoteMap {
 
   var users= Map[User, UserHead]()
   var nominees= Map[Votable, NomineeHead]()
-  var lastUpdate = 0L
+  var latestUpdate = 0L
 
   def id(user : User) = user.id.is.toInt
   def id(query : Query) = query.id.is.toInt
@@ -60,30 +63,35 @@ object VoteMap {
     // iterative matrix solving
     sweep(time, 1000, 1e-4)
 
+    // Prepare result map
+    var resultMap= Map(nominees.keys.toSeq.filter{_.isQuery}.map{ case VotableQuery(query) => id(query) -> Quote(0,0)}:_*)
     // collect the results for each nominee
-    var resultMap= Map[Int, Quote]()
     for (user <- users) {
-      val votes= user._2.vec.votes
-      for (i <- 0 to votes.length-1) {
-	if (votes(i).abs > 1e-8) {
+      val vec= user._2.vec
+      for (i <- 0 to vec.votes.length-1) {
+	if (vec.votes(i).abs > EPS) {
 	  if (!resultMap.contains(i)) resultMap += i -> Quote(0,0)
-	  resultMap.get(i).get += votes(i)
+	  resultMap.get(i).get += vec.votes(i) * vec.getActiveWeight
 	}
       }
     }
-
-    // set election results
+    // persist election results
     resultMap.foreach { case (i,quote) => 
       setResult(time, VotableQuery(queryFromId(i).get), quote) }
 
     // compute popularity
+    val denom= 
+      1.0/Math.sqrt(resultMap.foldLeft(0.)
+		    { (a,b) => a + Math.pow(b._2.value,2.0) })
     for (user <- users) {
-      val votes= user._2.vec.votes
+      val vec= user._2.vec
       var pop= Quote(0,0)
-      for (i <- 0 to votes.length-1) {
-	if (votes(i).abs > 1e-8) pop = pop + (resultMap.get(i).get * votes(i))
+      for (i <- 0 to vec.votes.length-1) {
+	val w= vec.getVotingWeight(i)
+	if (w.abs > EPS)
+	  pop = pop + resultMap.get(i).getOrElse(Quote(0,0)) * w
       }
-      setResult(time, VotableUser(user._1), pop)
+      setResult(time, VotableUser(user._1), pop*denom)
     }
   }
 
@@ -97,9 +105,11 @@ object VoteMap {
 
   /** Iterative step to solve the equation system */
   def sweep(time : Long, maxIter : Int, eps : Double) : Unit = {
-    var votes = Vote.findAll(By_>(Vote.date, lastUpdate))
+    val t0= latestUpdate
+    latestUpdate= time // new Votes must be cast after this time
+    var votes = Vote.findAll(By_>(Vote.date, t0))
 
-    // update last vote counter
+    // update latest vote counter
     for (vote <- votes) {
       val user= vote.owner.obj.get
       if (!users.contains(user))
@@ -108,7 +118,7 @@ object VoteMap {
     }
 
     var list= votes.map {_.owner.obj.get}.removeDuplicates
-    var iterCount= maxIter
+    var iterCount= 0
     
     // repeat until convergence is reached
     while (!list.isEmpty && iterCount<maxIter) {
@@ -149,7 +159,6 @@ object VoteMap {
       }
       list= nextList.removeDuplicates
     }
-    lastUpdate= time
   }
 
   /** Get the VoteVector */
@@ -176,26 +185,30 @@ object VoteMap {
     Vote.get(user,nominee).map { _.weight.is }.getOrElse(0)
 
   def isActive(user : User) : Boolean =
-    user.validated && users.get(user).exists { _.vec.getActiveWeight>0 }
+    user.validated && users.get(user).exists { _.vec.getActiveWeight>EPS }
 
-  def getEmotion(user1 : User, user2 : User, time : Long) : Option[Emotion] = {
+  def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
     if (isActive(user1) && isActive(user2)) {
       val emo= Emotion.get(user1, user2)
-
-      // decay of emotional arousal
-      emo.update(time, VoteMap.DECAY)
 
       // check if emotion needs to be updated
       val head1= users.get(user1).get
       val head2= users.get(user2).get
 
       // compute new emotion
-      if (head1.latestUpdate>time || head2.latestUpdate>time) {
+      if (Math.max(head1.latestUpdate,head2.latestUpdate)>emo.time.is) {
+	emo.update(latestUpdate, VoteMap.DECAY)
 	emo.valence(head1.vec.dotProd(head2.vec, false))
 	emo.potency(head1.vec.dotProd(head2.vec, true))
-	emo.update(time, VoteMap.DECAY)
+	emo.update(latestUpdate, VoteMap.DECAY)
 	emo.save
+	println("NEW EMOTION= "+emo)
+      } else {
+	// decay of emotional arousal
+	emo.update(latestUpdate, VoteMap.DECAY)
       }
+      
+      println("EMOTION= "+emo)
 
       Some(emo)
     } else

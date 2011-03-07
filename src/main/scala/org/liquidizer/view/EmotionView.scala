@@ -30,7 +30,8 @@ object EmotionView {
     val a= doubleParam("a", 0.5)
     val p= doubleParam("p", 0.5)
     val size= doubleParam("size", 100).toInt
-    val scale= doubleParam("scale", 1.0)
+    //TODO val scale= doubleParam("scale", 1.0)
+    val scale=1.0
     val view= S.param("view").getOrElse("front")
 
     var node= view match {

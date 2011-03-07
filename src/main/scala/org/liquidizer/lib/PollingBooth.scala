@@ -16,7 +16,7 @@ object PollingBooth {
       obj.map { _.delete_! }
     } else {
       obj.getOrElse(Comment.create)
-      .date(Tick.now)
+      .date(Tick.now max (VoteMap.latestUpdate+1))
       .author(author)
       .nominee(nominee)
       .content(text).save
@@ -29,12 +29,18 @@ object PollingBooth {
       Vote.create.owner(owner).nominee(nominee)
     }.date(Tick.now).weight(weight)
     vote.save
-    VoteCounter.refresh
   }
 
   def clearComments(owner : User) = {
     for(comment <- Comment.findAll(By(Comment.author, owner))) {
       comment.delete_!
     }
+  }
+
+  def clearVotes(user : User) = {
+    VoteCounter.getActiveVotes(user).foreach {
+      vote(user, _, 0)
+    }
+    VoteCounter.refresh()
   }
 }

@@ -57,7 +57,7 @@ class UserDetails extends MultipageSnippet {
       VoteCounter.getActiveVoters(VotableUser(user))
       .filter { searchFilter _ }
       .map { VotableUser(_) }
-    sortData(sortFunction(order.getOrElse("flow"), VotableUser(user)))
+    sortData(VotableUser(user))
   }
   def loadDelegates() = {
     data= 
@@ -66,7 +66,7 @@ class UserDetails extends MultipageSnippet {
 	case VotableUser(user) => searchFilter(user)
         case _ => false
       }
-    sortData(sortFunction(order.getOrElse("flow"), user))
+    sortData(user)
   }
 
   def render(in : NodeSeq) : NodeSeq = {

@@ -12,6 +12,8 @@ case class Quote(var pro:Double, var contra:Double) {
     pro += value max 0
     contra -= value min 0
   }
+  def distanceTo(other : Quote) = 
+    (pro-other.pro).abs.max((contra-other.contra).abs)
   def value : Double = pro - contra
   def volume : Double = pro + contra
 }

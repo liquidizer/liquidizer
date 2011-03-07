@@ -3,11 +3,9 @@
     <table width="100%">
       <tr height="50">
 	<th/><th/>
-	<th  class="vote_result"><lift:loc>outflow</lift:loc></th>
+	<th  class="vote_result">$sort.sympathy</th>
 	<lift:UserInfo.in>
-	  <user:itsme>
-	    <th  class="vote_user"><lift:loc>vote.delegate</lift:loc></th>
-	  </user:itsme>
+	  <th  class="vote_user">$vote.delegate</th>
 	</lift:UserInfo.in>
       </tr>
       <user:delegates>
@@ -27,13 +25,11 @@
 	    </div>
 	  </td>
 	  <td align="center">
-	    <vote:weight style="contra"/>
+	    <vote:sympathy/>
 	  </td>
 	  <lift:UserInfo.in>
 	    <td class="vote_user">
-	      <poll:notme>
-		<user:itsme><me:vote/></user:itsme>
-	      </poll:notme>
+	      <poll:notme><me:vote/></poll:notme>
 	    </td>
 	  </lift:UserInfo.in>
 	</tr>
@@ -45,7 +41,7 @@
       <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
       <lift:MenuMarker>
 	<ul class="popup" id="sort">
-	  <menu:a action="sort" value="flow" default="true" icon="weight">$sort.weight</menu:a>
+	  <menu:a action="sort" value="weight" default="true" icon="weight">$sort.weight</menu:a>
 	  <menu:a action="sort" value="comment_age" icon="comment">$sort.comment_age</menu:a>
 	  <lift:UserInfo.in>
 	    <menu:a action="sort" value="valence" icon="sympathy">$sort.sympathy</menu:a>

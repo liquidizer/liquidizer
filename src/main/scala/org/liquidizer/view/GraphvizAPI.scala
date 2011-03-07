@@ -1,8 +1,7 @@
 package org.liquidizer.view
 
 import scala.xml.NodeSeq
-import scala.collection.mutable
-import java.util._
+import java.util.{PriorityQueue, Comparator}
 
 import net.liftweb.mapper._
 import net.liftweb.common._
@@ -11,63 +10,50 @@ import org.liquidizer.lib._
 import org.liquidizer.model._
 
 case class Edge(val from: User, val to: Votable)
-case class Entry(val node: Votable,  edge : Edge, weight: Double)
+case class Entry(val node: Votable,  weight: Double)
 
-class GraphvizAPI extends CommandAPI("dot -Tsvg") {
+class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 
-  val nodes= mutable.ArrayBuffer.empty[Votable]
-  val edges= mutable.Set.empty[Edge]
+  var nodes= Set[Votable]()
+  var edges= Set[Edge]()
   val queue= new PriorityQueue[Entry] (10, new Comparator[Entry] {
     def compare(x: Entry, y: Entry) = -(x.weight.abs compare y.weight.abs)
   })
-  val options= mutable.Map.empty[Any, String]
 
   def formatDouble(value : Double)= String.format("%3.2f",double2Double(value))
 
-  def setOptions(edge : Edge) : Double = {
-    var label= 1.0
-    var factor= 1.0 
-    edge.to match {
-      case VotableQuery(_) => 
-	label= VoteCounter.getWeight(edge.from, edge.to)
-        factor = label * label.abs * 0.5
-      case VotableUser(user) => 
-	factor = VoteCounter.getDelegationInflow(edge.from)*
-                  VoteCounter.getCumulativeWeight(edge.from, edge.to)
-        label= factor
+  def getWeight(node : Votable) = {
+    def sqr(x:Double)= x*x
+    root match {
+      case VotableUser(user1) => node match {
+	case VotableQuery(_) =>  sqr(VoteCounter.getWeight(user1, node))
+	case VotableUser(user2) => VoteCounter.getSympathy(user1, user2)
+      }
+      case _ => node match {
+	case VotableUser(user) => sqr(VoteCounter.getWeight(user, node))
+	case _ => 0.0
+      }
     }
-    // always show the current User if adjacent
-    User.currentUser match {
-      case Full(user) if user==edge.from || VotableUser(user)==edge.to => 
-	if (!nodes.contains(VotableUser(user))) {
-	  factor=1.0
-	  options.put(VotableUser(user), 
-		      "style=\"filled\" fillcolor=\"#FF9933\"")
-	}
-      case _ => 
-    }
-    options.put(edge, 
-		"color=\""+(if (factor>=0) "black" else "red")+"\" " +
-		"label=\""+formatDouble(label)+"\"")
-    factor
   }
 
-  def process(node : Votable, weight : Double) = {
+  def addEntry(node : Votable) = queue.add(Entry(node, getWeight(node)))
+
+  def process(node : Votable) = {
     for (user <- VoteCounter.getActiveVoters(node)) {
       val edge= Edge(user, node)
-      if (!options.contains(edge)) {
-	val factor= setOptions(edge)
-	queue.add(Entry(VotableUser(user), edge, weight * factor))
+      if (!edges.contains(edge)) {
+	edges+=edge
       }
+      if (!nodes.contains(VotableUser(user))) addEntry(VotableUser(user))
     }
     node match {
       case VotableUser(user) => 
 	for (nominee <- VoteCounter.getActiveVotes(user)) {
 	  val edge= Edge(user, nominee)
-	  if (!options.contains(edge)) {
-	    val factor= setOptions(edge)
-	    queue.add(Entry(nominee, edge, weight * factor))
+	  if (!edges.contains(edge)) {
+	    edges+= edge
 	  }
+	  if (!nodes.contains(nominee)) addEntry(nominee)
 	}
       case _ =>
     }
@@ -75,19 +61,15 @@ class GraphvizAPI extends CommandAPI("dot -Tsvg") {
 
   def build(nominee : Votable, size : Int) : Unit = {
     nodes+= nominee
-    options.put(nominee,"style=\"filled\" fillcolor=\"#660099\" fontcolor=\"white\"")
-    process(nominee, 1.0)
+    process(nominee)
     while (nodes.size < size && !queue.isEmpty) {
       val cur= queue.poll
-      if (!edges.contains(cur.edge))
-	edges+=cur.edge
       if (!nodes.contains(cur.node)) {
-	nodes.append(cur.node)
-	process(cur.node, cur.weight)
+	nodes += cur.node
+	process(cur.node)
       }
     }
   }
-  
   
   def runGraphviz() : NodeSeq = {
     out("digraph delegationMap {")
@@ -95,7 +77,9 @@ class GraphvizAPI extends CommandAPI("dot -Tsvg") {
     var no=0
     nodes.foreach {
       node =>
-      var opt= options.get(node).getOrElse("")
+      var opt= ""
+      if (node==root)
+	opt= "style=\"filled\" fillcolor=\"#660099\" fontcolor=\"white\""
       node match {
 	case node @ VotableUser(user) => 
 	  val label= user.toString.replaceAll(" ","\\\\n")
@@ -104,11 +88,16 @@ class GraphvizAPI extends CommandAPI("dot -Tsvg") {
 	  no+= 1
 	  out("\""+node.uri+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
       }}
-    edges.foreach {
-      case edge @ Edge(from,to) =>
-      out("\""+VotableUser(from).uri+
-	  "\" -> \""+to.uri+"\" "+
-	  options.get(edge).map { "["+_+"]" }.getOrElse(""))
+    edges
+    .filter{ e=>nodes.contains(VotableUser(e.from)) && nodes.contains(e.to)}
+    .foreach{ e=>
+      var opt=""
+      if (e.to.isQuery) {
+	val w= VoteCounter.getWeight(e.from, e.to)
+	opt= "[color=\""+(if (w>=0) "black" else "red")+"\"]"
+      }
+      out("\""+VotableUser(e.from).uri+
+	  "\" -> \""+e.to.uri+"\" "+opt)
     }
     out("}")
     getSVG()

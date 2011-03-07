@@ -28,14 +28,20 @@ class VotingHelper {
     displayedVotes ::= (result, node)
     <span id={"dynamicvote"+displayedVotes.size}>{node}</span>
   }
-  def formatDouble(value : Double) : String =  String.format("%3.2f",double2Double(value+1e-3))
+  def formatDouble(value : Double) : String =  
+    String.format("%3.2f",double2Double(value+1e-3))
 
-  def formatResult(value : Double, style: String) : Node = 
-    <span class={style}> { formatDouble(value) } </span>
+  def getStyle(value : Double) =
+    if (value>=5e-3) "pro" else if (value< (-5e-3)) "contra" else "pass"
+
+  def formatResult(value : String, style: String) : Node = 
+    <span class={style}> { value } </span>
 
   def formatResult(value : Double) : Node =
-      formatResult(value, 
-		   if (value>=5e-3) "pro" else if (value< (-5e-3)) "contra" else "pass")
+      formatResult(formatDouble(value), getStyle(value)) 
+
+  def formatPercent(value : Double) : Node =
+    formatResult((value*100).toInt+"%", getStyle(value))
 
   def formatTrend(trend : Double) : Node =
     <img src={ "/images/" + { 
@@ -53,17 +59,8 @@ class VotingHelper {
       formatResult(r.value)
   }
 
-  def formatWeight(user: User, nominee : Votable, format:String):Node = {
-    format match {
-      case "decimal" => 
-	formatResult(VoteCounter.getWeight(user,nominee))
-      case _ => 
-	val weight= VoteCounter.getPreference(user, nominee)
-	val style= if (weight>5e-3) "pro" else if (weight< -5e-3) "contra" else "pass" 
-	<span class={style}>{
-	  if (weight>0) { "+" + weight } else weight.toString }</span>
-    }
-  }
+  def formatWeight(user: User, nominee : Votable):Node =
+    formatResult(VoteCounter.getWeight(user,nominee))
 
   def formatUser(user : User) : NodeSeq = formatNominee(VotableUser(user))
   def formatNominee(nominee : Votable) : NodeSeq = 
@@ -72,6 +69,7 @@ class VotingHelper {
   /** Update the voting preferences */
   def vote(nominee : Votable, newVote : Int) : JsCmd = {
     PollingBooth.vote(currentUser.get, nominee, newVote)
+    VoteCounter.refresh
     ajaxUpdate(nominee)
   }
   
@@ -108,7 +106,7 @@ class VotingHelper {
 	case "no" => no+=1; Text(no.toString)
 	case "title" => Text(nominee.toString)
 	case "result" =>
- 	  val showTrend= attribs.get("trend").map { _.text=="show" }.getOrElse( false )
+ 	  val showTrend= attribs.get("trend").exists { _.text=="show" }
 	  renderVote(() => formatResult(nominee, showTrend))
 	case "value" =>
 	  renderVote(() => Text(formatDouble(
@@ -146,10 +144,7 @@ class VotingHelper {
       case Elem("me", tag, attribs, scope, children @ _*) =>
 	currentUser match {
 	  case Full(me) => tag match {
-	    case "weight" =>
-	      renderVote(() => {
-		val format= attribs.get("format").getOrElse(Text("numer"))
-		formatWeight(me, nominee, format.text)} )
+	    case "weight" => renderVote(() => formatWeight(me, nominee))
 	    case "vote" =>
 	      val isUser= nominee.isUser
 	      new VoteControl(VoteCounter.getPreference(me, nominee),
@@ -204,17 +199,12 @@ class VotingHelper {
 	      buttonFactory.newCommentRecord(() => user.profile.is, 
 					     value => { user.profile(value); user.save }, maxlen)
 	      buttonFactory.toggleText
-	    case "inflow" =>  
-	      <a href={nominee.uri+"/support.html"}>{
-		renderVote(() => formatResult(VoteCounter.getDelegationInflow(user)))
-	      }</a>
-	    case "outflow" =>  
-	      <a href={nominee.uri+"/delegates.html"}>{
-		renderVote(() => {
-		  val outflow= VoteCounter.getDelegationOutflow(user)
-		  formatResult(outflow, if (outflow>5e-3) "contra" else "pass")
-		})
-	      }</a>
+	    case "sympathy" =>  
+	      renderVote(() => formatPercent(
+		currentUser.map {
+		VoteCounter.getSympathy(_, user) }.getOrElse(0.0)))
+	    case "popularity" =>  
+	      renderVote(() => formatPercent(VoteCounter.getResult(VotableUser(user)).value))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
@@ -285,23 +275,17 @@ class VotingHelper {
 	case "notme" => rec(currentUser.isEmpty || VotableUser(currentUser.get)!=nominee)
 	case "itsme" => rec(!currentUser.isEmpty && VotableUser(currentUser.get)==nominee) 
 	case _ =>  Elem("poll", label, attribs, scope, rec(true) : _*)
-
       }
 
       case Elem("vote", label, attribs, scope, _*) =>
 	label match {
-	  case "result"  => {
-	    // format voting weights
-	    val format= in.attribute("format").getOrElse(Text("decimal"))
-	    renderVote(() => formatWeight(user,nominee,format.text))
-	  }
-	  case "weight" => {
-	    // format delegation weights
-	    val style= in.attribute("style").getOrElse(Text("pro"))
-	    renderVote(() => formatResult(
-	      VoteCounter.getDelegationInflow(user) * 
-	      VoteCounter.getCumulativeWeight(user, nominee), style.text))
-	  }
+	  case "result"  =>
+	    renderVote(() => formatWeight(user,nominee))
+	  case "sympathy" => renderVote(() => {nominee match {
+	    case VotableUser(other) =>
+	      formatPercent(VoteCounter.getSympathy(user, other))
+	    case _ => Text("0.0")
+	  }})
 	  case "delegation" => 
 	    // format the delegation path
 	    if (VoteCounter.getPreference(user,nominee)!=0 || 

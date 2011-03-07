@@ -40,7 +40,7 @@ object VoteCounter {
 
     def updateFactors() = {
       val t0= Tick.now
-      VoteMap.update(time)
+      VoteMap.update(t0)
       val t1= Tick.now
       info("Vote results update took "+(t1-t0)+" ms")
     }
@@ -74,22 +74,6 @@ object VoteCounter {
     refresh()
   }
   
-  //TODO deprecated
-  /** get the theoretical voting power, if all delegations are turned into votes */
-  def getDelegationInflow(user : User) : Double = {
-    VoteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse (0.0)
-  }
-
-  //TODO deprecated
-  def getDelegationOutflow(user : User) : Double = {
-    getActiveVotes(user).foldLeft (0.0) { (sum, nominee) =>
-      nominee match {
-	case VotableUser(_) => sum + getCumulativeWeight(user, nominee)
-	case _ => sum
-      }
-    } * getDelegationInflow(user)
-  }
-
   def getDelegationScale(user : User) : (Double, Int)= {
     var scale=0.0
     var pref=0
@@ -101,11 +85,6 @@ object VoteCounter {
       case _ =>  }
     (scale, pref)
   }
-
-  //TODO deprecated
-  /** cumulative weight are counted, as if the sum total voting weight was 1.0
-   * This is used as an indication of delegation influence */
-  def getCumulativeWeight(user : User, nominee : Votable) = 0.0
 
   /** Total voting result for a votable nominee */
   def getResult(nominee : Votable) : Quote = {
@@ -124,31 +103,39 @@ object VoteCounter {
   def getWeight(user : User, nominee : Votable) : Double = {
     VoteMap.getWeight(user, nominee)
   }
+  
+  //TODO deprecate
+  def getAllVoters(query : Query) : List[User] = getAllVoters(VotableQuery(query))
 
-  def getAllVoters(query : Query) : List[User] = {
-    val id= VoteMap.id(query)
-    VoteMap synchronized {
-      VoteMap.users
-      .filter { 
-	case (u,head) => 
-	  Math.abs(head.vec.getVotingWeight(id)) >= 5e-3 || 
-	  !getComment(u, VotableQuery(query)).isEmpty
-      }
-      .map { case (u,head) => u }
-      .toList
+  def getAllVoters(nominee : Votable) : List[User] = {
+    var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
+    var proc= List(nominee)
+    while (!proc.isEmpty) {
+      val votes= proc.flatMap{ n => Vote.findAll(By(Vote.nominee, n)) }
+      val next= votes
+      .filter{ _.weight.is!=0 }.map{ _.owner.obj.get }
+      .filter{ getWeight(_, nominee).abs > VoteMap.EPS }
+      .removeDuplicates -- list
+      proc=  next.map { VotableUser(_) }
+      list ++= next
     }
+    list
   }
 
   def getAllVotes(user : User) : List[Query] = {
-    VoteMap synchronized {
-      VoteMap.nominees
-      .flatMap {
-	case (n @ VotableQuery(query), head) 
-	  if Math.abs(getWeight(user,n)) >= 5e-3 ||
-	     !getComment(user, n).isEmpty => List(query)
-	case _ => Nil
-      }.toList
+    var list= Comment.findAll(By(Comment.author, user)).map { _.nominee.obj.get }
+    var proc= List(user)
+    while (!proc.isEmpty) {
+      val votes= proc.flatMap{ u => Vote.findAll(By(Vote.owner, u)) }
+      val next= votes
+      .filter{ _.weight.is!=0 }.map{ _.nominee.obj.get }
+      .filter{ getWeight(user, _).abs > VoteMap.EPS }
+      .removeDuplicates -- list
+      proc=  next.filter{ _.isUser }.map { _.user.obj.get }
+      list ++= next
     }
+    //TODO return list of votables
+    list.filter{ _.isQuery }.map{ _.query.obj.get }
   }
 
   def getActiveVoters(nominee : Votable) : List[User] = {
@@ -172,15 +159,17 @@ object VoteCounter {
     ts
   }
 
-  def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
-    VoteMap.getEmotion(user1, user2, Tick.now)
-  }
+  def getEmotion(user1 : User, user2 : User) : Option[Emotion] =
+    VoteMap.getEmotion(user1, user2)
+
+  def getSympathy(user1 : User, user2 : User) : Double =
+    getEmotion(user1,user2).map{ _.valence.is }.getOrElse(0.0)
 
   def getCommentText(author : User, nominee : Votable) : String =
     getComment(author, nominee). map { _.content.is }.getOrElse("")
 
   def getCommentTime(author : User, nominee : Votable) : Long =
-    getComment(author, nominee). map { _.date.is }.getOrElse(0L)
+    Comment.get(author, nominee). map { _.date.is }.getOrElse(0L)
 
   def getComment(author : User, nominee : Votable) : Option[Comment] = 
     Comment.get(author, nominee)

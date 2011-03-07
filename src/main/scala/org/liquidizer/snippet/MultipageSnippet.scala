@@ -41,11 +41,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
   /** Create a sort ordering function for users voting on a fixed nominee */
   def sortFunction(order: String, nominee:Votable) : (Votable => Double) = {
-    def inflow(user:User) = VoteCounter.getDelegationInflow(user)
     def weight(user:User) = VoteCounter.getWeight(user, nominee)
-    def flow(user:User) = 
-      VoteCounter.getDelegationInflow(user) * 
-      VoteCounter.getCumulativeWeight(user, nominee)
     def comment(user:User) = VoteCounter.getComment(user, nominee)
     def bonus(user:User) = 
       if (comment(user).isEmpty && Full(user)!=User.currentUser) 0 else 1000
@@ -53,8 +49,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       q match { case VotableUser(u) => f(u) + bonus(u) case _ => -1e10 }
 
     order match {
-      case "weight" => isUser(_, user => inflow(user)*weight(user).abs)
-      case "flow" => isUser(_, flow(_))
+      case "weight" => isUser(_, user => weight(user).abs)
       case "approval" => isUser(_, weight(_))
       case "objection" => isUser(_, -weight(_))
       case "comment_age" => isUser(_, VoteCounter.getCommentTime(_, nominee))
@@ -66,11 +61,9 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
   /** Create a sort ordering function for votes cast by a fixed user */
   def sortFunction(order: String, user:User) : (Votable => Double) = {
-    def flow(nominee:Votable) = VoteCounter.getCumulativeWeight(user, nominee)
     def weight(nominee : Votable) = VoteCounter.getWeight(user, nominee)
     order match {
       case "weight" => weight(_).abs
-      case "flow" => flow(_)
       case "approval" => weight(_)
       case "objection" => -weight(_)
       case "comment_age" => VoteCounter.getCommentTime(user, _)
@@ -104,8 +97,6 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "myweight" => isMe(VoteCounter.getWeight(_ , _))
       case "swing" => VoteCounter.getSwing(_).abs
       case "volume" => result(_).volume
-      case "inflow" => isUser(_, VoteCounter.getDelegationInflow(_))
-      case "outflow" => isUser(_, VoteCounter.getDelegationInflow(_))
       case "valence" => emotion(_.valence.is)
       case "avalence" => emotion(-_.valence.is)
       case "arousal" => emotion(_.arousal.is)

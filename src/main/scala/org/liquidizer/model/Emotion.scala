@@ -36,7 +36,9 @@ object Emotion extends Emotion with LongKeyedMetaMapper[Emotion] {
   def get(u1 : User, u2 : User) : Emotion = {
     val id1= u1.id.is min u2.id.is    
     val id2= u1.id.is max u2.id.is
-    find(By(user1, id1), By(user2, id2)).getOrElse (Emotion.create)
+    find(By(user1, id1), By(user2, id2)).getOrElse (
+      Emotion.create.user1(id1).user2(id2)
+    )
   }
 }
 

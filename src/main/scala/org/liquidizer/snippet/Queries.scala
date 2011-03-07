@@ -53,9 +53,9 @@ class QueryDetails extends MultipageSnippet {
   def loadData() = {
     data= 
       VoteCounter.getAllVoters(query.get)
-      .filter { searchFilter _ }
-      .map { VotableUser(_) }
-    
+    .filter { searchFilter _ }
+    .map { VotableUser(_) }
+
     sortData(VotableQuery(query.get))
 
     // check if my own vote is registered. 

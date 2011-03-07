@@ -247,10 +247,7 @@ class UserReset extends StatefulSnippet {
   def process() = {
     val user= User.currentUser.get
     if (deleteVotes || deleteAccount) {
-      VoteCounter.getActiveVotes(user).foreach {
-	PollingBooth.vote(user, _, 0)
-      }
-      VoteCounter.refresh()
+      PollingBooth.clearVotes(user)
       S.notice(S ? "data.delete.votes.succ")
     }
     if (deleteComments || deleteAccount) {

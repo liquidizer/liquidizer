@@ -54,10 +54,10 @@ a.extern {
     -moz-border-radius: 5px;
     border-radius: 5px;
     margin: 2px;
-    padding: 0px 10px 0px 10px;
+    padding: 3px 10px 3px 10px;
 }
 .navi a div {
-    background-color: #662e91;
+    background-color: #660099;
 }
 .keys { 
     color: gray;
@@ -241,10 +241,12 @@ textarea {
 }
 .vote_query { 
     width: 180px; 
+    height: 32px;
     text-align: center;
 }
 .vote_user { 
     width: 100px; 
+    height: 32px;
     text-align: center;
 }
 
