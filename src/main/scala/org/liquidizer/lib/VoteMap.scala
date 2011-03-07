@@ -4,7 +4,8 @@ import net.liftweb.mapper._
 import org.liquidizer.model._
 
 object VoteMap {
-  val DECAY= 5e-10
+  val SWING_DECAY= 0.05 / Tick.day
+  val WEIGHT_DECAY= 0.02 / Tick.day
   val EPS= 1e-5
 
   /** In memory representation for the latest tick */
@@ -17,8 +18,8 @@ object VoteMap {
       val t0= Tick.now
       var t= t0
       for (tick <- Tick.getTimeSeries(nominee)) {
-	smooth += tick.quote.value * 
-	(Math.exp(- DECAY*(t0-t)) - Math.exp(-DECAY*(t0-tick.time.is)))
+	def h(time : Long) = Math.exp(- SWING_DECAY*(t0-time))
+	smooth += tick.quote.value * (h(t) - h(tick.time.is))
 	t= tick.time.is
       }
     }
@@ -28,7 +29,7 @@ object VoteMap {
     
     /** Get the current decayed result */
     def result(time : Long) = tick.map { v =>
-      v.quote *Math.exp(DECAY*(v.time.is-time))}.getOrElse(Quote(0,0))
+      v.quote * Math.exp(WEIGHT_DECAY*(v.time.is-time))}.getOrElse(Quote(0,0))
 
     /** Set the new Result */
     def update(time : Long, quote : Quote) = {
@@ -53,7 +54,7 @@ object VoteMap {
       .find(By(Vote.owner, user), OrderBy(Vote.date, Descending))
       .map { _.date.is }.getOrElse(0L)
     var active = true
-    def weight(time : Long) = Math.exp(DECAY*(latestVote-time))
+    def weight(time : Long) = Math.exp(WEIGHT_DECAY*(latestVote-time))
     def update(time : Long) = { latestVote = latestVote max time }
   }
 
@@ -142,7 +143,7 @@ object VoteMap {
 	val head= users.get(user).get
 
 	// reset the voting vector
-	val decay= Math.exp(VoteMap.DECAY * (head.latestVote - time))
+	val decay= head.weight(time)
 	val vec= new VoteVector(head.vec)
 	vec.clear
 	
@@ -150,7 +151,7 @@ object VoteMap {
 	for (vote <- Vote.findAll(By(Vote.owner, user)).filter(_.weight!=0)) {
 	  vote.nominee.obj.get match {
             case VotableUser(user) => 
-              // the vote is a delegation, mix in the delegates voting weights
+              // the vote is a delegation, mix in delegate's voting weights
 		val uHead= users.get(user)
                if (!uHead.isEmpty)
                  vec.addDelegate(vote.weight.is, uHead.get.vec)
@@ -217,14 +218,14 @@ object VoteMap {
 
       // compute new emotion
       if (Math.max(head1.latestUpdate,head2.latestUpdate)>emo.time.is) {
-	emo.update(latestUpdate, VoteMap.DECAY)
+	emo.update(latestUpdate, VoteMap.SWING_DECAY)
 	emo.valence(head1.vec.dotProd(head2.vec, false))
 	emo.potency(head1.vec.dotProd(head2.vec, true))
-	emo.update(latestUpdate, VoteMap.DECAY)
+	emo.update(latestUpdate, VoteMap.SWING_DECAY)
 	emo.save
       } else {
 	// decay of emotional arousal
-	emo.update(latestUpdate, VoteMap.DECAY)
+	emo.update(latestUpdate, VoteMap.SWING_DECAY)
       }
       
       Some(emo)

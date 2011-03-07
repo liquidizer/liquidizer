@@ -2,7 +2,7 @@ package org.liquidizer.view
 
 import scala.xml._
 
-import org.liquidizer.lib.VoteMap.DECAY
+import org.liquidizer.lib.VoteMap.WEIGHT_DECAY
 import org.liquidizer.model.Tick
 import org.liquidizer.model.Quote
 
@@ -132,7 +132,7 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
 	val newX= tick.time.is
 	if (lastX>minX) {
 	  val y= f(tick.quote)
-	  val dy= y * Math.exp(DECAY * (newX - lastX))
+	  val dy= y * Math.exp(WEIGHT_DECAY * (newX - lastX))
 	  run(formatX(lastX)+" "+dy)
 	  run(formatX(Math.max(newX,minX))+" "+y)
 	}
