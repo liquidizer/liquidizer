@@ -30,12 +30,15 @@ class Query extends LongKeyedMapper[Query] with IdPK {
   def keyList() : List[String] = {
     TaggedUtils.getTags(keys.is)
   }
-
-  lazy val nominee= Votable.find(By(Votable.query,this)).get
+  
+  def loadNominee = Votable.find(By(Votable.query,this))
+  lazy val nominee= loadNominee.get
 
   override def save() = {
-    super.save
-    Votable.create.query(this).save
+    if (loadNominee.isEmpty) {
+      super.save
+      Votable.create.query(this).save
+    }
     super.save
   }
 }

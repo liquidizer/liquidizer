@@ -20,7 +20,7 @@ object TaggedUtils {
 	case VotableQuery(query) => getTags(query.keys.is)
 	case VotableUser(user) => getTags(user.profile.is)
       }
-      val weight= VoteCounter.getResult(item).volume
+      val weight= VoteMap.getCurrentResult(item).volume
       for (okey <- keys) {
 	val key= okey.toLowerCase
 	if (!names.contains(key)) names.put(key, okey)

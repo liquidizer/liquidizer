@@ -7,10 +7,11 @@ import _root_.net.liftweb.common._
 case class Quote(var pro:Double, var contra:Double) {
   def /(denom : Int):Quote = if (denom==0) Quote(0.0, 0.0) else Quote(pro/denom, contra/denom)
   def +(quote : Quote) : Quote = Quote(pro+quote.pro, contra+quote.contra)
-  def *(factor : Double) : Quote= Quote(pro*factor, contra*factor)
+  def *(factor : Double) : Quote= if (factor>0) 
+    Quote(pro*factor, contra*factor) else Quote(-contra*factor, -pro*factor)
   def += (value : Double) : Unit = {
     pro += value max 0
-    contra -= value min 0
+    contra += (-value) max 0
   }
   def distanceTo(other : Quote) = 
     (pro-other.pro).abs.max((contra-other.contra).abs)
@@ -46,8 +47,11 @@ object Tick extends Tick with LongKeyedMetaMapper[Tick] {
   val day= 24*h
 
   /** Get the timeseries for a certain votable */
-  def getTimeSeries(nominee : Votable) : List[Tick] =
-    findAll(By(votable, nominee), OrderBy(time, Descending))
+  def getTimeSeries(nominee : Votable) : List[Tick] = {
+    val ts= findAll(By(votable, nominee), OrderBy(time, Descending))
+    compress(ts)
+    ts
+  }
 
   /** Compress the time series by coarsening the resolution for older quotes */
   def compress(ts : List[Tick]) = {

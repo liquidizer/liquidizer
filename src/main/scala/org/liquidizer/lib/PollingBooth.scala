@@ -8,6 +8,8 @@ import _root_.org.liquidizer.model._
 
 /** This is the only class that makes write access to the votes table */
 object PollingBooth {
+  /** time of the latest vote */
+  var latestVote= 0L
 
   /** create a comment for a given user, for a given nominee */
   def comment(author : User, nominee : Votable, text : String):Unit = {
@@ -16,7 +18,7 @@ object PollingBooth {
       obj.map { _.delete_! }
     } else {
       obj.getOrElse(Comment.create)
-      .date(Tick.now max (VoteMap.latestUpdate+1))
+      .date(Tick.now)
       .author(author)
       .nominee(nominee)
       .content(text).save
@@ -24,10 +26,11 @@ object PollingBooth {
 
   }
 
-  def vote(owner : User, nominee : Votable, weight : Int) = {
+  def vote(owner : User, nominee : Votable, weight : Int) = synchronized {
+    latestVote= Math.max(latestVote+1, Tick.now)
     val vote = Vote.get(owner, nominee).getOrElse {
       Vote.create.owner(owner).nominee(nominee)
-    }.date(Tick.now).weight(weight)
+    }.date(latestVote).weight(weight)
     vote.save
   }
 

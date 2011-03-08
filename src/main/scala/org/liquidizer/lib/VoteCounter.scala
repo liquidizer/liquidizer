@@ -10,9 +10,6 @@ import _root_.net.liftweb.common._
 import org.liquidizer.model._
 import java.io._
 
-/** The VoteCounter keeps track of all cast votes.
- *  It provides fast access to the latest results and statistical data.
- */
 object VoteCounter {
 
   def init() = {
@@ -45,7 +42,7 @@ object VoteCounter {
   }
   
   /** recompte the results for all newly cast votes */
-  def refresh() = synchronized {
+  def refresh() = {
     val t0= Tick.now
     VoteMap.update(t0)
     val t1= Tick.now
@@ -58,17 +55,6 @@ object VoteCounter {
     .filter { _.nominee.obj.get.isUser }
     .map { _.weight.is }
     .foldLeft(0) { _ max _ }
-  }
-
-  /** Total voting result for a votable nominee */
-  def getResult(nominee : Votable) : Quote = {
-    VoteMap.getResult(nominee).getOrElse(Quote(0.0, 0.0))
-  }
-
-  /** Get a measure of how much the vote changed recently */
-  def getSwing(nominee : Votable) : Double = {
-    VoteMap.nominees.get(nominee).map { 
-      head => (head.smooth - head.result.value).abs }.getOrElse(0.0)
   }
 
   def getAllVoters(nominee : Votable) : List[User] = {
@@ -118,12 +104,6 @@ object VoteCounter {
 
   def isDelegated(user : User, nominee : User) : Boolean = 
     user==nominee || VoteMap.getWeight(user,VotableUser(nominee))>1e-10
-
-  def getTimeSeries(nominee : Votable) : List[Tick] = {
-    val ts= Tick.getTimeSeries(nominee)
-    Tick.compress(ts)
-    ts
-  }
 
   def getEmotion(user1 : User, user2 : User) : Option[Emotion] =
     VoteMap.getEmotion(user1, user2)

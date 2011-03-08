@@ -3,9 +3,12 @@ package org.liquidizer.lib
 import net.liftweb.mapper._
 import org.liquidizer.model._
 
+/** The VoteCounter keeps track of all cast votes.
+ *  It provides fast access to the latest results and statistical data.
+ */
 object VoteMap {
   val SWING_DECAY= 0.05 / Tick.day
-  val WEIGHT_DECAY= 0.02 / Tick.day
+  val WEIGHT_DECAY= 0.01 / Tick.day
   val EPS= 1e-5
 
   var convertDB= 0L
@@ -19,7 +22,9 @@ object VoteMap {
     {
       val t0= Tick.now
       var t= t0
-      for (tick <- Tick.getTimeSeries(nominee)) {
+      val ts = Tick.getTimeSeries(nominee)
+      if (!ts.isEmpty) tick=Some(ts.head)
+      for (tick <- ts) {
 	def h(time : Long) = Math.exp(- SWING_DECAY*(t0-time))
 	smooth += tick.quote.value * (h(t) - h(tick.time.is))
 	t= tick.time.is
@@ -35,9 +40,14 @@ object VoteMap {
 
     /** Set the new Result */
     def update(time : Long, quote : Quote) = {
+      // update smoothed value for trend indication
+      val tickTime= tick.map { _.time.is }.getOrElse(time)
+      val factor= Math.exp(SWING_DECAY*(tickTime-time))
+      smooth= factor*smooth + (1-factor) * result(time).value
+
       if (!tick.exists( _.quote.distanceTo(quote)<EPS)) {
 	// record a new tick every minute
-	if (tick.exists { _.time.is/Tick.min < time/Tick.min}) tick=None
+	if (tickTime/Tick.min < time/Tick.min) tick=None
 	// otherwise update the existing tick
 	tick = Some(
 	  tick.getOrElse { Tick.create.votable(nominee) }
@@ -49,6 +59,7 @@ object VoteMap {
     }
   }
 
+  /** In memory representation of user related data */
   class UserHead(val user : User) {
     var vec = new VoteVector(id(user))
     var latestUpdate = 0L
@@ -76,7 +87,7 @@ object VoteMap {
   
   def update(time : Long) : Unit = synchronized {
     // iterative matrix solving
-    sweep(time, 1000, 1e-4)
+    sweep(1000, 1e-4)
 
     // Prepare result map
     var resultMap= Map(nominees.keys.toSeq.filter{_.isQuery}.map{ case VotableQuery(query) => id(query) -> Quote(0,0)}:_*)
@@ -86,8 +97,8 @@ object VoteMap {
       val head= user._2
       val votes= head.vec.votes
       for (i <- 0 to votes.length-1) {
-	val w= votes(i) * head.weight(time)
-	if (w > EPS) {
+	val w= votes(i) * head.weight(latestUpdate)
+	if (w.abs > EPS) {
 	  active= true
 	  if (!resultMap.contains(i)) resultMap += i -> Quote(0,0)
 	  resultMap.get(i).get += w
@@ -98,33 +109,33 @@ object VoteMap {
     }
     // persist election results
     resultMap.foreach { case (i,quote) => 
-      setResult(time, VotableQuery(queryFromId(i).get), quote) }
+      setResult(VotableQuery(queryFromId(i).get), quote) }
 
     // normalize popularity to 1
     val denom= 
-      1.0/Math.sqrt(resultMap.foldLeft(0.)
-		    { (a,b) => a + Math.pow(b._2.value,2.0) })
+      1.0/Math.sqrt(resultMap.foldLeft(1e-8)
+		    { (a,b) => a + Math.pow(b._2.volume,2.0) })
     // compute popularity as dot product with result vector
     for (user <- users) {
       val vec= user._2.vec
       var pop= Quote(0,0)
       if (user._2.active) {
 	for (i <- 0 to vec.votes.length-1) {
-	  val w= vec.getVotingWeight(i) * user._2.weight(time)
+	  val w= vec.getVotingWeight(i) * user._2.weight(latestUpdate)
 	  if (w.abs > EPS)
-	    pop = pop + resultMap.get(i).getOrElse(Quote(0,0)) * w
+	    resultMap.get(i).foreach { q => pop = pop + q * w }
 	}
       }
-      setResult(time, VotableUser(user._1), pop*denom)
+      setResult(VotableUser(user._1), pop*denom)
     }
   }
 
-  def setResult(time : Long, nominee : Votable, quote : Quote) = {
+  def setResult(nominee : Votable, quote : Quote) = {
     nominees.get(nominee).getOrElse {
       val head= new NomineeHead(nominee)
       nominees+= (nominee -> head)
       head
-    }.update(time, quote)
+    }.update(latestUpdate, quote)
   }
 
   /** Iterative step to solve the equation system */
@@ -149,7 +160,7 @@ object VoteMap {
 	val head= getUserHead(user)
 
 	// reset the voting vector
-	val decay= head.weight(time)
+	val decay= head.weight(latestUpdate)
 	val vec= new VoteVector(head.vec)
 	vec.clear
 	
@@ -170,7 +181,7 @@ object VoteMap {
 	// ensure the global voting weight constraint
 	vec.normalize()
 	if (vec.distanceTo(head.vec) > eps) {
-	  head.latestUpdate= time
+	  head.latestUpdate= latestUpdate
 	  // process followers
 	  val follow= Vote.findAll(By(Vote.nominee, VotableUser(user)))
 	  nextList ++= follow.filter { _.weight.is!=0 }.map { _.owner.obj.get }
@@ -186,9 +197,15 @@ object VoteMap {
   def getVoteVector(user : User) : Option[VoteVector] =
     users.get(user).map { _.vec }
 
+  /** Get a measure of how much the vote changed recently */
+  def getSwing(nominee : Votable) : Double = {
+    VoteMap.nominees.get(nominee).map { 
+      head => (head.result.value - head.smooth) }.getOrElse(0.0)
+  }
+
   /** get the global voting result for the nominee */
-  def getResult(nominee : Votable) : Option[Quote] = {
-    nominees.get(nominee).map{ _.result }
+  def getCurrentResult(nominee : Votable) : Quote = {
+    nominees.get(nominee).map{ _.result(Tick.now) }.getOrElse(Quote(0,0))
   }
 
   /** get the active weight of the user */
