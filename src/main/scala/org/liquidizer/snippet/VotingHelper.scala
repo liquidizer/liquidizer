@@ -15,6 +15,9 @@ import org.liquidizer.model._
 import org.liquidizer.view.DelegationGraphView
 import org.liquidizer.view.EmotionView
 
+/** The VotingHelper provides a number of snippet tags for rendering
+ *  The details of any votable, e.g. voters, results, names etc.
+ */
 class VotingHelper {
   val currentUser= User.currentUser
   var no= 0
@@ -41,7 +44,7 @@ class VotingHelper {
       formatResult(formatDouble(value), getStyle(value)) 
 
   def formatPercent(value : Double) : Node =
-    formatResult((value*100).toInt+"%", getStyle(value))
+    formatResult((value*100.9).toInt+"%", getStyle(value))
 
   def formatTrend(trend : Double) : Node =
     <img src={ "/images/" + { 
@@ -49,10 +52,10 @@ class VotingHelper {
 	    } alt=""/>
 
   def formatResult(nominee : Votable, showTrend : Boolean) : Node = {
-    val r= VoteCounter.getResult(nominee)
+    val r= VoteMap.getCurrentResult(nominee)
     if (showTrend)
       <span> { 
-	val trend= VoteCounter.getSwing(nominee)
+	val trend= 10*VoteMap.getSwing(nominee)/(1.0+r.value)
 	formatResult(r.value) ++ formatTrend(trend)
       } </span>
     else 
@@ -111,10 +114,10 @@ class VotingHelper {
 	case "value" =>
 	  renderVote(() => Text(formatDouble(
 	    attribs.get("measure").map { _.text }.getOrElse("") match {
-	      case "pro" => VoteCounter.getResult(nominee).pro
-	      case "contra" => VoteCounter.getResult(nominee).contra
-	      case "volume" => VoteCounter.getResult(nominee).pro
-	      case _ => VoteCounter.getResult(nominee).value
+	      case "pro" => VoteMap.getCurrentResult(nominee).pro
+	      case "contra" => VoteMap.getCurrentResult(nominee).contra
+	      case "volume" => VoteMap.getCurrentResult(nominee).pro
+	      case _ => VoteMap.getCurrentResult(nominee).value
 	    })))
 	case "chart" => chart(nominee.uri, "chart", in.attributes)
 	case "hist" => chart(nominee.uri, "histogram", in.attributes)
@@ -206,7 +209,7 @@ class VotingHelper {
 		currentUser.map {
 		VoteCounter.getSympathy(_, user) }.getOrElse(0.0)))
 	    case "popularity" =>  
-	      renderVote(() => formatPercent(VoteCounter.getResult(VotableUser(user)).value))
+	      renderVote(() => formatPercent(VoteMap.getCurrentResult(VotableUser(user)).value))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
@@ -308,6 +311,7 @@ class VotingHelper {
     }
   }
 
+  /** Returns the closest delegation path of a user to a votable */
   def getDelegationPath(user : User, nominee : Votable) : List[List[User]] = {
     var visited : List[User]= Nil
     var result : List[List[User]]= List(Nil)
@@ -333,14 +337,17 @@ class VotingHelper {
     result
   }
 
+  /** returns a list of votes as defined by the overriding class */
   def getVotes() : List[Votable] = {
     throw new Exception("No votes for this item")
   }
 
+  /** returns a list of delegates as defined by the overriding class */
   def getDelegates() : List[User] = {
     throw new Exception("No delegates for this item")
   }
 
+  /** returns a list of voters as defined by the overriding class */
   def getSupporters() : List[User] = {
     throw new Exception("No supporters for this item")
   }

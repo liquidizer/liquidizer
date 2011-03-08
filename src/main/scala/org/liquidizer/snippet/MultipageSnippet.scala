@@ -73,7 +73,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
   /** Create a sort ordering function for users and queries */
   def sortFunction(order : String) : (Votable => Double) = {
-    def result(q:Votable)= VoteCounter.getResult(q)
+    def result(q:Votable)= VoteMap.getCurrentResult(q)
     def isUser(q:Votable, f:(User=>Double)) = 
       q match { 
 	case VotableUser(u) if VoteMap.isActive(u)=> f(u) 
@@ -92,7 +92,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "contra" => isActive(-result(_).value)
       case "conflict" => v => { val r=result(v); r.pro min r.contra }
       case "myweight" => isMe(VoteMap.getWeight(_ , _))
-      case "swing" => VoteCounter.getSwing(_).abs
+      case "swing" => VoteMap.getSwing(_).abs
       case "volume" => result(_).volume
       case "comment" => 
 	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)

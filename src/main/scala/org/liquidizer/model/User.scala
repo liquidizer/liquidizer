@@ -45,11 +45,14 @@ with MegaProtoUser[User] {
     User.find(By(User.nick, nick))
   }
 
-  lazy val nominee= Votable.find(By(Votable.user,this)).get
+  def loadNominee= Votable.find(By(Votable.user,this))
+  lazy val nominee= loadNominee.get
 
   override def save() = {
-    super.save
-    Votable.create.user(this).save
+    if (loadNominee.isEmpty) {
+      super.save
+      Votable.create.user(this).save
+    }
     super.save
   }
 
