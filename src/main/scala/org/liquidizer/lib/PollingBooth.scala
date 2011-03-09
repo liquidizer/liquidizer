@@ -41,9 +41,9 @@ object PollingBooth {
   }
 
   def clearVotes(user : User) = {
-    VoteCounter.getActiveVotes(user).foreach {
-      vote(user, _, 0)
-    }
+    val votes= VoteCounter.getActiveVotes(user)
+    votes.foreach { vote(user, _, 0) }
     VoteMap.refresh()
+    votes.foreach { _.delete_! }
   }
 }
