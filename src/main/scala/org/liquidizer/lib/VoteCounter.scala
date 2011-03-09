@@ -38,16 +38,10 @@ object VoteCounter {
       }
     }
     VoteMap.convertDB=Tick.now+10000*Tick.day
-    refresh()
+    VoteMap.refresh()
   }
   
-  /** recompte the results for all newly cast votes */
-  def refresh() = {
-    val t0= Tick.now
-    VoteMap.update(t0)
-    val t1= Tick.now
-    println("Vote results update took "+(t1-t0)+" ms")
-  }
+  
 
   /** Maximum delegation weight. Used to compute emoticon size */
   def getMaxDelegation(user : User) : Int = {

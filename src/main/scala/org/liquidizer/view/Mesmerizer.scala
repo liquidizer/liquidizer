@@ -184,7 +184,7 @@ class Mesmerizer() {
   }
 
   def desaturate(c : ColorParam, w : Double) = {
-    val l= (c.r+c.g+c.b)/3.0
+    val l= .4*c.r + .4*c.g + .2*c.b
     ColorParam(w*c.r + (1-w)*l, w*c.g + (1-w)*l, w*c.b + (1-w)*l)
   } 
   

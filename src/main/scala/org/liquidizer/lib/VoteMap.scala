@@ -1,6 +1,7 @@
 package org.liquidizer.lib
 
 import net.liftweb.mapper._
+import net.liftweb.common.Logger
 import org.liquidizer.model._
 
 /** The VoteCounter keeps track of all cast votes.
@@ -84,6 +85,14 @@ object VoteMap {
     users += user -> head
     head
   }
+
+  /** Update to the current time */
+  def refresh() = {
+    val t0= Tick.now
+    update(Tick.now)
+    val t1= Tick.now - t0
+    println("Update votes took "+t1+"ms")
+  }
   
   def update(time : Long) : Unit = synchronized {
     var tic= Tick.now
@@ -165,6 +174,7 @@ object VoteMap {
     // repeat until convergence is reached
     while (!list.isEmpty && iterCount<maxIter) {
       var nextList= List[User]()
+      println(list)
       for (user <- list) {
 	val head= getUserHead(user)
 
@@ -196,8 +206,9 @@ object VoteMap {
 	  nextList ++= follow.filter { _.weight.is!=0 }.map { _.owner.obj.get }
 	}
 	head.vec= vec
-	iterCount+= 1
+	  iterCount+= 1
       }
+      println("iterations = " + iterCount)
       list= nextList.removeDuplicates
     }
   }

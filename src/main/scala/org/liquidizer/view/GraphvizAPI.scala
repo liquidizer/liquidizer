@@ -27,7 +27,9 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     root match {
       case VotableUser(user1) => node match {
 	case VotableQuery(_) =>  sqr(VoteMap.getWeight(user1, node))
-	case VotableUser(user2) => VoteCounter.getSympathy(user1, user2)
+	case VotableUser(user2) => 
+	  VoteMap.getWeight(user1, VotableUser(user2)) +
+	  VoteMap.getWeight(user2, VotableUser(user1))
       }
       case _ => node match {
 	case VotableUser(user) => sqr(VoteMap.getWeight(user, node))

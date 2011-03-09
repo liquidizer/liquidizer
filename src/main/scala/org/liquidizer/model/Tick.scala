@@ -47,19 +47,16 @@ object Tick extends Tick with LongKeyedMetaMapper[Tick] {
   val day= 24*h
 
   /** Get the timeseries for a certain votable */
-  def getTimeSeries(nominee : Votable) : List[Tick] = {
-    val ts= findAll(By(votable, nominee), OrderBy(time, Descending))
-    compress(ts)
-    ts
-  }
+  def getTimeSeries(nominee : Votable) : List[Tick] =
+    compress(findAll(By(votable, nominee), OrderBy(time, Descending)))
 
   /** Compress the time series by coarsening the resolution for older quotes */
-  def compress(ts : List[Tick]) = {
-    if (!ts.isEmpty) {
+  def compress(ts : List[Tick]) : List[Tick] = {
+    if (ts.isEmpty) Nil else {
       val t0= ts.head.time.is
       var prev : Option[Tick] = None
       var space= List(1*min, 5*min, 10*min, 20*min, 1*h, 2*h, 4*h, 12*h, 24*h)
-      for (tick <- ts) {
+      ts.filter { tick =>
 	// coursen resultion for older ticks
 	if (space.size>1 && t0-tick.time.is > 10*space.head) space=space.tail
 	// lock to fixed time grid
@@ -71,8 +68,11 @@ object Tick extends Tick with LongKeyedMetaMapper[Tick] {
 	  prev.get.save
 	  tick.quote(newQuote)
 	  tick.delete_!
+	  false
+	} else {
+	  prev= Some(tick)
+	  true
 	}
-	prev= Some(tick)
       }
     }    
   }
