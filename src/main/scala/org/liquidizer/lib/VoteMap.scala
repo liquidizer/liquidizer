@@ -115,6 +115,9 @@ object VoteMap {
 	  if (!resultMap.contains(i)) resultMap += i -> Quote(0,0)
 	  resultMap.get(i).get += w
 	}
+	if (i==4 && w>0) {
+	  println("user="+user+" -> "+w)
+	}
       }
       // remember if this user actively participates
       head.active= active
@@ -156,11 +159,23 @@ object VoteMap {
     }.update(time, quote)
   }
 
+  def filter(votes : List[Vote]) : List[Vote] = {
+    var map= Set[(User, Votable)]()
+    votes.sort{ _.date.is > _.date.is }.filter { vote =>
+      val key=(vote.owner.obj.get, vote.nominee.obj.get)
+      if (map.contains(key)) false else {
+	map += key
+	true
+      }
+    }
+  }
+
   /** Iterative step to solve the equation system */
   def sweep(time : Long, maxIter : Int, eps : Double) : Unit = {
     val t0= latestUpdate
     latestUpdate= time // new Votes must be cast after this time
-    var votes = Vote.findAll(By_>(Vote.date, t0), By_<(Vote.date, convertDB))
+    val bylim= By_<(Vote.date, convertDB)
+    var votes = filter(Vote.findAll(By_>(Vote.date, t0), bylim))
 
     // update latest vote counter
     for (vote <- votes) {
@@ -186,7 +201,7 @@ object VoteMap {
 	
 	// vor each vote cast by the user update the voting vector
 	if (!voteMap.contains(user)) {
-	  voteMap += user -> Vote.findAll(By(Vote.owner, user)).filter(_.weight!=0)
+	  voteMap += user -> filter(Vote.findAll(By(Vote.owner, user), bylim)).filter(_.weight!=0)
 	}
 	for (vote <- voteMap.get(user).get) {
 	  vote.nominee.obj.get match {
@@ -208,7 +223,7 @@ object VoteMap {
 	  // process followers
 	  if (!followMap.contains(user)) {
 	    followMap += user ->
-	    Vote.findAll(By(Vote.nominee, VotableUser(user)))
+	    Vote.findAll(By(Vote.nominee, VotableUser(user)),bylim)
 	    .filter { _.weight.is!=0 }.map { _.owner.obj.get }
 	  }
 	  nextList ++= followMap.get(user).get
