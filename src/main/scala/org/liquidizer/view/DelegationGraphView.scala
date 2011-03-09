@@ -11,7 +11,7 @@ import Helpers._
 import org.liquidizer.model._
 
 class DelegationGraphView(node : Votable, count : Int) {
-  val grapher= new GraphvizAPI
+  val grapher= new GraphvizAPI(node)
   grapher.build(node, count)
 
   def getGraph : Node = {

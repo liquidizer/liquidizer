@@ -4,15 +4,10 @@
     <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
     <lift:MenuMarker eager_eval="true">
       <ul class="popup" id="sort">
-	<lift:UserInfo.out>
-	  <menu:a action="sort" value="inflow" default="true" icon="inflow">$sort.inflow</menu:a>
-	</lift:UserInfo.out>
-	<lift:UserInfo.in>
-	  <menu:a action="sort" value="myweight" default="true" icon="distance">$sort.distance</menu:a>
-	  <menu:a action="sort" value="inflow" icon="inflow">$sort.inflow</menu:a>
-	</lift:UserInfo.in>
+	<menu:a action="sort" value="value" default="true" icon="inflow">$sort.popularity</menu:a>
 	<menu:a action="sort" value="age" icon="new">$sort.age</menu:a>
 	<lift:UserInfo.in>
+	  <menu:a action="sort" value="myweight" icon="distance">$sort.distance</menu:a>
 	  <menu:a action="sort" value="valence" icon="sympathy">$sort.sympathy</menu:a>
 	  <menu:a action="sort" value="avalence" icon="apathy">$sort.apathy</menu:a>
 	  <menu:a action="sort" value="arousal" icon="arousal">$sort.arousal</menu:a>
@@ -34,7 +29,7 @@
 	      <poll:name/>
 	    </td>
 	    <td align="center">
-	      <user:inflow/>
+	      <user:popularity/>
 	    </td>
 	  </tr>
 	  <tr>

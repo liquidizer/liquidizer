@@ -32,9 +32,9 @@
      inkscape:window-maximized="0"
      inkscape:window-y="65"
      inkscape:window-x="32"
-     inkscape:cy="208.80503"
-     inkscape:cx="155.07888"
-     inkscape:zoom="1.3350176"
+     inkscape:cy="38.854635"
+     inkscape:cx="347.05472"
+     inkscape:zoom="1.888"
      showgrid="false"
      id="namedview50"
      inkscape:window-height="875"
@@ -91,14 +91,14 @@
     </clipPath>
     <clipPath
        id="clipPath4022">
-    <use
-       id="use5959"
-       x="0"
-       y="0"
-       width="250"
-       height="250"
-       xlink:href="#path3622"
-       transform="matrix(-1,0,0,1,915.87,-3.77)" />
+      <use
+         id="use5959"
+         x="0"
+         y="0"
+         width="250"
+         height="250"
+         xlink:href="#path3622"
+         transform="matrix(-1,0,0,1,915.87,-3.77)" />
     </clipPath>
     <radialGradient
        spreadMethod="pad"
@@ -148,7 +148,7 @@
        style="fill:#ffffff;stroke:#000000;stroke-width:6.14;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        sodipodi:nodetypes="csszz"
        id="path3622"
-       d="m 252.75012,415.71709 c 63.68763,15.94037 84.5858,114.79644 33.81698,164.36734 C 264.25392,601.87111 171.92389,631.92096 141.1,625.99 95.329173,617.18303 88.233786,540.20494 111.0534,488.72266 c 22.81961,-51.48228 78.00909,-88.94594 141.69672,-73.00557 z" />
+       d="m 252.75012,415.71709 c 69.22067,24.95016 84.5858,114.79644 33.81698,164.36734 C 264.25392,601.87111 171.92389,631.92096 141.1,625.99 95.329173,617.18303 85.751004,542.68773 108.57061,485.41228 c 22.81961,-57.27545 74.69871,-94.73911 144.17951,-69.69519 z" />
     <g
        style="stroke-width:4.36;stroke-miterlimit:4;stroke-dasharray:none"
        id="lens"

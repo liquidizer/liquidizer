@@ -10,7 +10,6 @@ import net.liftweb.http.js.JsCmds._
 import net.liftweb.common._
 
 import org.liquidizer.model._
-import org.liquidizer.lib.Tick
 
 object Markup {
 
@@ -38,7 +37,7 @@ object Markup {
   def tidy(node : Node, isLink : Boolean) : NodeSeq = node match {
     case Elem(ns, tag, attr, scope, ch @ _*) =>
       tag match {
-	case "img" | "code" | "p"  =>
+	case "img" | "em" | "i"  =>
 	  val allowed= Set("src", "width", "height")
 	  val fAttr= attr.filter { n=> allowed.contains(n.key) }
 	  Elem(ns, tag, fAttr, scope, tidy(ch, true) :_*)

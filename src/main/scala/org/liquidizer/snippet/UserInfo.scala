@@ -12,6 +12,7 @@ import Helpers._
 
 import org.liquidizer.model._
 import org.liquidizer.lib._
+import org.liquidizer.lib.ssl._
 
 class UserInfo {
   val buttonFactory = new EditButtonToggler()
@@ -246,10 +247,7 @@ class UserReset extends StatefulSnippet {
   def process() = {
     val user= User.currentUser.get
     if (deleteVotes || deleteAccount) {
-      VoteCounter.getActiveVotes(user).foreach {
-	PollingBooth.vote(user, _, 0)
-      }
-      VoteCounter.refresh()
+      PollingBooth.clearVotes(user)
       S.notice(S ? "data.delete.votes.succ")
     }
     if (deleteComments || deleteAccount) {
@@ -273,7 +271,12 @@ class UserReset extends StatefulSnippet {
 
 /** Signup snippet. */
 class UserSignUp extends StatefulSnippet {
-  var username= ""
+  var username= SSLClient.valid_certificates map { certs =>
+      certs.headOption map { head =>
+          PrincipalUtils.name_as_map(head.getSubjectX500Principal)("CN")
+      } getOrElse ""
+      //PrincipalUtils.name_as_map(certs(0).getSubjectX500Principal)("CN")
+  } openOr ""
   var email= ""
   
   var dispatch : DispatchIt = {
@@ -316,7 +319,6 @@ class UserSignUp extends StatefulSnippet {
 	  .password(passwd1)
 	  .validated(User.skipEmailValidation)
 	  user.save
-	  user.createNominee
 
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet

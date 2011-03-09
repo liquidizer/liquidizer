@@ -51,11 +51,10 @@ class QueryDetails extends MultipageSnippet {
   var hasMe= true;
 
   def loadData() = {
-    data= 
-      VoteCounter.getAllVoters(query.get)
-      .filter { searchFilter _ }
-      .map { VotableUser(_) }
-    
+    data=  VoteCounter.getAllVoters(VotableQuery(query.get))
+    .filter { searchFilter _ }
+    .map { VotableUser(_) }
+
     sortData(VotableQuery(query.get))
 
     // check if my own vote is registered. 
@@ -137,7 +136,6 @@ class AddQuery extends StatefulSnippet {
       .creator(User.currentUser.get)
       .creation(Tick.now)
       query.save
-      query.createNominee
 
       unregisterThisSnippet
       S.redirectTo("/queries/"+query.id+"/index.html")

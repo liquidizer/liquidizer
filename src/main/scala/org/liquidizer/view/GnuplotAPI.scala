@@ -2,7 +2,9 @@ package org.liquidizer.view
 
 import scala.xml._
 
-import org.liquidizer.lib._
+import org.liquidizer.lib.VoteMap.WEIGHT_DECAY
+import org.liquidizer.model.Tick
+import org.liquidizer.model.Quote
 
 object LiquidColors {
   val pro= "#FF9933"
@@ -121,46 +123,40 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
     }
   }
 
-  def formatData[A](data : List[Tick[A]], f:(A => Double)) = {
+  def formatData(data : List[Tick], f:(Quote => Double)) = {
     var lastX= now
     run(formatX(lastX)+" 0")
     if (!data.isEmpty) {
-      var oldY= f(data.first.value)
-      data.foreach {
-	case Tick(newX,quote) => {
-	  if (lastX>minX) {
-	    val y= f(quote)
-	    val dy= y * Math.exp(VoteMap.DECAY * (newX - lastX))
-	    run(formatX(lastX)+" "+dy)
-	    run(formatX(Math.max(newX,minX))+" "+y)
-	    lastX= newX
-	  }
-	}}
+      var oldY= f(data.first.quote)
+      for (tick <- data) {
+	val newX= tick.time.is
+	if (lastX>minX) {
+	  val y= f(tick.quote)
+	  val dy= y * Math.exp(WEIGHT_DECAY * (newX - lastX))
+	  run(formatX(lastX)+" "+dy)
+	  run(formatX(Math.max(newX,minX))+" "+y)
+	}
+ 	lastX= newX
+     }
       run(formatX(Math.max(minX,data.last.time))+" "+0);
     }
     run("e")
   }
 
   /** Plot a time series */
-  def plotTS(data : List[Tick[Quote]], options : Map[String, String],
-	   shade:Boolean, pro:Boolean, contra:Boolean) : Node = {
+  def plotTS(data : List[Tick], options : Map[String, String], shade : Boolean) : Node = {
     setOptions(options)
-    run("plot "+
-	(if (shade) {
+    run("plot "+ (if (shade)
 	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro_light+"', "+
-	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra_light+"', " } else "")+
-	(if (contra) {
-	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra+"', " } else "")+
-	(if (pro) {
-	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro+"' " } else ""))
-      
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra_light+"', " else "")+
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra+"', " +
+	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro+"' ")
     if (shade) {
-      formatData[Quote](data, quote => quote.pro);
-      formatData[Quote](data, quote => -quote.contra);
+      formatData(data, quote => quote.pro);
+      formatData(data, quote => -quote.contra);
     }
-    if (contra)         formatData[Quote](data, quote => Math.min(quote.pro-quote.contra,0));
-    if (pro && contra)  formatData[Quote](data, quote => Math.max(quote.pro-quote.contra,0));
-    if (pro && !contra) formatData[Quote](data, quote => quote.pro);
+    formatData(data, quote => Math.min(quote.pro-quote.contra,0))
+    formatData(data, quote => Math.max(quote.pro-quote.contra,0));
     
     getSVG.first
   }

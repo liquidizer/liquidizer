@@ -4,13 +4,14 @@ import java.io.File
 import scala.util.matching.Regex
 import scala.xml._
 
-
+/** This class is responsible for morphing between different SVG images */
 class Mesmerizer() {
 
   abstract class Param
   case class NumberParam(val value:Double) extends Param
   case class ColorParam(val r:Double, g:Double, b:Double) extends Param
 
+  /** defines the structure of an SVG image */
   case class BaseShape (
     val children: Map[String, BaseShape], 
     val attributes: Map[String, (Regex, String)]) {
@@ -23,6 +24,7 @@ class Mesmerizer() {
 	override def toString() : String = format.mkString("\n")
   }
 
+  /** Contains the numeric parametrs for a BaseShape */
   case class ParametricShape (
     val children: Map[String, ParametricShape],
     val values: Map[String, List[Param]]) {
@@ -77,6 +79,7 @@ class Mesmerizer() {
 	 }
    }
 
+   /** Extract the pattern against which new SVG images are matched */
    def getPattern(text: String) : (Regex, String) = {
 	 (PARAM.replaceAllIn(text
 			 .replaceAll("\\(","\\\\(")
@@ -84,6 +87,7 @@ class Mesmerizer() {
 	  PARAM.replaceAllIn(text, "*"))
    }
 
+   /** Extract the numeric parameters for interpolation */
    def getParameters(text: String, pattern: Regex): List[Param] = {
 	   pattern.findPrefixMatchOf(text) match {
 	  	   case Some(m) =>
@@ -108,22 +112,22 @@ class Mesmerizer() {
    }
    
    def format(shape: Node, base: BaseShape, param: ParametricShape): Node = shape match {
-	   case Elem(prefix, label, attribs, scope, children @ _*) => {
-	     val newAttribs= base.attributes.foldLeft (attribs) { 
-	    	 case (a, (key, (pattern, format))) =>
-	    	 	val value= param.values.get(key).get.elements
-	    	 	val newValue= "\\*".r.replaceAllIn(format, _ => formatParam(value.next))
-	    	 	a.remove(key).append(new UnprefixedAttribute(key,newValue.replaceAll("\\\\",""), Null))
-	     }
-	     val newChildren= children.map {
-	    	 child => base.children .get(id(child)) match {
-	    		 case Some(childBase) => format(child, childBase, param.children.get(id(child)).get)
-	    		 case _ => child
-	    	 }
-	     }
-	     Elem(prefix, label, newAttribs, scope, newChildren :_*)
-	   }
-	   case _ => shape
+     case Elem(prefix, label, attribs, scope, children @ _*) => {
+       val newAttribs= base.attributes.foldLeft (attribs) { 
+	 case (a, (key, (pattern, format))) =>
+	   val value= param.values.get(key).get.elements
+	 val newValue= "\\*".r.replaceAllIn(format, _ => formatParam(value.next))
+	 a.remove(key).append(new UnprefixedAttribute(key,newValue.replaceAll("\\\\",""), Null))
+       }
+       val newChildren= children.map {
+	 child => base.children .get(id(child)) match {
+	   case Some(childBase) => format(child, childBase, param.children.get(id(child)).get)
+	   case _ => child
+	 }
+       }
+       Elem(prefix, label, newAttribs, scope, newChildren :_*)
+     }
+     case _ => shape
    }
 
    def morph(left: Double, right: Double, shape1:List[Param], shape2:List[Param]):List[Param] = {
@@ -139,7 +143,7 @@ class Mesmerizer() {
      }}
    }
      
-   def morph(left: Double, right:Double, shape1: ParametricShape, shape2: ParametricShape): ParametricShape = {
+   def morph(left: Double, right:Double, shape1: ParametricShape, shape2: ParametricShape) : ParametricShape =
      ParametricShape(
        shape1.children.map { 
        case (key,value) => key -> morph(left, right, value, shape2.children.get(key).get) 
@@ -148,7 +152,15 @@ class Mesmerizer() {
        case (key,value) => key -> morph(left, right, value, shape2.values.get(key).get) 
        }
      )
-   }
+
+   def map(f : ColorParam => ColorParam, shape: ParametricShape) : ParametricShape =
+     ParametricShape(
+       shape.children.map { case (key, value) => key -> map(f, value) },
+       shape.values.map { case (key, list) =>
+	 key -> list.map { _ match {
+	   case value : ColorParam => f(value)
+	   case other => other
+       }}})
 
    def morph(factor:Double, shape1: ParametricShape, shape2: ParametricShape) : ParametricShape =
        morph(factor, 1-factor, shape1, shape2)
@@ -169,27 +181,33 @@ class Mesmerizer() {
 	println(e.getMessage())
 	throw new MatchException(file+": "+e.getMessage)
     }
-   }
+  }
 
-   val master= load("front-master")
-   val base = extractBaseShape(master)
-   val shape1= extractParameters("front-v0-a1-p1", base)
-   val shape2= extractParameters("front-v1-a1-p1", base)
-   val shape3= extractParameters("front-v0-a0-p1", base)
-   val shape4= extractParameters("front-v1-a0-p1", base)
-   val shape5= extractParameters("front-v0-a1-p0", base)
-   val shape6= extractParameters("front-v1-a1-p0", base)
-   val shape7= extractParameters("front-v0-a0-p0", base)
-   val shape8= extractParameters("front-v1-a0-p0", base)
-
-   def emoticon(v: Double, a: Double, p:Double):Node = {
-    val param= morph(p,
-		  morph(a, 
-    		    morph(v, shape2, shape1), 
-    		    morph(v, shape4, shape3)),
-		  morph(a, 
-    		    morph(v, shape6, shape5), 
-    		    morph(v, shape8, shape7)))
+  def desaturate(c : ColorParam, w : Double) = {
+    val l= .4*c.r + .4*c.g + .2*c.b
+    ColorParam(w*c.r + (1-w)*l, w*c.g + (1-w)*l, w*c.b + (1-w)*l)
+  } 
+  
+  val master= load("front-master")
+  val base = extractBaseShape(master)
+  val shape1= extractParameters("front-v0-a1-p1", base)
+  val shape2= extractParameters("front-v1-a1-p1", base)
+  val shape3= extractParameters("front-v0-a0-p1", base)
+  val shape4= extractParameters("front-v1-a0-p1", base)
+  val shape5= extractParameters("front-v0-a1-p0", base)
+  val shape6= extractParameters("front-v1-a1-p0", base)
+  val shape7= extractParameters("front-v0-a0-p0", base)
+  val shape8= extractParameters("front-v1-a0-p0", base)
+  
+  def emoticon(v: Double, a: Double, p:Double, w:Double):Node = {
+    val param= map(desaturate(_, w),
+                   morph(p,
+			 morph(a, 
+    			       morph(v, shape2, shape1), 
+    			       morph(v, shape4, shape3)),
+			 morph(a, 
+    			       morph(v, shape6, shape5), 
+    			       morph(v, shape8, shape7))))
     format(master, base, param)
   }
 }

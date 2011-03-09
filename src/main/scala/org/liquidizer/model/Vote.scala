@@ -8,11 +8,11 @@ class Vote extends LongKeyedMapper[Vote] with IdPK {
   def getSingleton = Vote
 
   // who votes when
-  object date extends MappedLong(this)
-  object owner extends MappedLongForeignKey(this, User)
+  object date extends MappedLong(this) with DBIndexed
+  object owner extends MappedLongForeignKey(this, User) with DBIndexed
   
   // subject of vote
-  object nominee extends MappedLongForeignKey(this, Votable)
+  object nominee extends MappedLongForeignKey(this, Votable) with DBIndexed
 
   // attributes of vote
   object weight extends MappedInt(this)
@@ -32,5 +32,9 @@ class Vote extends LongKeyedMapper[Vote] with IdPK {
 object Vote extends Vote with LongKeyedMetaMapper[Vote] {
   override def dbTableName = "votes"
   override def fieldOrder = List(date, owner, nominee, weight)
-}
+
+  def get(owner : User, nominee : Votable) : Option[Vote] =
+    find(By(Vote.owner, owner), By(Vote.nominee, nominee))
+
+ }
 

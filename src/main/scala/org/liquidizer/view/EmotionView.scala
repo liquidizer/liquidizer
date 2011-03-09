@@ -29,12 +29,13 @@ object EmotionView {
     val v= doubleParam("v", 0.5)
     val a= doubleParam("a", 0.5)
     val p= doubleParam("p", 0.5)
+    val w= doubleParam("w", 1.0)
     val size= doubleParam("size", 100).toInt
     val scale= doubleParam("scale", 1.0)
     val view= S.param("view").getOrElse("front")
 
     var node= view match {
-      case "front" => morpher.emoticon(v,a,p)
+      case "front" => morpher.emoticon(v,a,p,w)
       case "sleeping" => sleeping
     }
  
@@ -57,25 +58,24 @@ object EmotionView {
 	User.currentUser match {
 	  case Full(me) => {
 	    // compute face size based on distance metrics
-	    val scale= VoteCounter.getDelegationScale(me)
+	    val maxPref= VoteCounter.getMaxDelegation(me)
 	    val dist= if (other==me) 1.0 else {
-	      val w= Math.sqrt(VoteCounter.getWeight(me, VotableUser(other)))
-	      if (scale._2==0)
-		1.0
-	      else
-		1.0 + 0.2*(w/Math.sqrt(scale._1) - 0.5)*(scale._2 min 3)
+	      val w= Math.sqrt(VoteMap.getWeight(me, VotableUser(other)))
+		1.0 + 0.2*(w - 0.5)*(maxPref min 3)
 	    }
 	    val fdist= SVGUtil.format(dist min 1.25)
 
 	    // extract corresponding emotion
 	    VoteCounter.getEmotion(me, other) match {
 	    case Some(emo) => {
-	      val p= emo.potency.value
-	      val v= Math.pow(emo.valence.value/(.9*p + .1)/2.0 + 0.5, 2.0)
-	      val a= emo.getArousal min 1.0 max 0.
+	      val p= emo.potency.is
+	      val v= Math.pow(emo.valence.is / (.9*p + .1) / 2.0 + 0.5, 2.0)
+	      val a= emo.arousal.is min 1.0 max 0.
+	      val w= VoteMap.getCurrentWeight(other)
 	      Map("v" -> SVGUtil.format(v), 
 		  "a" -> SVGUtil.format(a), 
 		  "p" -> SVGUtil.format(p),
+		  "w" -> SVGUtil.format(w),
 		  "scale" -> fdist)
 	    }
 	    case None => Map("view" -> "sleeping", "scale" -> fdist)

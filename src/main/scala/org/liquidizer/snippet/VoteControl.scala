@@ -26,9 +26,12 @@ class VoteControl(var value : Int, val id : Int, min : Int, max : Int) {
 
   /** render the current value */
   def renderValue() : NodeSeq =
-    (min to max).map { 
-      no => SHtml.a(() => updateValue(no),
-		    <div class={ getStyle(no) }>{ format(no) }</div>) }
+    for (no <- min to max) yield { 
+      val id2="vote"+id+"_"+no
+      SHtml.a(<div id={id2} class={ getStyle(no) }>{ format(no) }</div>,
+	      SetHtml(id2, <img src="/images/vote.gif" class="vote_anim"/>)
+	      & SHtml.ajaxInvoke(() => updateValue(no))._2) 
+    }
       
   /** function to count votes and updates visuals */
   def updateValue(newValue : Int) : JsCmd = {

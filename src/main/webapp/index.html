@@ -2,7 +2,7 @@
   <lift:bind-at name="title"><lift:loc>system.homepage</lift:loc></lift:bind-at>
   <lift:bind-at name="content">
     <lift:form>
-      <lift:UserInfo.in>
+      <lift:UserInfo.in eager_eval="true">
 	<div class="balance">
 	  <h2 class="orange">
 	    <lift:loc>welcome.to.liquidizer</lift:loc>,
@@ -38,7 +38,7 @@
 		<td colspan="3"><a href="/user_mgt/signup.html"><lift:loc>user.signup</lift:loc></a></td>
 	      </tr>
 	      <tr>
-		<td colspan="3"><a href="/user_mgt/lost_password.html"><lift:loc>user.new.password</lift:loc></a></td>
+		<td colspan="3"><a href="/user_mgt/lost_password.html"><lift:loc>user.renew.password</lift:loc></a></td>
 	      </tr>
 	    </table>
 	  </td>

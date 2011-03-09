@@ -8,33 +8,42 @@ import _root_.org.liquidizer.model._
 
 /** This is the only class that makes write access to the votes table */
 object PollingBooth {
+  /** time of the latest vote */
+  var latestVote= 0L
 
   /** create a comment for a given user, for a given nominee */
   def comment(author : User, nominee : Votable, text : String):Unit = {
+    val obj= Comment.get(author, nominee)
     if (text.trim.isEmpty) {
-      VoteCounter.getComment(author, nominee).map { _.delete_! }
+      obj.map { _.delete_! }
     } else {
-      Comment.create
+      obj.getOrElse(Comment.create)
       .date(Tick.now)
       .author(author)
       .nominee(nominee)
       .content(text).save
     }
+
   }
 
-  def vote(owner : User, nominee : Votable, weight : Int) = {
-    val vote=Vote.create
-    .date(Tick.now)
-    .owner(owner)
-    .weight(weight)
-    .nominee(nominee)
+  def vote(owner : User, nominee : Votable, weight : Int) = synchronized {
+    latestVote= Math.max(latestVote+1, Tick.now)
+    val vote = Vote.get(owner, nominee).getOrElse {
+      Vote.create.owner(owner).nominee(nominee)
+    }.date(latestVote).weight(weight)
     vote.save
-    VoteCounter.register(vote)
   }
 
   def clearComments(owner : User) = {
     for(comment <- Comment.findAll(By(Comment.author, owner))) {
       comment.delete_!
     }
+  }
+
+  def clearVotes(user : User) = {
+    VoteCounter.getActiveVotes(user).foreach {
+      vote(user, _, 0)
+    }
+    VoteMap.refresh()
   }
 }

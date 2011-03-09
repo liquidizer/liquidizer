@@ -10,207 +10,99 @@ import _root_.net.liftweb.common._
 import org.liquidizer.model._
 import java.io._
 
-/** The VoteCounter keeps track of all cast votes. It provides fast access to the latest 
- results and statistical data.
- */
 object VoteCounter {
 
-  private val voteMap= new VoteMap
-  val mapper= new VoteMapper
-  var time = 0L
-  
-  class VoteMapper extends Actor with Logger {
-    def act = {
-      loop {
-	react {
-	  case vote:Vote =>  {
-	    push(vote)
-	    var senders = sender :: Nil
-	    while (mailboxSize>0) receive {
-	      case vote:Vote => 
-		push(vote)
-	        senders ::= sender
-	      case 'PUSH =>
-	        senders ::= sender
-	      case 'STOP =>
-		exit()
-	    }
-	    updateFactors()
-	    senders.foreach { _ ! 'FINISHED }
-	  }
-	  case 'STOP =>  exit()
-	  case 'PUSH =>  sender ! 'FINISHED
-	}
-      }
-    }
-
-    def push(vote : Vote) = {
-      time= vote.date.is
-      voteMap.put(vote)
-    }
-
-    def updateFactors() = {
-      if (voteMap.dirty) {
-	val t0= Tick.now
-	voteMap.update(time)
-	val t1= Tick.now
-	info("Vote results update took "+(t1-t0)+" ms")
-      }
-    }
-  }
-  
-  def stop() = {
-    println("stopping") 
-    mapper ! 'STOP
-  }
-  def refresh() = mapper !? 'PUSH
-
-  def register(vote : Vote) {
-    mapper !? vote
-  }
-  
   def init() = {
-    mapper.start
-    Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
-      vote =>
-        // recompute results 
-        if ((vote.date.is / Tick.h) > (time / Tick.h)) mapper.updateFactors()
-        if ((vote.date.is / Tick.day) > (time / Tick.day)) {
-	  for (user1 <- voteMap.users.keySet)
-	    for (user2 <- voteMap.users.keySet)
-	      voteMap.getEmotion(user1, user2, time)
-	}
-        mapper.push(vote)
+    // Refactor DB
+    if (Tick.findAll.isEmpty) {
+      // recompute history
+      var time=0L
+      Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
+	vote =>
+          // recompute results 
+          if ((vote.date.is / Tick.day) > (time / Tick.day)) VoteMap.refresh()
+	  time= vote.date.is
+      }
+      // delete historic votes
+      var map= Set[(User,Votable)]()
+      Vote.findAll(OrderBy(Vote.date, Descending)).foreach {
+	vote =>
+	  val key= (vote.owner.obj.get, vote.nominee.obj.get)
+	    if (map.contains(key)) vote.delete_! else {
+	      map+=key
+	    }
+      }
     }
-    refresh()
+    VoteMap.refresh()
   }
   
-  def dump:Unit = {
-    voteMap.dump()
+  /** Maximum delegation weight. Used to compute emoticon size */
+  def getMaxDelegation(user : User) : Int = {
+    Vote.findAll(By(Vote.owner,user))
+    .filter { _.nominee.obj.get.isUser }
+    .map { _.weight.is }
+    .foldLeft(0) { _ max _ }
   }
 
-  /** get the theoretical voting power, if all delegations are turned into votes */
-  def getDelegationInflow(user : User) : Double = {
-    voteMap.getResult(VotableUser(user)).map { _.pro }.getOrElse (0.0)
-  }
-
-  def getDelegationOutflow(user : User) : Double = {
-    getActiveVotes(user).foldLeft (0.0) { (sum, nominee) =>
-      nominee match {
-	case VotableUser(_) => sum + getCumulativeWeight(user, nominee)
-	case _ => sum
-      }
-    } * getDelegationInflow(user)
-  }
-
-  def getDelegationScale(user : User) : (Double, Int)= {
-    var scale=0.0
-    var pref=0
-    getActiveVotes(user)
-    .map { 
-      case u @ VotableUser(_) => 
-	scale= scale max getWeight(user, u)
-        pref= pref max getPreference(user, u)
-      case _ =>  }
-    (scale, pref)
-  }
-
-  /** cumulative weight are counted, as if the sum total voting weight was 1.0
-   * This is used as an indication of delegation influence */
-  def getCumulativeWeight(user : User, nominee : Votable) =
-    voteMap.getPreference(user, nominee).toDouble / (voteMap.getDenom(user) max 1)
-
-  /** Total voting result for a votable nominee */
-  def getResult(nominee : Votable) : Quote = {
-    voteMap.getResult(nominee).getOrElse(Quote(0.0, 0.0))
-  }
-
-  def getSwing(nominee : Votable) : Double = {
-    voteMap.nominees.get(nominee).map{ _.smooth.swing }.getOrElse(0.0)
-  }
-
-  def getMaxPref(user : User) : Int = 
-    voteMap.users.get(user).map { 
-      _.votes.foldLeft(0) { (a,b) =>  a max (b.preference.abs) }
-    }.getOrElse(0)
-
-  def getPreference(user : User, nominee : Votable) : Int = {
-    voteMap.getPreference(user, nominee)
-  }
-
-  def getWeight(user : User, nominee : Votable) : Double = {
-    voteMap.getWeight(user, nominee)
-  }
-
-  def getAllVoters(query : Query) : List[User] = {
-    val id= voteMap.id(query)
-    voteMap synchronized {
-      voteMap.users
-      .filter { 
-	case (u,head) => 
-	  Math.abs(head.vec.getVotingWeight(id)) >= 5e-3 || 
-	  !getComment(u, VotableQuery(query)).isEmpty
-      }
-      .map { case (u,head) => u }
-      .toList
+  def getAllVoters(nominee : Votable) : List[User] = {
+    var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
+    // find voters recursively as voters and followers
+    var proc= List(nominee)
+    while (!proc.isEmpty) {
+      val votes= proc.flatMap{ n => Vote.findAll(By(Vote.nominee, n)) }
+      val next= votes
+      .filter{ _.weight.is!=0 }.map{ _.owner.obj.get }
+      .removeDuplicates -- list
+      proc=  next.map { VotableUser(_) }
+      list ++= next
     }
+    list
   }
 
   def getAllVotes(user : User) : List[Query] = {
-    voteMap synchronized {
-      voteMap.nominees
-      .flatMap {
-	case (n @ VotableQuery(query), head) 
-	  if Math.abs(getWeight(user,n)) >= 5e-3 ||
-	     !getComment(user, n).isEmpty => List(query)
-	case _ => Nil
-      }.toList
+    // extract list from voting vector
+    var list= List[Query]()
+    VoteMap.getVoteVector(user).foreach { vec =>
+      for (i <- 0 to vec.votes.length-1) {
+	val w= vec.getVotingWeight(i)
+	if (w.abs > VoteMap.EPS)
+	  VoteMap.queryFromId(i).foreach { list ::= _ }
+      }
     }
+    // include commentors
+    val commentors= Comment.findAll(By(Comment.author, user))
+    .map { _.nominee.obj.get }
+    .filter{_.isQuery}.map { _.query.obj.get }
+    // remove duplicates
+    (list -- commentors) ++ commentors
   }
 
   def getActiveVoters(nominee : Votable) : List[User] = {
-    voteMap.getSupporters(nominee)
-    .filter { _.preference!=0 }
-    .map { _.owner }
+    Vote.findAll(By(Vote.nominee, nominee))
+    .filter { _.weight!=0 }
+    .map { _.owner.obj.get }
   }
 
   def getActiveVotes(user : User) : List[Votable] = {
-    voteMap.getVotes(user)
-    .filter { _.preference!=0 }
-    .map { _.nominee }
+    Vote.findAll(By(Vote.owner, user))
+    .filter { _.weight!=0 }
+    .map { _.nominee.obj.get }
   }
 
   def isDelegated(user : User, nominee : User) : Boolean = 
-    user==nominee || getWeight(user,VotableUser(nominee))>1e-10
+    user==nominee || VoteMap.getWeight(user,VotableUser(nominee))>1e-10
 
-  def getTimeSeries(nominee : Votable) : List[Tick[Quote]] =
-    voteMap.nominees.get(nominee).map { _.history.getAll }.getOrElse(Nil)
+  def getEmotion(user1 : User, user2 : User) : Option[Emotion] =
+    VoteMap.getEmotion(user1, user2)
 
-  def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
-    voteMap.getEmotion(user1, user2, Tick.now)
-  }
+  def getSympathy(user1 : User, user2 : User) : Double =
+    VoteMap.getCurrentWeight(user1) *
+    VoteMap.getCurrentWeight(user2) *
+    getEmotion(user1,user2).map{ _.valence.is }.getOrElse(0.0)
 
-  def getCommentText(author : User, nominee : Votable) : String =
-    getComment(author, nominee). map { _.content.is }.getOrElse("")
+  def getArousal(user1 : User, user2 : User) : Double =
+    VoteMap.getCurrentWeight(user1) *
+    VoteMap.getCurrentWeight(user2) *
+    getEmotion(user1,user2).map{ _.arousal.is }.getOrElse(0.0)
 
-  def getCommentTime(author : User, nominee : Votable) : Long =
-    getComment(author, nominee). map { _.date.is }.getOrElse(0L)
-
-  def getComment(author : User, nominee : Votable) : Option[Comment] = {
-    Comment.find(By(Comment.author, author), By(Comment.nominee, nominee))
-  }
-
-  def getLatestComment(nominee : Votable) : Option[Comment] =
-    Comment.findAll(By(Comment.nominee, nominee), 
-		    OrderBy(Comment.date, Descending), MaxRows(1)) match {
-      case List(comment, _*) => Some(comment)
-      case _ => None
-    }
-
-  def getLatestComment(user : User) : Option[Comment] =
-    Comment.findAll(By(Comment.author, user), 
-		    OrderBy(Comment.date, Descending), MaxRows(1)) match {
-      case List(comment, _*) => Some(comment)
-      case _ => None
-    }
 }
