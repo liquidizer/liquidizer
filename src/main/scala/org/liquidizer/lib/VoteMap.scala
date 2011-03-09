@@ -86,8 +86,11 @@ object VoteMap {
   }
   
   def update(time : Long) : Unit = synchronized {
+    var tic= Tick.now
     // iterative matrix solving
-    sweep(1000, 1e-4)
+    sweep(time, 1000, 1e-4)
+    println("sweeping : "+(Tick.now-tic)+"ms")
+    tic= Tick.now
 
     // Prepare result map
     var resultMap= Map(nominees.keys.toSeq.filter{_.isQuery}.map{ case VotableQuery(query) => id(query) -> Quote(0,0)}:_*)
@@ -97,7 +100,7 @@ object VoteMap {
       val head= user._2
       val votes= head.vec.votes
       for (i <- 0 to votes.length-1) {
-	val w= votes(i) * head.weight(latestUpdate)
+	val w= votes(i) * head.weight(time)
 	if (w.abs > EPS) {
 	  active= true
 	  if (!resultMap.contains(i)) resultMap += i -> Quote(0,0)
@@ -109,7 +112,10 @@ object VoteMap {
     }
     // persist election results
     resultMap.foreach { case (i,quote) => 
-      setResult(VotableQuery(queryFromId(i).get), quote) }
+      setResult(time, VotableQuery(queryFromId(i).get), quote) }
+
+    println("query results : "+(Tick.now-tic)+"ms")
+    tic= Tick.now
 
     // normalize popularity to 1
     val denom= 
@@ -121,21 +127,24 @@ object VoteMap {
       var pop= Quote(0,0)
       if (user._2.active) {
 	for (i <- 0 to vec.votes.length-1) {
-	  val w= vec.getVotingWeight(i) * user._2.weight(latestUpdate)
+	  val w= vec.getVotingWeight(i) * user._2.weight(time)
 	  if (w.abs > EPS)
 	    resultMap.get(i).foreach { q => pop = pop + q * w }
 	}
       }
-      setResult(VotableUser(user._1), pop*denom)
+      setResult(time, VotableUser(user._1), pop*denom)
     }
+    println("popularity : "+(Tick.now-tic)+"ms")
+    tic= Tick.now
+
   }
 
-  def setResult(nominee : Votable, quote : Quote) = {
+  def setResult(time : Long, nominee : Votable, quote : Quote) = {
     nominees.get(nominee).getOrElse {
       val head= new NomineeHead(nominee)
       nominees+= (nominee -> head)
       head
-    }.update(latestUpdate, quote)
+    }.update(time, quote)
   }
 
   /** Iterative step to solve the equation system */
@@ -160,7 +169,7 @@ object VoteMap {
 	val head= getUserHead(user)
 
 	// reset the voting vector
-	val decay= head.weight(latestUpdate)
+	val decay= head.weight(time)
 	val vec= new VoteVector(head.vec)
 	vec.clear
 	
