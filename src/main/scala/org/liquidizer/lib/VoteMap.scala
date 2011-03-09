@@ -1,6 +1,7 @@
 package org.liquidizer.lib
 
 import net.liftweb.mapper._
+import net.liftweb.common.Logger
 import org.liquidizer.model._
 
 /** The VoteCounter keeps track of all cast votes.
@@ -77,9 +78,24 @@ object VoteMap {
   def id(query : Query) = query.id.is.toInt
   def queryFromId(id : Int) = Query.getQuery(id.toLong)
 
-  /** Update to at least the given time */
+  /** Update to the current time */
+  def refresh() = update(Tick.now)
+  
+  /** Update to at least the given time in a thread save manner. */
   def update(time : Long) = synchronized {
-    if (latestUpdate<=time) recompute()
+    if (latestUpdate<=time) {
+      // run the recomputation with lower thread priority
+      val thread= new Thread() with Logger {
+	override def run() = {
+	  val t0= Tick.now
+	  recompute()
+	  val t1= Tick.now
+	  info("Vote results update took "+(t1-t0)+" ms")
+	}}
+      thread.setPriority(Thread.MIN_PRIORITY)
+      thread.run
+      thread.join
+    }
   }
 
   /** Recompute all results including the latest votes */

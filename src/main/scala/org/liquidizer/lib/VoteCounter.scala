@@ -20,7 +20,7 @@ object VoteCounter {
       Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
 	vote =>
           // recompute results 
-          if ((vote.date.is / Tick.day) > (time / Tick.day)) refresh()
+          if ((vote.date.is / Tick.day) > (time / Tick.day)) VoteMap.refresh()
 	  time= vote.date.is
       }
       // delete historic votes
@@ -33,17 +33,9 @@ object VoteCounter {
 	    }
       }
     }
-    refresh()
+    VoteMap.refresh()
   }
   
-  /** recompte the results for all newly cast votes */
-  def refresh() = {
-    val t0= Tick.now
-    VoteMap.update(t0)
-    val t1= Tick.now
-    println("Vote results update took "+(t1-t0)+" ms")
-  }
-
   /** Maximum delegation weight. Used to compute emoticon size */
   def getMaxDelegation(user : User) : Int = {
     Vote.findAll(By(Vote.owner,user))

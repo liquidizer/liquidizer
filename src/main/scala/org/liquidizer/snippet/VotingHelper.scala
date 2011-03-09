@@ -72,7 +72,7 @@ class VotingHelper {
   /** Update the voting preferences */
   def vote(nominee : Votable, newVote : Int) : JsCmd = {
     PollingBooth.vote(currentUser.get, nominee, newVote)
-    VoteCounter.refresh
+    VoteMap.refresh
     ajaxUpdate(nominee)
   }
   

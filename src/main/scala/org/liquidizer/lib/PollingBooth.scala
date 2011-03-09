@@ -44,6 +44,6 @@ object PollingBooth {
     VoteCounter.getActiveVotes(user).foreach {
       vote(user, _, 0)
     }
-    VoteCounter.refresh()
+    VoteMap.refresh()
   }
 }

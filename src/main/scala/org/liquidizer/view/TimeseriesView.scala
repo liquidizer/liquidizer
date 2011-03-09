@@ -61,7 +61,7 @@ object TimeseriesView {
       case Some(user) => {
 	cache.get(S.uri, options, () => {
 	  val ts= Tick.getTimeSeries(VotableUser(user))
-	  val node= (new GnuplotAPI).plotTS(ts, options)
+	  val node= (new GnuplotAPI).plotTS(ts, options, false)
 	  createResponse(node.first)
 	})
       }
@@ -74,7 +74,7 @@ object TimeseriesView {
       case Some(query) => {
 	cache.get(S.uri, options, () => {
 	  val ts= Tick.getTimeSeries(VotableQuery(query))
-	  val node= (new GnuplotAPI).plotTS(ts, options)
+	  val node= (new GnuplotAPI).plotTS(ts, options, true)
 	  createResponse(node.first)
 	})
       }
