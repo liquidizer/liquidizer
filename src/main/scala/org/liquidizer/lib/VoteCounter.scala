@@ -13,26 +13,6 @@ import java.io._
 object VoteCounter {
 
   def init() = {
-    // Refactor DB
-    if (Tick.findAll.isEmpty) {
-      // recompute history
-      var time=0L
-      Vote.findAll(OrderBy(Vote.date, Ascending)).foreach {
-	vote =>
-          // recompute results 
-          if ((vote.date.is / Tick.day) > (time / Tick.day)) VoteMap.refresh()
-	  time= vote.date.is
-      }
-      // delete historic votes
-      var map= Set[(User,Votable)]()
-      Vote.findAll(OrderBy(Vote.date, Descending)).foreach {
-	vote =>
-	  val key= (vote.owner.obj.get, vote.nominee.obj.get)
-	    if (map.contains(key)) vote.delete_! else {
-	      map+=key
-	    }
-      }
-    }
     VoteMap.refresh()
   }
   
