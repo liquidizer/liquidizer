@@ -37,6 +37,11 @@ object VoteCounter {
 	    }
       }
     }
+    var map= Set[(User, Votable)]()
+    Comment.findAll.foreach { comment =>
+      val key= (comment.author.obj.get, comment.nominee.obj.get)
+      if (map.contains(key)) comment.delete_! else map+=key
+    }
     VoteMap.convertDB=Tick.now+10000*Tick.day
     VoteMap.refresh()
   }
