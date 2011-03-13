@@ -213,6 +213,7 @@ textarea {
     float: left;
     margin: 1px;
     text-align: center;
+    vertical-align:center;
     height: 25px;
 }
 .vote .active {

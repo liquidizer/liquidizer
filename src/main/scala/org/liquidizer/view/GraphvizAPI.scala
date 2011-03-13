@@ -10,35 +10,40 @@ import org.liquidizer.lib._
 import org.liquidizer.model._
 
 case class Edge(val from: User, val to: Votable)
-case class Entry(val node: Votable,  weight: Double)
 
 class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 
-  var nodes= Set[Votable]()
+  var nodes= List[Votable]()
   var edges= Set[Edge]()
-  val queue= new PriorityQueue[Entry] (10, new Comparator[Entry] {
-    def compare(x: Entry, y: Entry) = -(x.weight.abs compare y.weight.abs)
+  var weight= Map[Votable, Double]()
+  val queue= new PriorityQueue[Votable] (10, new Comparator[Votable] {
+    def compare(x: Votable, y: Votable) = -(weight(x).abs compare weight(y).abs)
   })
 
   def formatDouble(value : Double)= String.format("%3.2f",double2Double(value))
 
-  def getWeight(node : Votable) = {
-    def sqr(x:Double)= x*x
-    root match {
-      case VotableUser(user1) => node match {
-	case VotableQuery(_) =>  sqr(VoteMap.getWeight(user1, node))
-	case VotableUser(user2) => 
-	  VoteMap.getWeight(user1, VotableUser(user2)) +
-	  VoteMap.getWeight(user2, VotableUser(user1))
-      }
-      case _ => node match {
-	case VotableUser(user) => sqr(VoteMap.getWeight(user, node))
-	case _ => 0.0
-      }
+  def computeWeight(node : Votable) = {
+    if (!weight.contains(node)) {
+      def sqr(x:Double)= x*x
+      weight += node -> (root match {
+	case VotableUser(user1) => node match {
+	  case VotableQuery(_) =>  sqr(VoteMap.getWeight(user1, node))
+	  case VotableUser(user2) => 
+	    VoteMap.getWeight(user1, VotableUser(user2)) +
+	    VoteMap.getWeight(user2, VotableUser(user1))
+	}
+	case _ => node match {
+	  case VotableUser(user) => sqr(VoteMap.getWeight(user, node))
+	  case _ => 0.0
+	}
+      })
     }
   }
 
-  def addEntry(node : Votable) = queue.add(Entry(node, getWeight(node)))
+  def addEntry(node : Votable) = {
+    computeWeight(node)
+    queue.add(node)
+  }
 
   def process(node : Votable) = {
     for (user <- VoteCounter.getActiveVoters(node)) {
@@ -62,15 +67,16 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
   }
 
   def build(nominee : Votable, size : Int) : Unit = {
-    nodes+= nominee
+    nodes::= nominee
     process(nominee)
     while (nodes.size < size && !queue.isEmpty) {
       val cur= queue.poll
-      if (!nodes.contains(cur.node)) {
-	nodes += cur.node
-	process(cur.node)
+      if (!nodes.contains(cur) && weight(cur)!=0) {
+	nodes::= cur
+	process(cur)
       }
     }
+    nodes= nodes.reverse
   }
   
   def runGraphviz() : NodeSeq = {
