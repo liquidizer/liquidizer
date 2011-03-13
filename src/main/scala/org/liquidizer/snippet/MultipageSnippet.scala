@@ -78,7 +78,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       q match { 
 	case VotableUser(u) if VoteMap.isActive(u)=> f(u) 
 	case _ => -1e10 }
-    def isMe(f : (User, Votable) => Double) : Votable => Double =
+    def withMe(f : (User, Votable) => Double) : Votable => Double =
       nominee => User.currentUser match {
 	case Full(me) => f(me, nominee) + 1e-5*result(nominee).value
 	case _ => 0 }
@@ -91,17 +91,17 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "pro" => isActive(result(_).value)
       case "contra" => isActive(-result(_).value)
       case "conflict" => v => { val r=result(v); r.pro min r.contra }
-      case "myweight" => isMe(VoteMap.getWeight(_ , _))
+      case "myweight" => withMe(VoteMap.getWeight(_ , _))
       case "swing" => VoteMap.getSwing(_).abs
       case "volume" => result(_).volume
       case "comment" => 
 	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)
       case "valence" => 
-	isMe((me,v) => isUser(v,VoteCounter.getSympathy(me,_)))
+	withMe((me,v) => isUser(v,VoteCounter.getSympathy(me,_)))
       case "avalence" =>
-	isMe((me,v) => isUser(v,- VoteCounter.getSympathy(me,_)))
+	withMe((me,v) => isUser(v,- VoteCounter.getSympathy(me,_)))
       case "arousal" =>
-	isMe((me,v) => isUser(v,VoteCounter.getArousal(me,_)))
+	withMe((me,v) => isUser(v,VoteCounter.getArousal(me,_)))
     }
   }
 

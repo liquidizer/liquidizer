@@ -166,8 +166,8 @@ object VoteMap {
       users.get(user).get.update(vote.date.is)
     }
 
-    var followMap= Map[User, List[User]]()
-    var voteMap= Map[User, List[Vote]]()
+    var followCache= Map[User, List[User]]()
+    var voteCache= Map[User, List[Vote]]()
     var list= votes.map {_.owner.obj.get}.removeDuplicates
     var iterCount= 0
     
@@ -183,10 +183,10 @@ object VoteMap {
 	vec.clear
 	
 	// vor each vote cast by the user update the voting vector
-	if (!voteMap.contains(user)) {
-	  voteMap += user -> Vote.findAll(By(Vote.owner, user)).filter(_.weight!=0)
+	if (!voteCache.contains(user)) {
+	  voteCache += user -> Vote.findAll(By(Vote.owner, user)).filter(_.weight!=0)
 	}
-	for (vote <- voteMap.get(user).get) {
+	for (vote <- voteCache.get(user).get) {
 	  vote.nominee.obj.get match {
             case VotableUser(user) => 
               // the vote is a delegation, mix in delegate's voting weights
@@ -205,17 +205,22 @@ object VoteMap {
 	if (vec.distanceTo(head.vec) > eps) {
 	  head.latestUpdate= latestUpdate
 	  // process followers
-	  if (!followMap.contains(user)) {
-	    followMap += user ->
+	  if (!followCache.contains(user)) {
+	    followCache += user ->
 	    Vote.findAll(By(Vote.nominee, VotableUser(user)))
 	    .filter { _.weight.is!=0 }.map { _.owner.obj.get }
 	  }
-	  nextList ++= followMap.get(user).get
+	  nextList ++= followCache.get(user).get
 	}
 	head.vec= vec
 	iterCount+= 1
       }
       list= nextList.removeDuplicates
+    }
+    // delete zero votes, keep one vote for update Time
+    for (v <- votes) {
+      if (v.weight==0 && v.date.is<users.get(v.owner.obj.get).get.latestUpdate)
+	v.delete_!
     }
   }
 
