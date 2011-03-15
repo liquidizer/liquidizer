@@ -158,18 +158,30 @@ object VoteMap {
     var votes = Vote.findAll(By_>(Vote.date, latestUpdate))
     latestUpdate= votes.map { _.date.is }.foldLeft(0L) { _ max _ }
 
-    // update latest vote counter
-    for (vote <- votes) {
-      val user= vote.owner.obj.get
-      if (!users.contains(user))
-	users += (user -> new UserHead(user))
-      users.get(user).get.update(vote.date.is)
-    }
-
     var followCache= Map[User, List[User]]()
     var voteCache= Map[User, List[Vote]]()
     var list= votes.map {_.owner.obj.get}.removeDuplicates
     var iterCount= 0
+
+    // update user info
+    for (user <- list) {
+      if (!users.contains(user))
+	users += (user -> new UserHead(user))
+      val uHead= users.get(user).get
+      val uvotes= Vote.findAll(By(Vote.owner, user))
+
+      // update the latest activity time
+      uvotes.foreach { v => uHead.update(v.date.is) }
+      
+      // delete zero votes, keep one vote for update Time
+      for (v <- uvotes) {
+	if (v.weight.is==0 && v.date.is < uHead.latestVote) {
+	  println("deleted "+v)
+	  v.delete_!
+	}
+      }
+      voteCache += user -> uvotes
+    }
     
     // repeat until convergence is reached
     while (!list.isEmpty && iterCount<maxIter) {
@@ -184,7 +196,7 @@ object VoteMap {
 	
 	// vor each vote cast by the user update the voting vector
 	if (!voteCache.contains(user)) {
-	  voteCache += user -> Vote.findAll(By(Vote.owner, user)).filter(_.weight!=0)
+	  voteCache += user -> Vote.findAll(By(Vote.owner, user))
 	}
 	for (vote <- voteCache.get(user).get) {
 	  vote.nominee.obj.get match {
@@ -216,11 +228,6 @@ object VoteMap {
 	iterCount+= 1
       }
       list= nextList.removeDuplicates
-    }
-    // delete zero votes, keep one vote for update Time
-    for (v <- votes) {
-      if (v.weight==0 && v.date.is<users.get(v.owner.obj.get).get.latestUpdate)
-	v.delete_!
     }
   }
 

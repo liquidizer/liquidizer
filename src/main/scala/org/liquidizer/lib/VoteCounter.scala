@@ -24,6 +24,7 @@ object VoteCounter {
     .foldLeft(0) { _ max _ }
   }
 
+  /** Find active and delegated voters and commentors for a vote. */
   def getAllVoters(nominee : Votable) : List[User] = {
     var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
     // find voters recursively as voters and followers
@@ -39,6 +40,7 @@ object VoteCounter {
     list
   }
 
+  /** Find all queries a user is actively or indirectly voting for */
   def getAllVotes(user : User) : List[Query] = {
     // extract list from voting vector
     var list= List[Query]()
@@ -57,29 +59,34 @@ object VoteCounter {
     (list -- commentors) ++ commentors
   }
 
+  /** Find voters that are actively participating with non zero preference */
   def getActiveVoters(nominee : Votable) : List[User] = {
     Vote.findAll(By(Vote.nominee, nominee))
     .filter { _.weight!=0 }
     .map { _.owner.obj.get }
   }
 
+  /** Find votes a user is actively participating with non zero preference */
   def getActiveVotes(user : User) : List[Votable] = {
     Vote.findAll(By(Vote.owner, user))
     .filter { _.weight!=0 }
     .map { _.nominee.obj.get }
   }
 
+  /** Determine if a user is directly or indirectly delegating a nominee */
   def isDelegated(user : User, nominee : User) : Boolean = 
     user==nominee || VoteMap.getWeight(user,VotableUser(nominee))>1e-10
 
   def getEmotion(user1 : User, user2 : User) : Option[Emotion] =
     VoteMap.getEmotion(user1, user2)
 
+  /** Get currently weighted sympathy */
   def getSympathy(user1 : User, user2 : User) : Double =
     VoteMap.getCurrentWeight(user1) *
     VoteMap.getCurrentWeight(user2) *
     getEmotion(user1,user2).map{ _.valence.is }.getOrElse(0.0)
 
+  /** Get currently weighted arousal */
   def getArousal(user1 : User, user2 : User) : Double =
     VoteMap.getCurrentWeight(user1) *
     VoteMap.getCurrentWeight(user2) *
