@@ -10,7 +10,6 @@ import net.liftweb.mapper._
 import Helpers._
 
 import org.liquidizer.model._
-import org.liquidizer.lib._
 
 object TimeseriesView {
 
@@ -61,8 +60,8 @@ object TimeseriesView {
     User.getUser(userId) match {
       case Some(user) => {
 	cache.get(S.uri, options, () => {
-	  val ts= VoteCounter.getTimeSeries(VotableUser(user))
-	  val node= (new GnuplotAPI).plotTS(ts, options, false, true, false)
+	  val ts= Tick.getTimeSeries(VotableUser(user))
+	  val node= (new GnuplotAPI).plotTS(ts, options, false)
 	  createResponse(node.first)
 	})
       }
@@ -71,11 +70,11 @@ object TimeseriesView {
   }
   
   def queryChart(queryId : String) : Box[LiftResponse] = {
-    Query.getQuery(queryId) match {
+    Query.get(queryId) match {
       case Some(query) => {
 	cache.get(S.uri, options, () => {
-	  val ts= VoteCounter.getTimeSeries(VotableQuery(query))
-	  val node= (new GnuplotAPI).plotTS(ts, options, true, true, true)
+	  val ts= Tick.getTimeSeries(VotableQuery(query))
+	  val node= (new GnuplotAPI).plotTS(ts, options, true)
 	  createResponse(node.first)
 	})
       }

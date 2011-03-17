@@ -8,8 +8,6 @@ import net.liftweb.http._
 import net.liftweb.common._
 import net.liftweb.mapper._
 
-import scala.collection.mutable
-
 import org.liquidizer.model._
 import org.liquidizer.lib._
 
@@ -26,7 +24,7 @@ object HistogramView {
   }
 
   def hist(queryId : String) : Box[LiftResponse] = {
-    val query= Query.getQuery(queryId)
+    val query= Query.get(queryId)
     hist(query.get)
   }
 
@@ -42,18 +40,23 @@ object HistogramView {
 
   def getData(query : Query, dx : Double): List[(Double,Double)] = {
 
-    val histMap= mutable.Map.empty[Int, Int]
+    var histMap= Map[Int, Double]()
     
-    VoteCounter
-    .getAllVoters(query)
+    VoteMap
+    .getAllVoters(VotableQuery(query))
     .foreach { user => 
-      val weight= VoteCounter.getWeight(user, VotableQuery(query)) 
-      val x= Math.round((1-1e-10)*(weight/dx-0.5)).toInt
-      histMap.put(x, histMap.get(x).getOrElse(0)+1)
+      val w= VoteMap.getCurrentWeight(user)
+      if (w>5e-3) {
+	val v= VoteMap.getWeight(user, VotableQuery(query))
+	if (v.abs > 5e-3) {      
+	  val x= Math.round((1-1e-10)*(v/w/dx-0.5)).toInt
+	  histMap+= x -> (histMap.get(x).getOrElse(0.)+w)
+	}
+      }
     }
  
-   histMap
-    .map { case (x,y) => ((x+0.5)*dx, y.toDouble) }
+    histMap
+    .map { case (x,y) => ((x+0.5)*dx, y) }
     .toList
     .sort { case (a,b) => a._1 < b._1 }
   }

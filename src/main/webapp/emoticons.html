@@ -11,6 +11,7 @@
       $("#slider-arousal").slider("value", 50);
       $("#slider-potency").slider("value", 50);
       $("#slider-scale").slider("value", 50);
+      $("#slider-weight").slider("value", 50);
       $("#sliders div").bind("slidechange", function(event,ui) { refresh(); });
       refresh();
       });
@@ -20,16 +21,19 @@
       var a= $("#slider-arousal").slider("value");
       var p= $("#slider-potency").slider("value");
       var s= $("#slider-scale").slider("value");
+      var w= $("#slider-weight").slider("value");
       $("#label-valence").text(v);
       $("#label-arousal").text(a);
       $("#label-potency").text(p);
       $("#label-scale").text(s);
+      $("#label-weight").text(w);
 
       var emoticon= $("#emoticon");
       emoticon.html(emoticon.html()
       .replace(/v=[-0-9\.]*/,"v="+v/100.0)
       .replace(/a=[-0-9\.]*/,"a="+a/100.0)
       .replace(/p=[-0-9\.]*/,"p="+p/100.0)
+      .replace(/w=[-0-9\.]*/,"w="+w/50.0)
       .replace(/scale=[-0-9\.]*/,"scale="+(75.0/(s+25))))
       }
 
@@ -90,9 +94,14 @@
 	<td width="80%"><div id="slider-scale"/></td>
 	<td><span id="label-scale">0</span></td>
       </tr>
+      <tr>
+	<td>Weight</td>
+	<td width="80%"><div id="slider-weight"/></td>
+	<td><span id="label-weight">0</span></td>
+      </tr>
     </table>
     <div id="emoticon">
-      <embed src="/emoticons/face.svg?v=0.5&amp;a=0.5&amp;p=0.5&amp;scale=1.0&amp;size=250" width="250" height="250"/>
+      <embed src="/emoticons/face.svg?v=0.5&amp;a=0.5&amp;p=0.5&amp;scale=1.0&amp;w=1.0&amp;size=250" width="250" height="250"/>
     </div>
     <div id="links">
       <p>

@@ -11,7 +11,7 @@ import Helpers._
 import org.liquidizer.model._
 
 class DelegationGraphView(node : Votable, count : Int) {
-  val grapher= new GraphvizAPI
+  val grapher= new GraphvizAPI(node)
   grapher.build(node, count)
 
   def getGraph : Node = {
@@ -64,7 +64,7 @@ object DelegationGraphView {
 
   def queryGraph(poll : String) : Box[LiftResponse] = {
     val count= S.param("nodes").getOrElse("10").toInt
-    val query= Query.getQuery(poll).get
+    val query= Query.get(poll).get
     val node= graphSVG(VotableQuery(query), count)
     Full(XmlResponse(node, "image/svg+xml"))
   }

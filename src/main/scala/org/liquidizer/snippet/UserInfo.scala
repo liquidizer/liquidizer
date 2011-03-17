@@ -12,6 +12,7 @@ import Helpers._
 
 import org.liquidizer.model._
 import org.liquidizer.lib._
+import org.liquidizer.lib.ssl._
 
 class UserInfo {
   val buttonFactory = new EditButtonToggler()
@@ -47,11 +48,11 @@ class UserInfo {
 
 	  // user statistics
 	  case "numVotes" => 
-	    Text(VoteCounter.getActiveVotes(me).filter { _.isQuery }.size.toString)
+	    Text(VoteMap.getActiveVotes(me).filter { _.isQuery }.size.toString)
 	  case "numDelegates" =>
-	    Text(VoteCounter.getActiveVotes(me).filter { _.isUser }.size.toString)
+	    Text(VoteMap.getActiveVotes(me).filter { _.isUser }.size.toString)
 	  case "numSupporters" =>
-	    Text(VoteCounter.getActiveVoters(VotableUser(me)).size.toString)
+	    Text(VoteMap.getActiveVoters(VotableUser(me)).size.toString)
 
 	  case _ => Elem("me", label, attribs, scope, bind(children) : _*)
 
@@ -113,17 +114,17 @@ class UserInfo {
       case Full(me) => 
 	val helper= new VotingHelper {
 	  override def getVotes() : List[Votable] =
-	    VoteCounter.getActiveVotes(me)
+	    VoteMap.getActiveVotes(me)
 	    .filter {
 	      case d @ VotableQuery(_) => true
 	      case _ => false
 	    }.slice(0,length)
 
 	  override def getSupporters() : List[User] =
-	    VoteCounter.getActiveVoters(VotableUser(me)).slice(0,length)
+	    VoteMap.getActiveVoters(VotableUser(me)).slice(0,length)
 
 	  override def getDelegates() : List[User] =
-	    VoteCounter.getActiveVotes(me)
+	    VoteMap.getActiveVotes(me)
 	    .flatMap {
 	      case VotableUser(user) => List(user)
 	      case _ => Nil
@@ -146,7 +147,7 @@ class UserInfo {
   def newQueries(in : NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
     Query
-    .findAll(OrderBy(Query.id,Descending)).slice(0,4)
+    .findAll(OrderBy(Query.id, Descending)).slice(0,4)
     .flatMap { query => helper.bind(in, VotableQuery(query)) }
   }
 
@@ -246,10 +247,7 @@ class UserReset extends StatefulSnippet {
   def process() = {
     val user= User.currentUser.get
     if (deleteVotes || deleteAccount) {
-      VoteCounter.getActiveVotes(user).foreach {
-	PollingBooth.vote(user, _, 0)
-      }
-      VoteCounter.refresh()
+      PollingBooth.clearVotes(user)
       S.notice(S ? "data.delete.votes.succ")
     }
     if (deleteComments || deleteAccount) {
@@ -273,7 +271,12 @@ class UserReset extends StatefulSnippet {
 
 /** Signup snippet. */
 class UserSignUp extends StatefulSnippet {
-  var username= ""
+  var username= SSLClient.valid_certificates map { certs =>
+      certs.headOption map { head =>
+          PrincipalUtils.name_as_map(head.getSubjectX500Principal)("CN")
+      } getOrElse ""
+      //PrincipalUtils.name_as_map(certs(0).getSubjectX500Principal)("CN")
+  } openOr ""
   var email= ""
   
   var dispatch : DispatchIt = {
@@ -316,7 +319,6 @@ class UserSignUp extends StatefulSnippet {
 	  .password(passwd1)
 	  .validated(User.skipEmailValidation)
 	  user.save
-	  user.createNominee
 
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet

@@ -45,30 +45,36 @@ class UserDetails extends MultipageSnippet {
 
   val user= User.getUser(S.param("user").openOr("-1")).get
 
+  /** load queries voted for by this user */
   def loadVotes() = {
     data= 
-      VoteCounter.getAllVotes(user)
+      VoteMap.getAllVotes(user)
       .filter { searchFilter _ }
       .map { VotableQuery(_) }
     sortData(user)
   }
+
+  /** load active supporters for this user */
   def loadSupporters() = {
     data= 
-      VoteCounter.getActiveVoters(VotableUser(user))
+      VoteMap.getActiveVoters(VotableUser(user))
       .filter { searchFilter _ }
       .map { VotableUser(_) }
-    sortData(sortFunction(order.getOrElse("flow"), VotableUser(user)))
+    sortData(VotableUser(user))
   }
+
+  /** load delegates chosen by this user */
   def loadDelegates() = {
     data= 
-      VoteCounter.getActiveVotes(user)
-      .filter { 
+      VoteMap.getActiveVotes(user)
+      .filter {
 	case VotableUser(user) => searchFilter(user)
         case _ => false
       }
-    sortData(sortFunction(order.getOrElse("flow"), user))
+    sortData(user)
   }
 
+  /** Render the HTML snippet */
   def render(in : NodeSeq) : NodeSeq = {
     val helper= new VotingHelper {
       override def getVotes() : List[Votable] = {

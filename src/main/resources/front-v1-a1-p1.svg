@@ -40,9 +40,9 @@
      inkscape:window-height="842"
      id="namedview54"
      showgrid="false"
-     inkscape:zoom="1.888"
-     inkscape:cx="200.70405"
-     inkscape:cy="119.18528"
+     inkscape:zoom="1.3350176"
+     inkscape:cx="154.87778"
+     inkscape:cy="126.78439"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="0"
@@ -102,14 +102,14 @@
     </linearGradient>
     <clipPath
        id="clipPath4022">
-    <use
-       transform="matrix(-1,0,0,1,915.87172,-3.7713235)"
-       id="use5959"
-       x="0"
-       y="0"
-       width="250"
-       height="250"
-       xlink:href="#path3622" />
+      <use
+         transform="matrix(-1,0,0,1,915.87172,-3.7713235)"
+         id="use5959"
+         x="0"
+         y="0"
+         width="250"
+         height="250"
+         xlink:href="#path3622" />
     </clipPath>
     <linearGradient
        x1="107.14286"
@@ -299,10 +299,10 @@
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.03949089;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
   </g>
   <path
-     d="m 74.2888,160.98168 c 0,0 20.533629,15.34824 56.44847,14.83921 37.71647,-0.53456 57.50347,-14.54683 57.50347,-14.54683 l 3.44171,-3.15849 c 0,0 -22.55395,45.94334 -59.9391,45.8598 C 90.070082,203.88225 71.413208,158.1761 71.413208,158.1761 l 2.875592,2.80558 z"
+     d="m 84.2888,160.98168 c 0,0 14.929425,15.36101 46.44847,14.83921 31.51905,-0.52179 45.50347,-14.54683 45.50347,-14.54683 l 3.44171,-3.15849 c 0,0 -8.15286,45.63786 -47.9391,45.8598 C 91.197056,204.20155 81.413208,158.1761 81.413208,158.1761 l 2.875592,2.80558 z"
      id="mouth-path"
      style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.62499994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-     sodipodi:nodetypes="csccscc" />
+     sodipodi:nodetypes="czcczcc" />
   <use
      transform="matrix(-1,0,0,1,258.69188,2e-7)"
      id="right-eye-brow"
