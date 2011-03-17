@@ -14,7 +14,7 @@ import org.liquidizer.lib._
 
 object EmotionView {
 
-  val morpher= new Mesmerizer
+  lazy val morpher= new Mesmerizer
 
   val sleeping= {
     val root="src/main/resources/"
@@ -58,7 +58,7 @@ object EmotionView {
 	User.currentUser match {
 	  case Full(me) => {
 	    // compute face size based on distance metrics
-	    val maxPref= VoteCounter.getMaxDelegation(me)
+	    val maxPref= VoteMap.getMaxDelegationPref(me)
 	    val dist= if (other==me) 1.0 else {
 	      val w= Math.sqrt(VoteMap.getWeight(me, VotableUser(other)))
 		1.0 + 0.2*(w - 0.5)*(maxPref min 3)
@@ -66,7 +66,7 @@ object EmotionView {
 	    val fdist= SVGUtil.format(dist min 1.25)
 
 	    // extract corresponding emotion
-	    VoteCounter.getEmotion(me, other) match {
+	    VoteMap.getEmotion(me, other) match {
 	    case Some(emo) => {
 	      val p= emo.potency.is
 	      val v= Math.pow(emo.valence.is / (.9*p + .1) / 2.0 + 0.5, 2.0)

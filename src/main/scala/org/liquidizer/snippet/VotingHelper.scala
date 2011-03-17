@@ -55,7 +55,7 @@ class VotingHelper {
     val r= VoteMap.getCurrentResult(nominee)
     if (showTrend)
       <span> { 
-	val trend= 10*VoteMap.getSwing(nominee)/(1.0+r.value)
+	val trend= 10*VoteMap.getSwing(nominee)/(1.0+r.value.abs)
 	formatResult(r.value) ++ formatTrend(trend)
       } </span>
     else 
@@ -162,8 +162,8 @@ class VotingHelper {
 	    case "editButton" =>
 	      buttonFactory.toggleButton
 	    case "isDelegated" => if (nominee match {
-	      case VotableUser(other) => VoteCounter.isDelegated(other, me)
-	      case VotableQuery(q) => VoteCounter.isDelegated(q.creator.obj.get, me)})
+	      case VotableUser(other) => VoteMap.isDelegated(other, me)
+	      case VotableQuery(q) => VoteMap.isDelegated(q.creator.obj.get, me)})
 	      bind(children,nominee) else NodeSeq.Empty
 	    case _ => in
 	  }
@@ -183,7 +183,7 @@ class VotingHelper {
 	    case "numVoters" => 
 	      val sign= attribs.get("weight").get.text.toInt
 	      renderVote(() => 
-		Text(VoteCounter
+		Text(VoteMap
 		     .getAllVoters(VotableQuery(query))
 		     .filter{ sign*VoteMap.getWeight(_, nominee)>0 } 
 		     .size.toString))
@@ -207,7 +207,7 @@ class VotingHelper {
 	    case "sympathy" =>  
 	      renderVote(() => formatPercent(
 		currentUser.map {
-		VoteCounter.getSympathy(_, user) }.getOrElse(0.0)))
+		VoteMap.getSympathy(_, user) }.getOrElse(0.0)))
 	    case "popularity" =>  
 	      renderVote(() => formatPercent(VoteMap.getCurrentResult(VotableUser(user)).value))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
@@ -288,7 +288,7 @@ class VotingHelper {
 	    renderVote(() => formatWeight(user,nominee))
 	  case "sympathy" => renderVote(() => {nominee match {
 	    case VotableUser(other) =>
-	      formatPercent(VoteCounter.getSympathy(user, other))
+	      formatPercent(VoteMap.getSympathy(user, other))
 	    case _ => Text("0.0")
 	  }})
 	  case "delegation" => 
@@ -321,7 +321,7 @@ class VotingHelper {
       result= list.filter { p => VoteMap.getPreference( p.head, nominee)!=0 }
       if (result.isEmpty) {
 	list= list.flatMap { 
-	  path => VoteCounter.getActiveVotes(path.head).map { _ match {
+	  path => VoteMap.getActiveVotes(path.head).map { _ match {
 	    case VotableUser(user)
 	      if (!visited.contains(user) && VoteMap.getWeight(user, nominee)!=0) 
 		=> 
