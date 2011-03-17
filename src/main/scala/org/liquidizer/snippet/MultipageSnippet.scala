@@ -83,7 +83,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	case Full(me) => f(me, nominee) + 1e-5*result(nominee).value
 	case _ => 0 }
     def isActive(f : Votable => Double) : Votable => Double = 
-      n => { if (VoteCounter.getActiveVoters(n).isEmpty) -1e5 else f(n) }
+      n => { if (VoteMap.getActiveVoters(n).isEmpty) -1e5 else f(n) }
 
     order match {
       case "value" => result(_).value.abs
@@ -97,11 +97,11 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "comment" => 
 	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)
       case "valence" => 
-	withMe((me,v) => isUser(v,VoteCounter.getSympathy(me,_)))
+	withMe((me,v) => isUser(v,VoteMap.getSympathy(me,_)))
       case "avalence" =>
-	withMe((me,v) => isUser(v,- VoteCounter.getSympathy(me,_)))
+	withMe((me,v) => isUser(v,- VoteMap.getSympathy(me,_)))
       case "arousal" =>
-	withMe((me,v) => isUser(v,VoteCounter.getArousal(me,_)))
+	withMe((me,v) => isUser(v,VoteMap.getArousal(me,_)))
     }
   }
 

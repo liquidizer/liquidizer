@@ -46,7 +46,8 @@ with MegaProtoUser[User] {
   }
 
   def loadNominee= Votable.find(By(Votable.user,this))
-  lazy val nominee= loadNominee.get
+  lazy val nominee= loadNominee.getOrElse { 
+    throw new Exception("No Votable found for user "+toString) }
 
   override def save() = {
     if (loadNominee.isEmpty) {

@@ -70,7 +70,7 @@ object TimeseriesView {
   }
   
   def queryChart(queryId : String) : Box[LiftResponse] = {
-    Query.getQuery(queryId) match {
+    Query.get(queryId) match {
       case Some(query) => {
 	cache.get(S.uri, options, () => {
 	  val ts= Tick.getTimeSeries(VotableQuery(query))
