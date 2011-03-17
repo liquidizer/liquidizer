@@ -24,7 +24,7 @@ object HistogramView {
   }
 
   def hist(queryId : String) : Box[LiftResponse] = {
-    val query= Query.getQuery(queryId)
+    val query= Query.get(queryId)
     hist(query.get)
   }
 
@@ -42,7 +42,7 @@ object HistogramView {
 
     var histMap= Map[Int, Double]()
     
-    VoteCounter
+    VoteMap
     .getAllVoters(VotableQuery(query))
     .foreach { user => 
       val w= VoteMap.getCurrentWeight(user)

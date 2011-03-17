@@ -11,8 +11,8 @@ object Query extends Query with LongKeyedMetaMapper[Query] {
   override def dbTableName = "queries"
   override def fieldOrder = List(what, creator, keys, creation)
   
-  def getQuery(id : String) : Option[Query] = getQuery(id.toLong)
-  def getQuery(id : Long) : Option[Query] = Query.find(By(Query.id, id))
+  def get(id : String) : Option[Query] = get(id.toLong)
+  def get(id : Long) : Option[Query] = Query.find(By(Query.id, id))
 }
 
 class Query extends LongKeyedMapper[Query] with IdPK {
@@ -32,7 +32,9 @@ class Query extends LongKeyedMapper[Query] with IdPK {
   }
   
   def loadNominee = Votable.find(By(Votable.query,this))
-  lazy val nominee= loadNominee.get
+  lazy val nominee= loadNominee.getOrElse {
+    throw new Exception("No Votable found for query "+toString)
+  }
 
   override def save() = {
     if (loadNominee.isEmpty) {

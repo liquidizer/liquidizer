@@ -38,7 +38,7 @@ class Boot {
 			Query, Vote, Comment, Certificate, Emotion, Tick)
 
     println("Starting LIQUIDIZER")
-    VoteCounter.init
+    VoteMap.refresh
 
     // where to search snippet
     LiftRules.addToPackages("org.liquidizer")

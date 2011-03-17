@@ -48,11 +48,11 @@ class UserInfo {
 
 	  // user statistics
 	  case "numVotes" => 
-	    Text(VoteCounter.getActiveVotes(me).filter { _.isQuery }.size.toString)
+	    Text(VoteMap.getActiveVotes(me).filter { _.isQuery }.size.toString)
 	  case "numDelegates" =>
-	    Text(VoteCounter.getActiveVotes(me).filter { _.isUser }.size.toString)
+	    Text(VoteMap.getActiveVotes(me).filter { _.isUser }.size.toString)
 	  case "numSupporters" =>
-	    Text(VoteCounter.getActiveVoters(VotableUser(me)).size.toString)
+	    Text(VoteMap.getActiveVoters(VotableUser(me)).size.toString)
 
 	  case _ => Elem("me", label, attribs, scope, bind(children) : _*)
 
@@ -114,17 +114,17 @@ class UserInfo {
       case Full(me) => 
 	val helper= new VotingHelper {
 	  override def getVotes() : List[Votable] =
-	    VoteCounter.getActiveVotes(me)
+	    VoteMap.getActiveVotes(me)
 	    .filter {
 	      case d @ VotableQuery(_) => true
 	      case _ => false
 	    }.slice(0,length)
 
 	  override def getSupporters() : List[User] =
-	    VoteCounter.getActiveVoters(VotableUser(me)).slice(0,length)
+	    VoteMap.getActiveVoters(VotableUser(me)).slice(0,length)
 
 	  override def getDelegates() : List[User] =
-	    VoteCounter.getActiveVotes(me)
+	    VoteMap.getActiveVotes(me)
 	    .flatMap {
 	      case VotableUser(user) => List(user)
 	      case _ => Nil
@@ -147,7 +147,7 @@ class UserInfo {
   def newQueries(in : NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
     Query
-    .findAll(OrderBy(Query.id,Descending)).slice(0,4)
+    .findAll(OrderBy(Query.id, Descending)).slice(0,4)
     .flatMap { query => helper.bind(in, VotableQuery(query)) }
   }
 

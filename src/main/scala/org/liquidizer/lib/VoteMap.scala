@@ -12,71 +12,9 @@ object VoteMap {
   val WEIGHT_DECAY= 0.01 / Tick.day
   val EPS= 1e-5
 
-  /** In memory representation for the latest tick */
-  class NomineeHead(val nominee : Votable) {
-    var smooth = 0.0
-    var tick : Option[Tick] = None
-
-    /** Get the smooth average from the history */
-    {
-      val t0= Tick.now
-      var t= t0
-      val ts = Tick.getTimeSeries(nominee)
-      if (!ts.isEmpty) tick=Some(ts.head)
-      for (tick <- ts) {
-	def h(time : Long) = Math.exp(- SWING_DECAY*(t0-time))
-	smooth += tick.quote.value * (h(t) - h(tick.time.is))
-	t= tick.time.is
-      }
-    }
-    
-    /** Return the current result */
-    def result() = tick.map(_.quote).getOrElse(Quote(0.0, 0.0))
-    
-    /** Get the current decayed result */
-    def result(time : Long) = tick.map { v =>
-      v.quote * Math.exp(WEIGHT_DECAY*(v.time.is-time))}.getOrElse(Quote(0,0))
-
-    /** Set the new Result */
-    def update(time : Long, quote : Quote) = {
-      // update smoothed value for trend indication
-      val tickTime= tick.map { _.time.is }.getOrElse(time)
-      val factor= Math.exp(SWING_DECAY*(tickTime-time))
-      smooth= factor*smooth + (1-factor) * result(time).value
-
-      if (!tick.exists( _.quote.distanceTo(quote)<EPS)) {
-	// record a new tick every minute
-	if (tickTime/Tick.min < time/Tick.min) tick=None
-	// otherwise update the existing tick
-	tick = Some(
-	  tick.getOrElse { Tick.create.votable(nominee) }
-	  .time(time)
-	  .quote(quote))
-	// persist result
-	tick.get.save
-      }
-    }
-  }
-
-  /** In memory representation of user related data */
-  class UserHead(val user : User) {
-    var vec = new VoteVector(id(user))
-    var latestUpdate = 0L
-    var latestVote = Vote
-      .find(By(Vote.owner, user), OrderBy(Vote.date, Descending))
-      .map { _.date.is }.getOrElse(0L)
-    var active = true
-    def weight(time : Long) = Math.exp(WEIGHT_DECAY*(latestVote-time))
-    def update(time : Long) = { latestVote = latestVote max time }
-  }
-
   var users= Map[User, UserHead]()
   var nominees= Map[Votable, NomineeHead]()
   var latestUpdate = 0L
-
-  def id(user : User) = user.id.is.toInt
-  def id(query : Query) = query.id.is.toInt
-  def queryFromId(id : Int) = Query.getQuery(id.toLong)
 
   /** Update to the current time */
   def refresh() = update(Tick.now)
@@ -88,146 +26,13 @@ object VoteMap {
       val thread= new Thread() with Logger {
 	override def run() = {
 	  val t0= Tick.now
-	  recompute()
+	  Solver.recompute()
 	  val t1= Tick.now
 	  info("Vote results update took "+(t1-t0)+" ms")
 	}}
       thread.setPriority(Thread.MIN_PRIORITY)
       thread.run
       thread.join
-    }
-  }
-
-  /** Recompute all results including the latest votes */
-  def recompute() : Unit = {
-    // iterative matrix solving
-    sweep(1000, 1e-4)
-
-    // Prepare result map
-    var resultMap= Map(nominees.keys.toSeq.filter{_.isQuery}.map{ case VotableQuery(query) => id(query) -> Quote(0,0)}:_*)
-    // collect the results for each nominee
-    for (user <- users) {
-      var active= false
-      val head= user._2
-      val votes= head.vec.votes
-      for (i <- 0 to votes.length-1) {
-	val w= votes(i) * head.weight(latestUpdate)
-	if (w.abs > EPS) {
-	  active= true
-	  if (!resultMap.contains(i)) resultMap += i -> Quote(0,0)
-	  resultMap.get(i).get += w
-	}
-      }
-      // remember if this user actively participates
-      head.active= active
-    }
-    // persist election results
-    resultMap.foreach { case (i,quote) => 
-      setResult(VotableQuery(queryFromId(i).get), quote) }
-
-    // normalize popularity to 1
-    val denom= 
-      1.0/Math.sqrt(resultMap.foldLeft(1e-8)
-		    { (a,b) => a + Math.pow(b._2.volume,2.0) })
-    // compute popularity as dot product with result vector
-    for (user <- users) {
-      val vec= user._2.vec
-      var pop= Quote(0,0)
-      if (user._2.active) {
-	for (i <- 0 to vec.votes.length-1) {
-	  val w= vec.getVotingWeight(i) * user._2.weight(latestUpdate)
-	  if (w.abs > EPS)
-	    resultMap.get(i).foreach { q => pop = pop + q * w }
-	}
-      }
-      setResult(VotableUser(user._1), pop*denom)
-    }
-  }
-
-  def setResult(nominee : Votable, quote : Quote) = {
-    nominees.get(nominee).getOrElse {
-      val head= new NomineeHead(nominee)
-      nominees+= (nominee -> head)
-      head
-    }.update(latestUpdate, quote)
-  }
-
-  /** Iterative step to solve the equation system */
-  def sweep(maxIter : Int, eps : Double) : Unit = {
-    // read votes
-    var votes = Vote.findAll(By_>(Vote.date, latestUpdate))
-    latestUpdate= votes.map { _.date.is }.foldLeft(0L) { _ max _ }
-
-    var followCache= Map[User, List[User]]()
-    var voteCache= Map[User, List[Vote]]()
-    var list= votes.map {_.owner.obj.get}.removeDuplicates
-    var iterCount= 0
-
-    // update user info
-    for (user <- list) {
-      if (!users.contains(user))
-	users += (user -> new UserHead(user))
-      val uHead= users.get(user).get
-      val uvotes= Vote.findAll(By(Vote.owner, user))
-
-      // update the latest activity time
-      uvotes.foreach { v => uHead.update(v.date.is) }
-      
-      // delete zero votes, keep one vote for update Time
-      for (v <- uvotes) {
-	if (v.weight.is==0 && v.date.is < uHead.latestVote) {
-	  println("deleted "+v)
-	  v.delete_!
-	}
-      }
-      voteCache += user -> uvotes
-    }
-    
-    // repeat until convergence is reached
-    while (!list.isEmpty && iterCount<maxIter) {
-      var nextList= List[User]()
-      for (user <- list) {
-	val head= users.get(user).get
-
-	// reset the voting vector
-	val decay= head.weight(latestUpdate)
-	val vec= new VoteVector(head.vec)
-	vec.clear
-	
-	// vor each vote cast by the user update the voting vector
-	if (!voteCache.contains(user)) {
-	  voteCache += user -> Vote.findAll(By(Vote.owner, user))
-	}
-	for (vote <- voteCache.get(user).get) {
-	  vote.nominee.obj.get match {
-            case VotableUser(user) => 
-              // the vote is a delegation, mix in delegate's voting weights
-		val uHead= users.get(user)
-               if (!uHead.isEmpty)
-                 vec.addDelegate(vote.weight.is, uHead.get.vec)
-	    case VotableQuery(query) => 
-	      // the vote is cast on a query
-	      vec.addVote(vote.weight.is, id(query))
-	    case _ =>
-	  }
-	}
-
-	// ensure the global voting weight constraint
-	vec.normalize()
-	if (vec.distanceTo(head.vec) > eps) {
-	  head.latestUpdate= latestUpdate
-	  // process followers
-	  if (!followCache.contains(user)) {
-	    followCache += user ->
-	    Vote.findAll(By(Vote.nominee, VotableUser(user)))
-	    .filter { _.weight.is!=0 }.map { _.owner.obj.get }
-	  }
-	  nextList ++= followCache.get(user).get
-	}
-	head.vec= vec
-	iterCount+= 1
-      }
-      list= nextList.removeDuplicates
     }
   }
 
@@ -254,8 +59,8 @@ object VoteMap {
   def getWeight(user : User, nominee: Votable) : Double = {
     getCurrentWeight(user) * getVoteVector(user).map { vec =>
       nominee match {
-	case VotableQuery(query) => vec.getVotingWeight(id(query))
-	case VotableUser(other) => vec.getDelegationWeight(id(other))
+	case VotableQuery(query) => vec.getVotingWeight(query.id.is)
+	case VotableUser(other) => vec.getDelegationWeight(other.id.is)
       }}.getOrElse(0.)
   }
 
@@ -263,9 +68,75 @@ object VoteMap {
   def getPreference(user : User, nominee : Votable) : Int = 
     Vote.get(user,nominee).map { _.weight.is }.getOrElse(0)
 
+  /** Get the highest preference for a delegate */
+  def getMaxDelegationPref(user : User) = 
+    users.get(user).map{ _.maxIdolPref }.getOrElse(0)
+
   /** Check if the user is actively participating */
   def isActive(user : User) : Boolean =
     user.validated && users.get(user).exists { _.active }
+
+  def getAllVoters(nominee : Votable) : List[User] = {
+    var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
+    // find voters recursively as voters and followers
+    var proc= List(nominee)
+    while (!proc.isEmpty) {
+      val votes= proc.flatMap{ n => Vote.findAll(By(Vote.nominee, n)) }
+      val next= votes
+      .filter{ _.weight.is!=0 }.map{ _.owner.obj.get }
+      .removeDuplicates -- list
+      proc=  next.map { VotableUser(_) }
+      list ++= next
+    }
+    list
+  }
+
+  /** Find all queries a user is actively or indirectly voting for */
+  def getAllVotes(user : User) : List[Query] = {
+    // extract list from voting vector
+    var list= List[Query]()
+    VoteMap.getVoteVector(user).foreach { vec =>
+      vec.votes.map.foreach { case (i,e) =>
+	if (e.value.abs > EPS) Query.get(i).foreach { list ::= _ }
+      }
+    }
+    // include commentors
+    val commentors= Comment.findAll(By(Comment.author, user))
+    .map { _.nominee.obj.get }
+    .filter{_.isQuery}.map { _.query.obj.get }
+    // remove duplicates
+    (list -- commentors) ++ commentors
+  }
+
+  /** Find voters that are actively participating with non zero preference */
+  def getActiveVoters(nominee : Votable) : List[User] = {
+    Vote.findAll(By(Vote.nominee, nominee))
+    .filter { _.weight!=0 }
+    .map { _.owner.obj.get }
+  }
+
+  /** Find votes a user is actively participating with non zero preference */
+  def getActiveVotes(user : User) : List[Votable] = {
+    Vote.findAll(By(Vote.owner, user))
+    .filter { _.weight!=0 }
+    .map { _.nominee.obj.get }
+  }
+
+  /** Determine if a user is directly or indirectly delegating a nominee */
+  def isDelegated(user : User, nominee : User) : Boolean = 
+    user==nominee || VoteMap.getWeight(user,VotableUser(nominee))>1e-10
+
+  /** Get currently weighted sympathy */
+  def getSympathy(user1 : User, user2 : User) : Double =
+    VoteMap.getCurrentWeight(user1) *
+    VoteMap.getCurrentWeight(user2) *
+    getEmotion(user1,user2).map{ _.valence.is }.getOrElse(0.0)
+
+  /** Get currently weighted arousal */
+  def getArousal(user1 : User, user2 : User) : Double =
+    VoteMap.getCurrentWeight(user1) *
+    VoteMap.getCurrentWeight(user2) *
+    getEmotion(user1,user2).map{ _.arousal.is }.getOrElse(0.0)
 
   /** Get and update the emotion between two users */
   def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
@@ -278,16 +149,15 @@ object VoteMap {
 
       // compute new emotion
       if (Math.max(head1.latestUpdate,head2.latestUpdate)>emo.time.is) {
-	emo.update(latestUpdate, VoteMap.SWING_DECAY)
+	emo.update(latestUpdate, SWING_DECAY)
 	emo.valence(head1.vec.dotProd(head2.vec, false))
 	emo.potency(head1.vec.dotProd(head2.vec, true))
-	emo.update(latestUpdate, VoteMap.SWING_DECAY)
+	emo.update(latestUpdate, SWING_DECAY)
 	emo.save
       } else {
 	// decay of emotional arousal
-	emo.update(latestUpdate, VoteMap.SWING_DECAY)
-      }
-      
+	emo.update(latestUpdate, SWING_DECAY)
+      }      
       Some(emo)
     } else
       None

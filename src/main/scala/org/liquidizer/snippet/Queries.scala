@@ -47,11 +47,11 @@ class Queries extends MultipageSnippet {
 }
 
 class QueryDetails extends MultipageSnippet {
-  val query= Query.getQuery(S.param("query").openOr("-1"))
+  val query= Query.get(S.param("query").openOr("-1"))
   var hasMe= true;
 
   def loadData() = {
-    data=  VoteCounter.getAllVoters(VotableQuery(query.get))
+    data=  VoteMap.getAllVoters(VotableQuery(query.get))
     .filter { searchFilter _ }
     .map { VotableUser(_) }
 
