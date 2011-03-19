@@ -152,9 +152,6 @@ object VoteMap {
 	emo.update(latestUpdate, SWING_DECAY)
 	emo.valence(head1.vec.dotProd(head2.vec, false))
 	emo.potency(head1.vec.dotProd(head2.vec, true))
-	println("user: "+user1+" -> "+user2)
-	println(" v = "+emo.valence.is)
-	println(" p = "+emo.potency.is)
 	emo.update(latestUpdate, SWING_DECAY)
 	emo.save
       } else {

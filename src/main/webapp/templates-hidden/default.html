@@ -63,7 +63,6 @@
       </ul>
       </lift:MenuMarker>
       <div id="loginfo">
-      	<lift:loc>system.language</lift:loc>: <lift:LocaleSelector/>
 	<lift:UserInfo.in>
 	  <br/><lift:loc>logged.in</lift:loc> <b><me:name/></b>
 	  <br/><me:logout><lift:loc>logout</lift:loc></me:logout>
@@ -85,12 +84,13 @@
 	</tr>
       </table>
     </div>
-
     <div style="clear:both"/>
     <hr/>
-    <div>
-      <i>Liquidizer</i>
+    <div class="content">
+      <div>
+	<lift:loc>system.language</lift:loc>: <lift:LocaleSelector/>
+      </div>
+      <lift:embed what="foot"/>
     </div>
-    <lift:embed what="foot"/>
   </body>
 </html>
