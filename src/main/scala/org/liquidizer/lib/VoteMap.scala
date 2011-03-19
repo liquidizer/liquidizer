@@ -96,7 +96,7 @@ object VoteMap {
     // extract list from voting vector
     var list= List[Query]()
     VoteMap.getVoteVector(user).foreach { vec =>
-      vec.votes.map.foreach { case (i,e) =>
+      vec.votes.elements.foreach { case (i,e) =>
 	if (e.value.abs > EPS) Query.get(i).foreach { list ::= _ }
       }
     }
@@ -152,6 +152,9 @@ object VoteMap {
 	emo.update(latestUpdate, SWING_DECAY)
 	emo.valence(head1.vec.dotProd(head2.vec, false))
 	emo.potency(head1.vec.dotProd(head2.vec, true))
+	println("user: "+user1+" -> "+user2)
+	println(" v = "+emo.valence.is)
+	println(" p = "+emo.potency.is)
 	emo.update(latestUpdate, SWING_DECAY)
 	emo.save
       } else {
