@@ -70,7 +70,7 @@ object VoteMap {
 
   /** Get the highest preference for a delegate */
   def getMaxDelegationPref(user : User) = 
-    users.get(user).map{ _.maxIdolPref }.getOrElse(0)
+    users.get(user).map{ _.vec.maxIdolPref }.getOrElse(0)
 
   /** Check if the user is actively participating */
   def isActive(user : User) : Boolean =

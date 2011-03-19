@@ -42,35 +42,38 @@ class SparseVec {
 		     }
     dist
   }
-  override def toString() = map.toString
+  override def toString() = 
+    map.keySet.toList.sort{_ < _}
+    .map{ i => "%d -> %2.2f".format(i,get(i)) }.mkString("(",",",")")
 }
 
 class VoteVector(val userID : Long) {
   val votes = new SparseVec
   val idols = new SparseVec
   var maxD = 0.0
-
-  idols.set(userID, 1.0)
+  var maxIdolPref = 0
+  var denom = 0
 
   def normalize() : Unit = {
     val norm= votes.norm
-    if (norm > 1e-8)
+    if (norm > 1e-8) {
       votes.map { x => x/norm }
-    idols.map.foreach { 
-      case (i, e) => if (i!=userID) maxD = maxD max e.value
+      idols.map { x => 0.0 max x/denom}
     }
+    idols.map.foreach { e => maxD = maxD max e._2.value }
+    idols.set(userID, 1.0)
   }
   
-  def addVote(weight : Double, queryId : Long) = {
+  def addVote(weight : Int, queryId : Long) = {
+    denom+= weight.abs
     votes.set(queryId, votes.get(queryId)+weight)
   }
 
-  def addDelegate(weight : Double, old : VoteVector, other : VoteVector) = {
+  def addDelegate(weight : Int, other : VoteVector) = {
+    denom+= weight.abs
+    maxIdolPref = maxIdolPref max weight
     votes.add(weight, other.votes)
     idols.add(weight, other.idols)
-    val circular= other.idols.get(userID)
-    if (circular>1e-8) idols.add(-weight*circular, old.idols)
-    idols.map { _ max 0.0 }
   }
 
   def dotProd(other : VoteVector, abs: Boolean) : Double = {

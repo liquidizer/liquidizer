@@ -59,7 +59,6 @@ class NomineeHead(val nominee : Votable) {
 /** In memory representation of user related data */
 class UserHead(val user : User) {
   var vec = new VoteVector(user.id.is)
-  var maxIdolPref = 0
   var latestUpdate = 0L
   var latestVote = Vote
     .find(By(Vote.owner, user), OrderBy(Vote.date, Descending))
@@ -167,18 +166,16 @@ object Solver {
 	if (!voteCache.contains(user)) {
 	  voteCache += user -> Vote.findAll(By(Vote.owner, user)).filter(_.weight!=0)
 	}
-	var maxIdolPref= 0
 	for (vote <- voteCache.get(user).get) {
 	  vote.nominee.obj.get match {
             case VotableUser(user) => 
 	    	// the vote is a delegation, mix in delegate's voting weights
 		val uHead= users.get(user)
                if (!uHead.isEmpty)
-                 vec.addDelegate(vote.weight.is, head.vec, uHead.get.vec)
+                 vec.addDelegate(vote.weight.is, uHead.get.vec)
 	    case VotableQuery(query) => 
 	      // the vote is cast on a query
 	      vec.addVote(vote.weight.is, query.id.is)
-	      maxIdolPref= maxIdolPref max vote.weight.is
 	    case _ =>
 	  }
 	}
@@ -193,7 +190,6 @@ object Solver {
 	  nextList ++= followCache.get(user).get
 	}
 	// make the updated weights visible
-	head.maxIdolPref= maxIdolPref
 	head.vec= vec
 	iterCount+= 1
       }
