@@ -96,7 +96,7 @@ object VoteMap {
     // extract list from voting vector
     var list= List[Query]()
     VoteMap.getVoteVector(user).foreach { vec =>
-      vec.votes.map.foreach { case (i,e) =>
+      vec.votes.elements.foreach { case (i,e) =>
 	if (e.value.abs > EPS) Query.get(i).foreach { list ::= _ }
       }
     }

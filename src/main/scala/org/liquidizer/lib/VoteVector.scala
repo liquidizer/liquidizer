@@ -1,52 +1,51 @@
 package org.liquidizer.lib
 
+/** Efficient data structure for blocked sparse vectors */
 class SparseVec {
-  class Entry(var value : Double)
-  var map= Map[Long, Entry]()
+  val buf= 8
+  var data= Map[Long, Array[Double]]()
+  case class Entry(val index : Int, val array : Array[Double]) {
+    implicit def value() : Double = array(index)
+    def set(value : Double) = { array(index)= value }
+    def add(value : Double) = { array(index)+= value }
+  }
   
-  private def entry(index : Long) =
-    map.get(index).getOrElse {
-      val e= new Entry(0.0)
-      map += index -> e
+  private def entry(index : Long, create : Boolean = true) =
+    Entry((index % buf).toInt, data.get(index/buf).getOrElse {
+      val e= new Array[Double](buf)
+      if (create) data += (index/buf) -> e
       e
-    }
+    })
 
-  def get(index : Long) = map.get(index).map { _.value }.getOrElse(0.0)
-  def set(index : Long, value : Double) = { entry(index).value= value }
+  def get(index : Long) = entry(index, false).value
+  def set(index : Long, value : Double) = { entry(index, true).set(value) }
+
+  def elements() : Seq[(Long, Entry)] = 
+    data.toSeq.flatMap { case (i,a) => 
+      (1 to buf-1).map { j => (i*buf+j, Entry(j, a)) }}
 
   def add(weight : Double, other : SparseVec) : Unit =
-    other.map.foreach { 
-      case (i, e) => 
-	if (e.value.abs > 1e-8) entry(i).value += weight * e.value 
-    }
+    other.elements.foreach { case (i, e) => entry(i).add(weight*e.value) }
 
   def dotprod(other : SparseVec, f : Double => Double) : Double =
-    other.map.foldLeft(0.) { (a,b) => a + f( b match {
-      case (i, e) => map.get(i).map { e.value * _.value }.getOrElse(0.0)
-    })}
+    other.elements.foldLeft (0.) { case (sum, (i,e)) => sum + e.value * get(i) }
 
   def norm() : Double= 
-    Math.sqrt(map.toSeq.foldLeft(0.) { case (n,(_, e)) => n + e.value*e.value })
-
-  def map(f : Double => Double) : Unit =
-    map.foreach { case (_,v) => { v.value = f(v.value) }}
+    Math.sqrt(elements.foldLeft (0.) { case (n, (_,e)) => n + e.value*e.value })
 
   def distanceTo(other : SparseVec) : Double = {
     var dist=0.0
-    map.foreach { case(i,e) => 
-      dist = dist max (e.value - other.get(i)).abs
-	       }
-    other.map.foreach { case(i,e) => 
-      if (!map.contains(i))
-	dist = dist max e.value.abs
-		     }
+    elements.foreach{ case (i,e) => dist = dist max (e.value-other.get(i)).abs }
+    other.elements.foreach{ case (i,e) => dist = dist max (e.value-get(i)).abs }
     dist
   }
+
   override def toString() = 
-    map.keySet.toList.sort{_ < _}
+    data.keySet.toList.sort{_ < _}
     .map{ i => "%d -> %2.2f".format(i,get(i)) }.mkString("(",",",")")
 }
 
+/** This class keeps track of voting weights and delegation influences */
 class VoteVector(val userID : Long) {
   val votes = new SparseVec
   val idols = new SparseVec
@@ -57,10 +56,10 @@ class VoteVector(val userID : Long) {
   def normalize() : Unit = {
     val norm= votes.norm
     if (norm > 1e-8) {
-      votes.map { x => x/norm }
-      idols.map { x => 0.0 max x/denom}
+      votes.elements.foreach { case (i,e) => e.set(e.value/norm) }
+      idols.elements.foreach { case (i,e) => e.set(0.0 max e.value/denom) }
     }
-    idols.map.foreach { e => maxD = maxD max e._2.value }
+    idols.elements.foreach { case (i,e) => maxD = maxD max e.value }
     idols.set(userID, 1.0)
   }
   
