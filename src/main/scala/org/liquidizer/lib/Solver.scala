@@ -59,7 +59,6 @@ class NomineeHead(val nominee : Votable) {
 /** In memory representation of user related data */
 class UserHead(val user : User) {
   var vec = new VoteVector(user.id.is)
-  var maxIdolPref = 0
   var latestUpdate = 0L
   var latestVote = Vote
     .find(By(Vote.owner, user), OrderBy(Vote.date, Descending))
@@ -82,7 +81,7 @@ object Solver {
     for (user <- users) {
       var active= false
       val head= user._2
-      head.vec.votes.map.foreach { case (i, e) =>
+      head.vec.votes.elements.foreach { case (i, e) =>
 	val w= e.value * head.weight(latestUpdate)
 	if (w.abs > EPS) {
 	  active= true
@@ -106,7 +105,7 @@ object Solver {
       val vec= user._2.vec
       var pop= Quote(0,0)
       if (user._2.active) {
-        vec.votes.map.foreach { case (i, e) =>
+        vec.votes.elements.foreach { case (i, e) =>
 	  val w= e.value * user._2.weight(latestUpdate)
 	  resultMap.get(i).foreach { q => pop = pop + q * w }
 	}
@@ -167,18 +166,16 @@ object Solver {
 	if (!voteCache.contains(user)) {
 	  voteCache += user -> Vote.findAll(By(Vote.owner, user)).filter(_.weight!=0)
 	}
-	var maxIdolPref= 0
 	for (vote <- voteCache.get(user).get) {
 	  vote.nominee.obj.get match {
             case VotableUser(user) => 
 	    	// the vote is a delegation, mix in delegate's voting weights
 		val uHead= users.get(user)
                if (!uHead.isEmpty)
-                 vec.addDelegate(vote.weight.is, head.vec, uHead.get.vec)
+                 vec.addDelegate(vote.weight.is, uHead.get.vec)
 	    case VotableQuery(query) => 
 	      // the vote is cast on a query
 	      vec.addVote(vote.weight.is, query.id.is)
-	      maxIdolPref= maxIdolPref max vote.weight.is
 	    case _ =>
 	  }
 	}
@@ -193,7 +190,6 @@ object Solver {
 	  nextList ++= followCache.get(user).get
 	}
 	// make the updated weights visible
-	head.maxIdolPref= maxIdolPref
 	head.vec= vec
 	iterCount+= 1
       }
