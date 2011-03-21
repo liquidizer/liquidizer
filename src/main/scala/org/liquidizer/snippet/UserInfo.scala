@@ -234,6 +234,7 @@ class UserReset extends StatefulSnippet {
     case "render" => render _
   }
 
+  /** render the data deletion request form */
   def render(in: NodeSeq): NodeSeq = {
     var passwd1= ""
     var passwd2= ""
@@ -244,6 +245,7 @@ class UserReset extends StatefulSnippet {
 		 "submit" -> SHtml.submit(S ? "data.delete.confirm", () => process()))
   }
 
+  /** process the deletion request */
   def process() = {
     val user= User.currentUser.get
     if (deleteVotes || deleteAccount) {
@@ -256,11 +258,8 @@ class UserReset extends StatefulSnippet {
     }
     if (deleteAccount) {
       User.logUserOut()
-      user
-      .profile("")
-      .email("")
-      .nick("---")
-      .validated(false)
+      Vote.findAll(By(Vote.nominee, VotableUser(user))).foreach { _.delete_! }
+      user.profile("").email("").nick("---").validated(false)
       user.save
       S.notice(S ? "data.delete.account.succ")
     }

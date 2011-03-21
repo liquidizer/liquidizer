@@ -82,18 +82,19 @@ abstract class MultipageSnippet extends StatefulSnippet {
       nominee => User.currentUser match {
 	case Full(me) => f(me, nominee) + 1e-5*result(nominee).value
 	case _ => 0 }
-    def isActive(f : Votable => Double) : Votable => Double = 
-      n => { if (VoteMap.getActiveVoters(n).isEmpty) -1e5 else f(n) }
+    def isActive(f : Votable => Double) : Votable => Double = n => { 
+      if (n.isQuery && VoteMap.getActiveVoters(n).isEmpty) -1e5 else f(n) 
+    }
 
     order match {
-      case "value" => result(_).value.abs
+      case "value" => isActive(result(_).value.abs)
       case "age" => q => q.baseId
       case "pro" => isActive(result(_).value)
       case "contra" => isActive(-result(_).value)
-      case "conflict" => v => { val r=result(v); r.pro min r.contra }
+      case "conflict" => isActive(v => { val r=result(v); r.pro min r.contra })
       case "myweight" => withMe(VoteMap.getWeight(_ , _))
-      case "swing" => VoteMap.getSwing(_).abs
-      case "volume" => result(_).volume
+      case "swing" => isActive(VoteMap.getSwing(_).abs)
+      case "volume" => isActive(result(_).volume)
       case "comment" => 
 	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)
       case "valence" => 
