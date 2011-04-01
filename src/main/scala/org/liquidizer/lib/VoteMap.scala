@@ -17,10 +17,10 @@ object VoteMap {
   var latestUpdate = 0L
 
   /** Update to the current time */
-  def refresh() = update(Tick.now)
+  def refresh(blocking : Boolean = true) = update(Tick.now, blocking)
   
   /** Update to at least the given time in a thread save manner. */
-  def update(time : Long) = synchronized {
+  def update(time : Long, blocking : Boolean) = synchronized {
     if (latestUpdate<=time) {
       // run the recomputation with lower thread priority
       val thread= new Thread() with Logger {
@@ -31,8 +31,8 @@ object VoteMap {
 	  info("Vote results update took "+(t1-t0)+" ms")
 	}}
       thread.setPriority(Thread.MIN_PRIORITY)
-      thread.run
-      thread.join
+      thread.start
+      if (blocking) thread.join
     }
   }
 

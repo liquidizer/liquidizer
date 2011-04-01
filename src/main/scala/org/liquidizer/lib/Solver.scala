@@ -71,7 +71,7 @@ class UserHead(val user : User) {
 /** This class contains the code for solving the voting weight equation */
 object Solver {
   /** Recompute all results following the latest votes */
-  def recompute() : Unit = {
+  def recompute() : Unit = synchronized {
     // iterative matrix solving
     sweep(1000, 1e-4)
 
