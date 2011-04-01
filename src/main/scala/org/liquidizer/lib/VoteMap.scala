@@ -124,7 +124,7 @@ object VoteMap {
 
   /** Determine if a user is directly or indirectly delegating a nominee */
   def isDelegated(user : User, nominee : User) : Boolean = 
-    user==nominee || VoteMap.getWeight(user,VotableUser(nominee))>1e-10
+    user==nominee || VoteMap.getWeight(user,VotableUser(nominee))>EPS
 
   /** Get currently weighted sympathy */
   def getSympathy(user1 : User, user2 : User) : Double =

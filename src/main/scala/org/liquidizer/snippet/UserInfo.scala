@@ -115,20 +115,21 @@ class UserInfo {
 	val helper= new VotingHelper {
 	  override def getVotes() : List[Votable] =
 	    VoteMap.getActiveVotes(me)
-	    .filter {
-	      case d @ VotableQuery(_) => true
-	      case _ => false
-	    }.slice(0,length)
+	    .filter { _.isQuery }
+	    .sort { _.id.is > _.id.is }
+	    .slice(0,length)
 
 	  override def getSupporters() : List[User] =
-	    VoteMap.getActiveVoters(VotableUser(me)).slice(0,length)
+	    VoteMap.getActiveVoters(VotableUser(me))
+	    .sort { _.id.is > _.id.is }
+	    .slice(0,length)
 
 	  override def getDelegates() : List[User] =
 	    VoteMap.getActiveVotes(me)
-	    .flatMap {
-	      case VotableUser(user) => List(user)
-	      case _ => Nil
-	    }.slice(0,length)
+	    .filter { _.isUser }
+	    .sort { _.id.is > _.id.is }
+	    .map { _.user.obj.get }
+	    .slice(0,length)
 	}
       helper.bind(in, VotableUser(me))
       case _ => NodeSeq.Empty

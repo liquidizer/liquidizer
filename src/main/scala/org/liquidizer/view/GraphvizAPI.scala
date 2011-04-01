@@ -91,7 +91,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
       node match {
 	case node @ VotableUser(user) => 
 	  val label= user.toString.replaceAll(" ","\\\\n")
-	out("\""+node.uri+"\" ["+opt+" label=\""+label+"\" shape=\"circle\" width=1]")
+	out("\""+node.uri+"\" ["+opt+" label=\""+label+"\" shape=\"circle\"]")
 	case node @ VotableQuery(query) => 
 	  no+= 1
 	  out("\""+node.uri+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
