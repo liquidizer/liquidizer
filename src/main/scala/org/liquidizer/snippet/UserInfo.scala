@@ -115,20 +115,21 @@ class UserInfo {
 	val helper= new VotingHelper {
 	  override def getVotes() : List[Votable] =
 	    VoteMap.getActiveVotes(me)
-	    .filter {
-	      case d @ VotableQuery(_) => true
-	      case _ => false
-	    }.slice(0,length)
+	    .filter { _.isQuery }
+	    .sort { _.id.is > _.id.is }
+	    .slice(0,length)
 
 	  override def getSupporters() : List[User] =
-	    VoteMap.getActiveVoters(VotableUser(me)).slice(0,length)
+	    VoteMap.getActiveVoters(VotableUser(me))
+	    .sort { _.id.is > _.id.is }
+	    .slice(0,length)
 
 	  override def getDelegates() : List[User] =
 	    VoteMap.getActiveVotes(me)
-	    .flatMap {
-	      case VotableUser(user) => List(user)
-	      case _ => Nil
-	    }.slice(0,length)
+	    .filter { _.isUser }
+	    .sort { _.id.is > _.id.is }
+	    .map { _.user.obj.get }
+	    .slice(0,length)
 	}
       helper.bind(in, VotableUser(me))
       case _ => NodeSeq.Empty
@@ -234,6 +235,7 @@ class UserReset extends StatefulSnippet {
     case "render" => render _
   }
 
+  /** render the data deletion request form */
   def render(in: NodeSeq): NodeSeq = {
     var passwd1= ""
     var passwd2= ""
@@ -244,6 +246,7 @@ class UserReset extends StatefulSnippet {
 		 "submit" -> SHtml.submit(S ? "data.delete.confirm", () => process()))
   }
 
+  /** process the deletion request */
   def process() = {
     val user= User.currentUser.get
     if (deleteVotes || deleteAccount) {
@@ -256,11 +259,8 @@ class UserReset extends StatefulSnippet {
     }
     if (deleteAccount) {
       User.logUserOut()
-      user
-      .profile("")
-      .email("")
-      .nick("---")
-      .validated(false)
+      Vote.findAll(By(Vote.nominee, VotableUser(user))).foreach { _.delete_! }
+      user.profile("").email("").nick("---").validated(false)
       user.save
       S.notice(S ? "data.delete.account.succ")
     }

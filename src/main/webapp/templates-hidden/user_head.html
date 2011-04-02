@@ -8,12 +8,21 @@
 	<div>
 	  <table width="100%">
 	    <tr>
-	      <td colspan="5">
-		<h3><span>$user</span> : <poll:name/></h3>
+	      <td colspan="3" rowspan="2">
+		<span style="font-size:medium"><poll:name/></span>
+	      </td>
+	      <th class="vote_result">$sort.popularity</th>
+	    </tr>
+	    <tr>
+	      <td align="center">
+		<user:popularity/>
 	      </td>
 	    </tr>
 	    <tr>
-	      <td colspan="5">
+	      <td rowspan="3" height="80" width="80">
+		<user:emoticon size="80"/>
+	      </td>
+	      <td rowspan="3">
 		<user:profile/>
 		<user:itsme>
 		  <me:editButton/>
@@ -21,31 +30,20 @@
 	      </td>
 	    </tr>
 	    <tr>
-	      <td rowspan="3" height="80" width="80">
-		<user:emoticon size="80"/>
-	      </td>
-	    </tr>
-	    <tr>
-	      <td/>
 	      <lift:UserInfo.in>
 		<user:notme>
 		  <th class="vote_user">$your.preference</th>
 		  <th class="vote_result">$your.sympathy</th>
 		</user:notme>
 	      </lift:UserInfo.in>
-	      <th class="vote_result">$sort.popularity</th>
 	    </tr>
 	    <tr>
-	      <td/>
 	      <lift:UserInfo.in>
 		<user:notme>
 		  <td class="vote_user"><me:vote/></td>
 		  <td align="center"><user:sympathy/></td>
 		</user:notme>
 	      </lift:UserInfo.in>
-	      <td align="center">
-		<user:popularity/>
-	      </td>
 	    </tr>
 	  </table>
 	  <hr/>
@@ -69,7 +67,6 @@
       <div style="clear:both"/>
       <menu:a href="graph.html">$menu.graph</menu:a>
     </ul>
-    <div style="margin:10px">&nbsp;</div>
     </lift:MenuMarker>
   </lift:bind-at>
 </lift:surround>

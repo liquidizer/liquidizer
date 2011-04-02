@@ -72,7 +72,7 @@ class VotingHelper {
   /** Update the voting preferences */
   def vote(nominee : Votable, newVote : Int) : JsCmd = {
     PollingBooth.vote(currentUser.get, nominee, newVote)
-    VoteMap.refresh
+    VoteMap.refresh()
     ajaxUpdate(nominee)
   }
   
@@ -294,7 +294,7 @@ class VotingHelper {
 	  case "delegation" => 
 	    // format the delegation path
 	    if (VoteMap.getPreference(user,nominee)!=0 || 
-		VoteMap.getWeight(user,nominee)==0) NodeSeq.Empty else 
+		VoteMap.getWeight(user,nominee).abs<5e-3) NodeSeq.Empty else 
 		  <div class="path">{ S ? "vote.delegated.by" }<ul>{
 		  for (path <- getDelegationPath(user, nominee)) yield {
 		    <li>{ path.reverse.tail.flatMap { 

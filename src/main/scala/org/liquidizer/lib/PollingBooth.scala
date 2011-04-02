@@ -26,6 +26,7 @@ object PollingBooth {
 
   }
 
+  /** A user votes on a nominee with given preference weight */
   def vote(owner : User, nominee : Votable, weight : Int) = synchronized {
     latestVote= Math.max(latestVote+1, Tick.now)
     val vote = Vote.get(owner, nominee).getOrElse {
@@ -34,12 +35,14 @@ object PollingBooth {
     vote.save
   }
 
+  /** Clear all comments given by a user */
   def clearComments(owner : User) = {
     for(comment <- Comment.findAll(By(Comment.author, owner))) {
       comment.delete_!
     }
   }
 
+  /** Clear all active votes cast by a user */
   def clearVotes(user : User) = {
     val votes= VoteMap.getActiveVotes(user)
     votes.foreach { vote(user, _, 0) }

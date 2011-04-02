@@ -81,7 +81,7 @@ object Markup {
     url.findFirstMatchIn(in) match {
       case Some(m) =>
         link(Text(m.before.toString)) ++ 
-        <a href={m.matched} title={m.matched} class="extern">{short(m.matched)}</a> ++ 
+        <a href={m.matched} title={m.matched} target="_blank" class="extern">{short(m.matched)}</a> ++ 
         renderHeader(m.after.toString, link, short)
       case _ =>
 	link(Text(in))

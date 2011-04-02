@@ -22,7 +22,7 @@ class SparseVec {
 
   def elements() : Seq[(Long, Entry)] = 
     data.toSeq.flatMap { case (i,a) => 
-      (1 to buf-1).map { j => (i*buf+j, Entry(j, a)) }}
+      (0 to buf-1).map { j => (i*buf+j, Entry(j, a)) }}
 
   def add(weight : Double, other : SparseVec) : Unit =
     other.elements.foreach { case (i, e) => entry(i).add(weight*e.value) }

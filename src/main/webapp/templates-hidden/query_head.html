@@ -5,40 +5,38 @@
   <lift:bind-at name="content">
     <lift:form method="post">
       <lift:QueryDetails eager_eval="true">
-	  <table width="100%">
+	  <table width="100%" border="0">
 	    <tr>
-	      <td colspan="4">
+	      <td colspan="3">
 		<span style="font-size:medium"><poll:name/></span>
 	      </td>
+	      <th class="vote_result">$result</th>
 	    </tr>
 	    <tr>
-	      <td colspan="4">
+	      <td colspan="2" rowspan="3">
 		<query:keys/>
 		<me:isDelegated>
 		  <me:editButton/>
 		</me:isDelegated>
 	      </td>
+	      <td/>
+	      <td class="vote_result">
+		<poll:result/>
+	      </td>
 	    </tr>
-	    <tr height="10"/>
 	    <tr>
-	      <th/>
 	      <lift:UserInfo.in>
 		<th class="vote_query">$your.preference</th>
 		<th class="vote_result">$your.contribution</th>
 	      </lift:UserInfo.in>
-	      <th class="vote_result">$result</th>
 	    </tr>	    
 	    <tr>
-	      <td/>
 	      <lift:UserInfo.in>
 		<td class="vote_query"><me:vote/></td>
 		<td align="center">
 		  <me:weight format="decimal"/>
 		</td>
 	      </lift:UserInfo.in>
-	      <td align="center">
-		<poll:result/>
-	      </td>
 	    </tr>
 	  </table>
 	  <hr/>

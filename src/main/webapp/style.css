@@ -213,11 +213,11 @@ textarea {
     float: left;
     margin: 1px;
     text-align: center;
-    vertical-align:center;
+    vertical-align: middle;
     height: 25px;
 }
 .vote .active {
-    width: 24px;
+    width: 20px;
 }
 .vote .inactive {
     width: 18px;
@@ -291,15 +291,15 @@ textarea {
 .contra {
     color: #CC0000;
     font-weight: bold;
-    font-size: 150%;
+    font-size: 130%;
 }
 .pro {
     color: #FF9933;
     font-weight: bold;
-    font-size: 150%;
+    font-size: 130%;
 }
 .pass {
     color: lightgray;
     font-weight: bold;
-    font-size: 150%;
+    font-size: 130%;
 }

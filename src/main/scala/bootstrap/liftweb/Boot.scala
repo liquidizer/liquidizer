@@ -38,19 +38,10 @@ class Boot {
 			Query, Vote, Comment, Certificate, Emotion, Tick)
 
     println("Starting LIQUIDIZER")
-    VoteMap.refresh
+    VoteMap.refresh(false)
 
     // where to search snippet
     LiftRules.addToPackages("org.liquidizer")
-
-    LiftRules.ajaxStart =
-      Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
-
-    /*
-     * Make the spinny image go away when it ends
-     */
-    LiftRules.ajaxEnd =
-      Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
     // Internationalization
     LiftRules.early.append(makeUtf8)
