@@ -4,7 +4,7 @@
     $(document).ready(function () { $('#sidebar').hide(); })
   </script>
   <table id="sidebar" width="200px">
-    <lift:UserInfo.inRoom>
+    <lift:Rooms.in eager_eval="true">
       <tr>
 	<h3><lift:loc>menu.new.queries</lift:loc></h3>
 	<hr/>
@@ -18,21 +18,39 @@
 	</div>
       </tr>
       <tr height="30px"/>
-    </lift:UserInfo.inRoom>
-    <tr>
-      <h3><lift:loc>menu.new.users</lift:loc></h3>
-      <hr/>
-      <lift:UserInfo.newUsers>
-	<p>
-	  <user:emoticon size="20"/>
-	  <poll:name/>
-	</p>
-      </lift:UserInfo.newUsers>
-      <div class="navi">
-	<a href="/users.html?sort=age">
-	  <div><lift:loc>home.more</lift:loc></div>
-	</a>
-      </div>
-    </tr>
+      <tr>
+	<h3><lift:loc>menu.new.users</lift:loc></h3>
+	<hr/>
+	<lift:UserInfo.newUsers>
+	  <p>
+	    <user:emoticon size="20"/>
+	    <poll:name/>
+	  </p>
+	</lift:UserInfo.newUsers>
+	<div class="navi">
+	  <a href="/users.html?sort=age">
+	    <div><lift:loc>home.more</lift:loc></div>
+	  </a>
+	</div>
+      </tr>
+    </lift:Rooms.in>
+    <lift:Rooms.out eager_eval="true">
+      <tr>
+	<td>
+	  <h2><lift:loc>list.of.rooms</lift:loc></h2>
+	  <ol>
+	    <lift:Rooms.list>
+	      <li><room:name/></li>
+	    </lift:Rooms.list>
+	  </ol>
+	  <hr/>
+	  <lift:form>
+	    <lift:Rooms.create>
+	      <room:name/> <room:submit/>
+	    </lift:Rooms.create>
+	  </lift:form>
+	</td>
+      </tr>
+    </lift:Rooms.out>
   </table>
 </div>

@@ -94,10 +94,6 @@ class UserInfo {
     }  
   }  
   
-  /** Show this content only if the user entered a room */
-  def inRoom(in:NodeSeq) : NodeSeq =
-    if (S.param("room").isEmpty) NodeSeq.Empty else bind(in)
-
   /** Show this content only if the user is logged out */
   def in(in:NodeSeq) : NodeSeq =
     if (User.currentUser.isEmpty) NodeSeq.Empty else bind(in)
