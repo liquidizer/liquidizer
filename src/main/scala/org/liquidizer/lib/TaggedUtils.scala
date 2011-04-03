@@ -1,5 +1,6 @@
 package org.liquidizer.lib
 
+import net.liftweb.mapper._
 import scala.collection.mutable
 import org.liquidizer.model._
 
@@ -10,7 +11,7 @@ object TaggedUtils {
     keys.split("(\\s|,)").map { _.trim }.toList.filter { !_.isEmpty }
   }
 
-  def sortedQueryTags() = sortedTags( Query.findAll.map { VotableQuery(_) } )
+  def sortedQueryTags() = sortedTags( Votable.findAll(By_>(Votable.query,0)) )
 
   def sortedTags(data : List[Votable]): List[String] = {
     val names = mutable.Map.empty[String, String]

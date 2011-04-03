@@ -10,9 +10,6 @@ import _root_.org.liquidizer.lib.TaggedUtils
 object Query extends Query with LongKeyedMetaMapper[Query] {
   override def dbTableName = "queries"
   override def fieldOrder = List(what, creator, keys, creation)
-  
-  def get(id : String) : Option[Query] = get(id.toLong)
-  def get(id : Long) : Option[Query] = Query.find(By(Query.id, id))
 }
 
 class Query extends LongKeyedMapper[Query] with IdPK {

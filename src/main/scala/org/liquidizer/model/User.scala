@@ -39,8 +39,6 @@ with MegaProtoUser[User] {
   object nick extends MappedString(this,32)
   object profile extends MappedText(this)
 
-  def getUser(id : String) : Option[User] = User.find(By(User.id,id.toLong))
-  
   def getUserByNick(nick : String) : Option[User] = {
     User.find(By(User.nick, nick))
   }

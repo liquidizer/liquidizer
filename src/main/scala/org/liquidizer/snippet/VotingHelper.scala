@@ -19,7 +19,8 @@ import org.liquidizer.view.EmotionView
  *  The details of any votable, e.g. voters, results, names etc.
  */
 class VotingHelper {
-  val currentUser= User.currentUser
+  lazy val currentUser= User.currentUser
+  lazy val myNominee= currentUser.map { VotableUser(_) }
   var no= 0
 
   val buttonFactory = new EditButtonToggler
@@ -65,7 +66,6 @@ class VotingHelper {
   def formatWeight(user: User, nominee : Votable):Node =
     formatResult(VoteMap.getWeight(user,nominee))
 
-  def formatUser(user : User) : NodeSeq = formatNominee(VotableUser(user))
   def formatNominee(nominee : Votable) : NodeSeq = 
     Markup.renderHeader(nominee.toString, nominee.uri+"/index.html")
   
@@ -130,7 +130,7 @@ class VotingHelper {
 	    case Some(comment) => 
 	      Text(S.?("time.commented")+" "+ 
 		   Markup.formatRelTime(comment.date.is)+" (") ++
-		   formatUser(comment.getAuthor) ++ Text(")")
+		   formatNominee(VotableUser(comment.getAuthor)) ++ Text(")")
 	    case _ => Nil }
 
 	case "graph-nodes" => 
@@ -162,8 +162,8 @@ class VotingHelper {
 	    case "editButton" =>
 	      buttonFactory.toggleButton
 	    case "isDelegated" => if (nominee match {
-	      case VotableUser(other) => VoteMap.isDelegated(other, me)
-	      case VotableQuery(q) => VoteMap.isDelegated(q.creator.obj.get, me)})
+	      case VotableUser(other) => VoteMap.isDelegated(other, myNominee.get)
+	      case VotableQuery(q) => VoteMap.isDelegated(q.creator.obj.get, myNominee.get)})
 	      bind(children,nominee) else NodeSeq.Empty
 	    case _ => in
 	  }
@@ -209,7 +209,7 @@ class VotingHelper {
 		currentUser.map {
 		VoteMap.getSympathy(_, user) }.getOrElse(0.0)))
 	    case "popularity" =>  
-	      renderVote(() => formatPercent(VoteMap.getCurrentResult(VotableUser(user)).value))
+	      renderVote(() => formatPercent(VoteMap.getCurrentResult(nominee).value))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
@@ -217,7 +217,7 @@ class VotingHelper {
 	      delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate))
 	    }
 	    case "emoticon" => 
-		renderVote(() => EmotionView.emoticon(user, attribs))
+		renderVote(() => EmotionView.emoticon(nominee, attribs))
 	    case _ => in
 	  }
 	  case _ => tag match {
@@ -258,7 +258,7 @@ class VotingHelper {
 
     in match {
       case Elem("user", label, attribs, scope, _*) => label match {
-	case "name" => formatUser(user)
+	case "name" => formatNominee(VotableUser(user))
 	case "notme" => rec(currentUser!=Full(user))
 	case "itsme" => rec(currentUser==Full(user))
 	case "comment" => {
@@ -277,8 +277,8 @@ class VotingHelper {
 
       case Elem("poll", label, attribs, scope, _*) => label match {
 	case "name" => formatNominee(nominee)
-	case "notme" => rec(currentUser.isEmpty || VotableUser(currentUser.get)!=nominee)
-	case "itsme" => rec(!currentUser.isEmpty && VotableUser(currentUser.get)==nominee) 
+	case "notme" => rec(currentUser.isEmpty || !nominee.is(currentUser.get))
+	case "itsme" => rec(!currentUser.isEmpty && nominee.is(currentUser.get))
 	case _ =>  Elem("poll", label, attribs, scope, rec(true) : _*)
       }
 
@@ -298,7 +298,7 @@ class VotingHelper {
 		  <div class="path">{ S ? "vote.delegated.by" }<ul>{
 		  for (path <- getDelegationPath(user, nominee)) yield {
 		    <li>{ path.reverse.tail.flatMap { 
-		      sec => {Text(" → ") ++ formatUser(sec) } } 
+		      sec => {Text(" → ") ++ formatNominee(VotableUser(sec)) } } 
 		    }</li>
 		  }
 		}</ul></div>

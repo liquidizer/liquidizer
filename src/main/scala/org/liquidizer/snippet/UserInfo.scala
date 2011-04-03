@@ -147,9 +147,9 @@ class UserInfo {
   /** List of new queries to be shown in the sidebar */
   def newQueries(in : NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
-    Query
-    .findAll(OrderBy(Query.id, Descending)).slice(0,4)
-    .flatMap { query => helper.bind(in, VotableQuery(query)) }
+    Votable
+    .findAll(By_>(Votable.query,0), OrderBy(Votable.id, Descending)).slice(0,4)
+    .flatMap { query => helper.bind(in, query) }
   }
 
   /** change the password */

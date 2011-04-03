@@ -57,10 +57,10 @@ object TimeseriesView {
   }
 
   def userChart(userId : String) : Box[LiftResponse] = {
-    User.getUser(userId) match {
-      case Some(user) => {
+    Votable.find(By(Votable.user, userId.toLong)) match {
+      case Full(nominee) => {
 	cache.get(S.uri, options, () => {
-	  val ts= Tick.getTimeSeries(VotableUser(user))
+	  val ts= Tick.getTimeSeries(nominee)
 	  val node= (new GnuplotAPI).plotTS(ts, options, false)
 	  createResponse(node.first)
 	})
@@ -70,10 +70,10 @@ object TimeseriesView {
   }
   
   def queryChart(queryId : String) : Box[LiftResponse] = {
-    Query.get(queryId) match {
-      case Some(query) => {
+    Votable.find(By(Votable.query, queryId.toLong)) match {
+      case Full(nominee) => {
 	cache.get(S.uri, options, () => {
-	  val ts= Tick.getTimeSeries(VotableQuery(query))
+	  val ts= Tick.getTimeSeries(nominee)
 	  val node= (new GnuplotAPI).plotTS(ts, options, true)
 	  createResponse(node.first)
 	})

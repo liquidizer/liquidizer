@@ -94,7 +94,7 @@ object Solver {
     }
     // persist election results
     resultMap.foreach { case (i,quote) => 
-      setResult(VotableQuery(Query.get(i).get), quote) }
+      setResult(Votable.get(i).get, quote) }
 
     // normalize popularity to 1
     val denom= 
@@ -173,10 +173,9 @@ object Solver {
 		val uHead= users.get(user)
                if (!uHead.isEmpty)
                  vec.addDelegate(vote.weight.is, uHead.get.vec)
-	    case VotableQuery(query) => 
+	    case _ => 
 	      // the vote is cast on a query
-	      vec.addVote(vote.weight.is, query.id.is)
-	    case _ =>
+	      vec.addVote(vote.weight.is, vote.nominee.is)
 	  }
 	}
 

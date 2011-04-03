@@ -17,9 +17,9 @@ class Users extends MultipageSnippet {
   }
     
   def loadData() = {
-    data = User.findAll(By(User.validated, true))
+    data = Votable.findAll(By_>(Votable.user, 0))
+    .filter { _.user.obj.get.validated }
     .filter { searchFilter _ }
-    .map { VotableUser(_) }
     sortData()
   }
 
@@ -43,24 +43,25 @@ class Users extends MultipageSnippet {
 
 class UserDetails extends MultipageSnippet {
 
-  val user= User.getUser(S.param("user").openOr("-1")).get
+  val uid= S.param("user").get.toLong
+  val nominee= Votable.find(By(Votable.user, uid)).get
+  val user= nominee.user.obj.get
 
   /** load queries voted for by this user */
   def loadVotes() = {
     data= 
       VoteMap.getAllVotes(user)
       .filter { searchFilter _ }
-      .map { VotableQuery(_) }
     sortData(user)
   }
 
   /** load active supporters for this user */
   def loadSupporters() = {
     data= 
-      VoteMap.getActiveVoters(VotableUser(user))
+      VoteMap.getActiveVoters(nominee)
       .filter { searchFilter _ }
       .map { VotableUser(_) }
-    sortData(VotableUser(user))
+    sortData(nominee)
   }
 
   /** load delegates chosen by this user */
@@ -90,7 +91,7 @@ class UserDetails extends MultipageSnippet {
 	data.slice(from,to).map { case VotableUser(user) => user }
       }
     }
-    helper.bind(in, VotableUser(user))
+    helper.bind(in, nominee)
   }
 }
 

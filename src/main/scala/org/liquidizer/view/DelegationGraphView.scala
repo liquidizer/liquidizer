@@ -64,15 +64,15 @@ object DelegationGraphView {
 
   def queryGraph(poll : String) : Box[LiftResponse] = {
     val count= S.param("nodes").getOrElse("10").toInt
-    val query= Query.get(poll).get
-    val node= graphSVG(VotableQuery(query), count)
+    val nominee= Votable.find(By(Votable.query, poll.toLong)).get
+    val node= graphSVG(nominee, count)
     Full(XmlResponse(node, "image/svg+xml"))
   }
 
   def userGraph(userid : String) : Box[LiftResponse] = {
     val count= S.param("nodes").getOrElse("10").toInt
-    val user= User.getUser(userid).get
-    val node= graphSVG(VotableUser(user), count)
+    val nominee= Votable.find(By(Votable.user, userid.toLong)).get
+    val node= graphSVG(nominee, count)
     Full(XmlResponse(node, "image/svg+xml"))
   }
 

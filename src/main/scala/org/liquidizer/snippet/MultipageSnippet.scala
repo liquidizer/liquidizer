@@ -55,7 +55,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "comment_age" => isUser(_, Comment.getTime(_, nominee))
       case _ => 
 	val superSorter= sortFunction(order)
-	isUser(_, u => bonus(u) + superSorter(VotableUser(u)))
+	nominee => isUser(nominee, u => bonus(u) + superSorter(nominee))
     }
   }
 
@@ -88,7 +88,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
     order match {
       case "value" => isActive(result(_).value.abs)
-      case "age" => q => q.baseId
+      case "age" => q => q.id.is
       case "pro" => isActive(result(_).value)
       case "contra" => isActive(-result(_).value)
       case "conflict" => isActive(v => { val r=result(v); r.pro min r.contra })

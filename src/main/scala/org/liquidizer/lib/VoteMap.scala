@@ -59,8 +59,8 @@ object VoteMap {
   def getWeight(user : User, nominee: Votable) : Double = {
     getCurrentWeight(user) * getVoteVector(user).map { vec =>
       nominee match {
-	case VotableQuery(query) => vec.getVotingWeight(query.id.is)
-	case VotableUser(other) => vec.getDelegationWeight(other.id.is)
+	case VotableUser(other) => vec.getDelegationWeight(nominee.id.is)
+	case _                  => vec.getVotingWeight(nominee.id.is)
       }}.getOrElse(0.)
   }
 
@@ -92,18 +92,18 @@ object VoteMap {
   }
 
   /** Find all queries a user is actively or indirectly voting for */
-  def getAllVotes(user : User) : List[Query] = {
+  def getAllVotes(user : User) : List[Votable] = {
     // extract list from voting vector
-    var list= List[Query]()
+    var list= List[Votable]()
     VoteMap.getVoteVector(user).foreach { vec =>
       vec.votes.elements.foreach { case (i,e) =>
-	if (e.value.abs > EPS) Query.get(i).foreach { list ::= _ }
+	if (e.value.abs > EPS) Votable.get(i).foreach { list ::= _ }
       }
     }
     // include commentors
     val commentors= Comment.findAll(By(Comment.author, user))
     .map { _.nominee.obj.get }
-    .filter{_.isQuery}.map { _.query.obj.get }
+    .filter { _.isQuery }
     // remove duplicates
     (list -- commentors) ++ commentors
   }
@@ -123,8 +123,8 @@ object VoteMap {
   }
 
   /** Determine if a user is directly or indirectly delegating a nominee */
-  def isDelegated(user : User, nominee : User) : Boolean = 
-    user==nominee || VoteMap.getWeight(user,VotableUser(nominee))>EPS
+  def isDelegated(user : User, nominee : Votable) : Boolean = 
+    user==nominee || VoteMap.getWeight(user, nominee)>EPS
 
   /** Get currently weighted sympathy */
   def getSympathy(user1 : User, user2 : User) : Double =

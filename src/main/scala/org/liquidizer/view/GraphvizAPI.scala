@@ -29,8 +29,8 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 	case VotableUser(user1) => node match {
 	  case VotableQuery(_) =>  sqr(VoteMap.getWeight(user1, node))
 	  case VotableUser(user2) => 
-	    VoteMap.getWeight(user1, VotableUser(user2)) +
-	    VoteMap.getWeight(user2, VotableUser(user1))
+	    VoteMap.getWeight(user1, node) +
+	    VoteMap.getWeight(user2, root)
 	}
 	case _ => node match {
 	  case VotableUser(user) => sqr(VoteMap.getWeight(user, node))
@@ -97,7 +97,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 	  out("\""+node.uri+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
       }}
     edges
-    .filter{ e=>nodes.contains(VotableUser(e.from)) && nodes.contains(e.to)}
+    .filter{ e => nodes.contains(VotableUser(e.from)) && nodes.contains(e.to)}
     .foreach{ e=>
       var opt=""
       if (e.to.isQuery) {

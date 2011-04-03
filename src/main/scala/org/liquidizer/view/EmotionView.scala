@@ -51,27 +51,27 @@ object EmotionView {
  } 
 
   /** Create an embed tag for an inclusion of the emoticon */
-  def emoticon(other : User, attribs:MetaData) : Node = {
+  def emoticon(other : Votable, attribs:MetaData) : Node = {
     val size={attribs.get("size").getOrElse(Text("100"))}
     var uri= "/emoticons/face.svg" + {
       attribs.asAttrMap ++ {
 	User.currentUser match {
-	  case Full(me) => {
+	  case Full(me) if other.isUser => {
 	    // compute face size based on distance metrics
 	    val maxPref= VoteMap.getMaxDelegationPref(me)
-	    val dist= if (other==me) 1.0 else {
-	      val w= Math.sqrt(VoteMap.getWeight(me, VotableUser(other)))
+	    val dist= if (other.is(me)) 1.0 else {
+	      val w= Math.sqrt(VoteMap.getWeight(me, other))
 		1.0 + 0.2*(w - 0.5)*(maxPref min 3)
 	    }
 	    val fdist= SVGUtil.format(dist min 1.25)
 
 	    // extract corresponding emotion
-	    VoteMap.getEmotion(me, other) match {
+	    VoteMap.getEmotion(me, other.user.obj.get) match {
 	    case Some(emo) => {
 	      val p= emo.potency.is
 	      val v= Math.pow(emo.valence.is / (.9*p + .1) / 2.0 + 0.5, 2.0)
 	      val a= emo.arousal.is min 1.0 max 0.
-	      val w= VoteMap.getCurrentWeight(other)
+	      val w= VoteMap.getCurrentWeight(other.user.obj.get)
 	      Map("v" -> SVGUtil.format(v), 
 		  "a" -> SVGUtil.format(a), 
 		  "p" -> SVGUtil.format(p),

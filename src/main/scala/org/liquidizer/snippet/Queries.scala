@@ -22,9 +22,8 @@ class Queries extends MultipageSnippet {
   }
     
   def loadData() = {
-    data = Query.findAll
+    data = Votable.findAll(By_>(Votable.query, 0))
     .filter { searchFilter _ }
-    .map { VotableQuery(_) }
     sortData()
   }
 
@@ -47,20 +46,21 @@ class Queries extends MultipageSnippet {
 }
 
 class QueryDetails extends MultipageSnippet {
-  val query= Query.get(S.param("query").openOr("-1"))
+  val quid= S.param("query").get.toLong
+  val query= Votable.find(By(Votable.query, quid.toLong))
   var hasMe= true;
 
   def loadData() = {
-    data=  VoteMap.getAllVoters(VotableQuery(query.get))
+    data=  VoteMap.getAllVoters(query.get)
     .filter { searchFilter _ }
     .map { VotableUser(_) }
 
-    sortData(VotableQuery(query.get))
+    sortData(query.get)
 
     // check if my own vote is registered. 
     // If not a page update should show it after the first vote is cast
     val me= User.currentUser
-    hasMe= !me.isEmpty && data.contains(VotableUser(me.get))
+    hasMe= !me.isEmpty && data.exists { _.user.is == me.get.id.is }
   }
 
   val helper= new VotingHelper {
@@ -71,9 +71,9 @@ class QueryDetails extends MultipageSnippet {
     }
     override def ajaxUpdate(votedNominee : Votable) : JsCmd = {
       val update= super.ajaxUpdate(votedNominee)
-      if (!hasMe && votedNominee==VotableQuery(query.get)) {
+      if (!hasMe && votedNominee==query.get) {
 	hasMe= true
-	update & RedirectTo(VotableQuery(query.get).uri+"/index.html")
+	update & RedirectTo(query.get.uri+"/index.html")
       }
       else update
     }
@@ -83,7 +83,7 @@ class QueryDetails extends MultipageSnippet {
     if (query.isEmpty)
       <div class="error">Error: query does not exist</div>
     else
-      helper.bind(in, VotableQuery(query.get))
+      helper.bind(in, query.get)
   }
 }
 

@@ -24,7 +24,7 @@ class Votable extends LongKeyedMapper[Votable] with IdPK {
   
   def isQuery() = query.defined_?
   def isUser() = user.defined_?
-  def baseId() = if (isQuery) query.obj.get.id.is else user.obj.get.id.is
+  def is(other : User) = user.is == other.id.is
 
   def uri : String = this match {
     case VotableUser(user) => "/users/"+user.id.is
@@ -41,5 +41,7 @@ class Votable extends LongKeyedMapper[Votable] with IdPK {
 object Votable extends Votable with LongKeyedMetaMapper[Votable] {
   override def dbTableName = "nominees"
   override def fieldOrder = List(user, query)
+
+  def get(id : Long) = find(By(this.id, id)) 
 }
 
