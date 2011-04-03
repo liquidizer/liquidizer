@@ -44,8 +44,8 @@ object PollingBooth {
 
   /** Clear all active votes cast by a user */
   def clearVotes(user : User) = {
-    val votes= VoteMap.getActiveVotes(user)
-    votes.foreach { vote(user, _, 0) }
+    val votes= Vote.findAll(By(Vote.owner, user))
+    votes.foreach { v => vote(user, v.nominee.obj.get, 0) }
     VoteMap.refresh()
   }
 }

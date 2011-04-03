@@ -18,7 +18,7 @@ import org.liquidizer.view.EmotionView
 /** The VotingHelper provides a number of snippet tags for rendering
  *  The details of any votable, e.g. voters, results, names etc.
  */
-class VotingHelper {
+class VotingHelper extends InRoom {
   lazy val currentUser= User.currentUser
   lazy val myNominee= currentUser.map { VotableUser(_) }
   var no= 0
@@ -121,6 +121,7 @@ class VotingHelper {
 	    })))
 	case "chart" => chart(nominee.uri, "chart", in.attributes)
 	case "hist" => chart(nominee.uri, "histogram", in.attributes)
+	case "numSupporters" => Text(getSupporters().size.toString)
 	case "supporters" =>
 	  getSupporters().flatMap {
 	    user => bind(bind(children, user, nominee), VotableUser(user))
@@ -212,7 +213,9 @@ class VotingHelper {
 	      renderVote(() => formatPercent(VoteMap.getCurrentResult(nominee).value))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
+	    case "numVotes" => Text(getVotes().size.toString)
 	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
+	    case "numDelegates" => Text(getDelegates().size.toString)
 	    case "delegates" => getDelegates().flatMap { 
 	      delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate))
 	    }
@@ -321,7 +324,7 @@ class VotingHelper {
       result= list.filter { p => VoteMap.getPreference( p.head, nominee)!=0 }
       if (result.isEmpty) {
 	list= list.flatMap { 
-	  path => VoteMap.getActiveVotes(path.head).map { _ match {
+	  path => VoteMap.getActiveVotes(path.head, room).map { _ match {
 	    case VotableUser(user)
 	      if (!visited.contains(user) && VoteMap.getWeight(user, nominee)!=0) 
 		=> 

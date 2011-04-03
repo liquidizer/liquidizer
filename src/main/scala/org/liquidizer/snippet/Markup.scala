@@ -165,14 +165,13 @@ object Localizer {
     }	
 }
 
-class MenuMarker {
-  val room= S.param("room").map { "/room/"+ _ }.getOrElse("")
+class MenuMarker extends InRoom {
   val user= User.currentUser.map { _.id.is }.getOrElse(0L)
 
   def toUrl(url : Option[Seq[Node]]) =
     url.map { _.text }.getOrElse(S.uri)
     .replaceAll("~", user.toString)
-    .replaceAll("#", room)
+    .replaceAll("#", room.map { _.uri }.getOrElse(""))
 
   def bind(in :NodeSeq) : NodeSeq = in.flatMap(bind(_))
   def bind(in :Node) : NodeSeq = {

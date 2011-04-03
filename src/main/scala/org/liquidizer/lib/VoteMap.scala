@@ -116,10 +116,11 @@ object VoteMap {
   }
 
   /** Find votes a user is actively participating with non zero preference */
-  def getActiveVotes(user : User) : List[Votable] = {
+  def getActiveVotes(user : User, room : Option[Room]) : List[Votable] = {
     Vote.findAll(By(Vote.owner, user))
     .filter { _.weight!=0 }
     .map { _.nominee.obj.get }
+    .filter { n => room.exists( _ == n.room.obj.get ) }
   }
 
   /** Determine if a user is directly or indirectly delegating a nominee */

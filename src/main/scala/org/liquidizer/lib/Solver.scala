@@ -130,7 +130,7 @@ object Solver {
 
     var followCache= Map[User, List[User]]()
     var voteCache= Map[User, List[Vote]]()
-    var list= votes.map {_.owner.obj.get}.removeDuplicates
+    var list= votes.map { _.owner.obj.get }.removeDuplicates
     var iterCount= 0
 
     // update user info

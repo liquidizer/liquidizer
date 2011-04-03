@@ -12,7 +12,16 @@ import Helpers._
 import org.liquidizer.model._
 import org.liquidizer.lib._
 
-abstract class MultipageSnippet extends StatefulSnippet {
+trait InRoom {
+  lazy val roomId= Room.getId(S.param("room"))
+  lazy val room= Room.get(roomId)
+
+  def toNominee(user : User) =
+    Votable.find(By(Votable.user, user), By(Votable.room, room))
+
+}
+
+abstract class MultipageSnippet extends StatefulSnippet with InRoom {
   var dispatch : DispatchIt = { 
     case "render" => render _ 
     case "navigator" => navigator _
@@ -28,7 +37,6 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def render(in:NodeSeq) : NodeSeq
   def categories(in:NodeSeq) : NodeSeq = NodeSeq.Empty
 
-  lazy val room= Room.getId(S.param("room"))
   val defaultsize= 12
   val pagesize:Int = S.param("pagesize").map{ _.toInt }.getOrElse(defaultsize)
   var search= S.param("search").getOrElse("")

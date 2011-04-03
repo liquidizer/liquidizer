@@ -14,9 +14,8 @@ import org.liquidizer.model._
 import org.liquidizer.lib._
 import org.liquidizer.lib.ssl._
 
-class UserInfo {
+class UserInfo extends InRoom {
   val buttonFactory = new EditButtonToggler()
-
   var username=""
   var passwd=""
 
@@ -45,14 +44,6 @@ class UserInfo {
 	    buttonFactory.newLineRecord(() => me.email.is, value => { me.email(value); me.save })
 	  buttonFactory.toggleText
 	  case "editButton" => buttonFactory.toggleButton
-
-	  // user statistics
-	  case "numVotes" => 
-	    Text(VoteMap.getActiveVotes(me).filter { _.isQuery }.size.toString)
-	  case "numDelegates" =>
-	    Text(VoteMap.getActiveVotes(me).filter { _.isUser }.size.toString)
-	  case "numSupporters" =>
-	    Text(VoteMap.getActiveVoters(VotableUser(me)).size.toString)
 
 	  case _ => Elem("me", label, attribs, scope, bind(children) : _*)
 
@@ -112,24 +103,22 @@ class UserInfo {
     val length= 10
     User.currentUser match {
       case Full(me) => 
+	val listVotes= VoteMap.getActiveVotes(me, room).sort { _.id.is > _.id.is }
+	val listQueryVotes= listVotes.filter { _.isQuery }
+	val listSupporters= toNominee(me).map {
+	  VoteMap.getActiveVoters(_).sort { _.id.is > _.id.is } }
+          .getOrElse(Nil)
+        val listUserVotes= listVotes
+	    .filter { _.isUser }
+	    .map { _.user.obj.get }
+
 	val helper= new VotingHelper {
 	  override def getVotes() : List[Votable] =
-	    VoteMap.getActiveVotes(me)
-	    .filter { _.isQuery }
-	    .sort { _.id.is > _.id.is }
-	    .slice(0,length)
-
+	    listQueryVotes.slice(0,length)
 	  override def getSupporters() : List[User] =
-	    VoteMap.getActiveVoters(VotableUser(me))
-	    .sort { _.id.is > _.id.is }
-	    .slice(0,length)
-
+	    listSupporters.slice(0,length)
 	  override def getDelegates() : List[User] =
-	    VoteMap.getActiveVotes(me)
-	    .filter { _.isUser }
-	    .sort { _.id.is > _.id.is }
-	    .map { _.user.obj.get }
-	    .slice(0,length)
+	    listUserVotes.slice(0,length)
 	}
       helper.bind(in, VotableUser(me))
       case _ => NodeSeq.Empty

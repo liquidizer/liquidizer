@@ -41,11 +41,11 @@ class Users extends MultipageSnippet {
   }
 }
 
-class UserDetails extends MultipageSnippet {
+class UserDetails extends MultipageSnippet with InRoom {
 
   val uid= S.param("user").get.toLong
-  val nominee= Votable.find(By(Votable.user, uid)).get
-  val user= nominee.user.obj.get
+  val user= User.find(By(User.id, uid)).get
+  val nominee= toNominee(user)
 
   /** load queries voted for by this user */
   def loadVotes() = {
@@ -57,21 +57,18 @@ class UserDetails extends MultipageSnippet {
 
   /** load active supporters for this user */
   def loadSupporters() = {
-    data= 
-      VoteMap.getActiveVoters(nominee)
+    if (!nominee.isEmpty) data= 
+      VoteMap.getActiveVoters(nominee.get)
       .filter { searchFilter _ }
       .map { VotableUser(_) }
-    sortData(nominee)
+    nominee.foreach { sortData(_) }
   }
 
   /** load delegates chosen by this user */
   def loadDelegates() = {
     data= 
-      VoteMap.getActiveVotes(user)
-      .filter {
-	case VotableUser(user) => searchFilter(user)
-        case _ => false
-      }
+      VoteMap.getActiveVotes(user, room)
+      .filter { n => n.isUser && searchFilter(n.user.obj.get) }
     sortData(user)
   }
 
@@ -91,7 +88,8 @@ class UserDetails extends MultipageSnippet {
 	data.slice(from,to).map { case VotableUser(user) => user }
       }
     }
-    helper.bind(in, nominee)
+    if (nominee.isEmpty) NodeSeq.Empty
+    else helper.bind(in, nominee.get)
   }
 }
 
