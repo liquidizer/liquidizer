@@ -94,6 +94,10 @@ class UserInfo {
     }  
   }  
   
+  /** Show this content only if the user entered a room */
+  def inRoom(in:NodeSeq) : NodeSeq =
+    if (S.param("room").isEmpty) NodeSeq.Empty else bind(in)
+
   /** Show this content only if the user is logged out */
   def in(in:NodeSeq) : NodeSeq =
     if (User.currentUser.isEmpty) NodeSeq.Empty else bind(in)
@@ -146,9 +150,11 @@ class UserInfo {
 
   /** List of new queries to be shown in the sidebar */
   def newQueries(in : NodeSeq) : NodeSeq = {
+    val room= Room.getId(S.param("room"))
     val helper= new VotingHelper
     Votable
-    .findAll(By_>(Votable.query,0), OrderBy(Votable.id, Descending)).slice(0,4)
+    .findAll(By_>(Votable.query,0), By(Votable.room, room), OrderBy(Votable.id, Descending))
+    .slice(0,4)
     .flatMap { query => helper.bind(in, query) }
   }
 

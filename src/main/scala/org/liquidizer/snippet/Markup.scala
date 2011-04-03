@@ -166,16 +166,21 @@ object Localizer {
 }
 
 class MenuMarker {
+  val room= S.param("room").map { "/room/"+ _ }.getOrElse("")
+  val user= User.currentUser.map { _.id.is }.getOrElse(0L)
+
+  def toUrl(url : Option[Seq[Node]]) =
+    url.map { _.text }.getOrElse(S.uri)
+    .replaceAll("~", user.toString)
+    .replaceAll("#", room)
 
   def bind(in :NodeSeq) : NodeSeq = in.flatMap(bind(_))
-
   def bind(in :Node) : NodeSeq = {
     in match {
       case Elem("menu", "a", attribs, scope, children @ _*) =>
 	// determine target and current link
 	var keep= attribs.get("keep").map { _.text }
-	var href= attribs.get("href").map { _.text }.getOrElse(S.uri).
-	    replaceAll("~", User.currentUser.map { _.id.is }.getOrElse(1).toString)
+	var href= toUrl(attribs.get("href"))
 
         var active= href == (if (href.startsWith("/")) S.uri else S.uri.replaceAll(".*/",""))
 	val isDefault= attribs.get("default").map{ _.text=="true" }.getOrElse(false)
@@ -202,6 +207,12 @@ class MenuMarker {
         // format link as either active (currently visited) or inaktive
         val style= if (active) "active" else "inactive" 
         <li><a href={href}><div class={style}>{entry}</div></a></li>
+
+      case Elem("local", "a", attribs, scope, children @ _*) =>
+        val url= attribs.get("href")
+        Elem(null, "a", 
+	     attribs.remove("href")
+	     .append(new UnprefixedAttribute("href", toUrl(url), Null)), scope, children:_*)
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, Localizer.loc(attribs), scope, bind(children) : _*)

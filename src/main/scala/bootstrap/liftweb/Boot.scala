@@ -34,8 +34,8 @@ class Boot {
 
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
-    Schemifier.schemify(true, Schemifier.infoF _, Votable, User, 
-			Query, Vote, Comment, Certificate, Emotion, Tick)
+    Schemifier.schemify(true, Schemifier.infoF _, Votable, User, Query, 
+			Vote, Comment, Room, Certificate, Emotion, Tick)
 
     println("Starting LIQUIDIZER")
     VoteMap.refresh(false)
@@ -101,6 +101,9 @@ class Boot {
       case RewriteRequest(
     	ParsePath(List("users",user,"vote","users",user2,"analyzer"),_,_,_),_,_) =>
         RewriteResponse("vote_analyzer" :: Nil, Map("user" -> user, "user2" -> user2))
+      case RewriteRequest(
+    	ParsePath(List("room", room, tail @ _*),_,_,_),_,_) =>
+        RewriteResponse(tail.toList, Map("room" -> room))
     }
 
     //  make all DB updates atomic

@@ -22,14 +22,17 @@ class Votable extends LongKeyedMapper[Votable] with IdPK {
   object query extends MappedLongForeignKey(this, Query) with DBIndexed
   object user extends MappedLongForeignKey(this, User) with DBIndexed
   
+  // room in which this vote is placed
+  object room extends MappedLongForeignKey(this, Room) with DBIndexed
+
   def isQuery() = query.defined_?
   def isUser() = user.defined_?
   def is(other : User) = user.is == other.id.is
 
-  def uri : String = this match {
+  def uri : String = room.obj.get.uri + (this match {
     case VotableUser(user) => "/users/"+user.id.is
     case VotableQuery(query) => "/queries/"+query.id.is
-  }
+  })
 
   override def toString() = this match {
     case VotableUser(user) => user.toString
@@ -40,8 +43,8 @@ class Votable extends LongKeyedMapper[Votable] with IdPK {
 
 object Votable extends Votable with LongKeyedMetaMapper[Votable] {
   override def dbTableName = "nominees"
-  override def fieldOrder = List(user, query)
+  override def fieldOrder = List(user, query, room)
 
-  def get(id : Long) = find(By(this.id, id)) 
+  def get(id : Long) = find(By(this.id, id))
 }
 

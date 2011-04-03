@@ -15,6 +15,7 @@ class Emotion extends LongKeyedMapper[Emotion] with IdPK {
   object avg_potency extends MappedDouble(this) 
   object user1 extends MappedLongForeignKey(this, User) with DBIndexed
   object user2 extends MappedLongForeignKey(this, User) with DBIndexed
+  object room extends MappedLongForeignKey(this, Room) with DBIndexed
   
   /** Set a new time value and compute the new arousal */
   def update(newTime : Long, decay : Double) = {

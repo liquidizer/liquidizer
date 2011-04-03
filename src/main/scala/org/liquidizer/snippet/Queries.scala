@@ -22,7 +22,7 @@ class Queries extends MultipageSnippet {
   }
     
   def loadData() = {
-    data = Votable.findAll(By_>(Votable.query, 0))
+    data = Votable.findAll(By_>(Votable.query, 0), By(Votable.room, room))
     .filter { searchFilter _ }
     sortData()
   }

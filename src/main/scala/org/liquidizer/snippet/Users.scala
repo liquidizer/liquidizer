@@ -17,7 +17,7 @@ class Users extends MultipageSnippet {
   }
     
   def loadData() = {
-    data = Votable.findAll(By_>(Votable.user, 0))
+    data = Votable.findAll(By_>(Votable.user, 0), By(Votable.room, room))
     .filter { _.user.obj.get.validated }
     .filter { searchFilter _ }
     sortData()
