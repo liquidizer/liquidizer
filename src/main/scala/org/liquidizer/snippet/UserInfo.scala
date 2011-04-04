@@ -100,27 +100,28 @@ class UserInfo extends InRoom {
 
   /** List of recent votes by the current user, to be shown in the index page */
   def votes(in : NodeSeq) : NodeSeq = {
-    val length= 10
     User.currentUser match {
-      case Full(me) => 
-	val listVotes= VoteMap.getActiveVotes(me, room).sort { _.id.is > _.id.is }
-	val listQueryVotes= listVotes.filter { _.isQuery }
-	val listSupporters= toNominee(me).map {
-	  VoteMap.getActiveVoters(_).sort { _.id.is > _.id.is } }
-          .getOrElse(Nil)
-        val listUserVotes= listVotes
-	    .filter { _.isUser }
-	    .map { _.user.obj.get }
-
+      case Full(me) if !room.isEmpty => 
+	val nominee= toNominee(me)
 	val helper= new VotingHelper {
-	  override def getVotes() : List[Votable] =
-	    listQueryVotes.slice(0,length)
-	  override def getSupporters() : List[User] =
-	    listSupporters.slice(0,length)
-	  override def getDelegates() : List[User] =
-	    listUserVotes.slice(0,length)
+	  val listVotes= VoteMap.getActiveVotes(me, room.get)
+	    .sort { _.id.is > _.id.is }
+	  val listQueryVotes= listVotes.filter { _.isQuery }
+	  val listSupporters= toNominee(me).map {
+	    VoteMap.getActiveVoters(_).sort { _.id.is > _.id.is } }
+            .getOrElse(Nil)
+          val listUserVotes= listVotes
+	    .filter { _.isUser }
+
+	  override def slice(list : List[Votable]) = list.slice(0, 10)
+	  override def getData(src : String) = src match {
+	    case "votes" => listQueryVotes
+	    case "supporters" => listSupporters.map { toNominee(_).get }
+	    case "delegates" => listUserVotes
+	  }
 	}
-      helper.bind(in, VotableUser(me))
+        if (nominee.isEmpty) NodeSeq.Empty
+        else helper.bind(in, nominee.get)
       case _ => NodeSeq.Empty
     }
   }

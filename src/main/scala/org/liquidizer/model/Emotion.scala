@@ -34,11 +34,11 @@ class Emotion extends LongKeyedMapper[Emotion] with IdPK {
 object Emotion extends Emotion with LongKeyedMetaMapper[Emotion] {
   override def dbTableName = "emotions"
 
-  def get(u1 : User, u2 : User) : Emotion = {
+  def get(u1 : User, u2 : User, room : Room) : Emotion = {
     val id1= u1.id.is min u2.id.is    
     val id2= u1.id.is max u2.id.is
-    find(By(user1, id1), By(user2, id2)).getOrElse (
-      Emotion.create.user1(id1).user2(id2)
+    find(By(user1, id1), By(user2, id2), By(this.room, room)).getOrElse (
+      Emotion.create.user1(id1).user2(id2).room(room)
     )
   }
 }

@@ -55,7 +55,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     }
     node match {
       case VotableUser(user) => 
-	for (nominee <- VoteMap.getActiveVotes(user, node.room.obj)) {
+	for (nominee <- VoteMap.getActiveVotes(user, node.room.obj.get)) {
 	  val edge= Edge(user, nominee)
 	  if (!edges.contains(edge)) {
 	    edges+= edge

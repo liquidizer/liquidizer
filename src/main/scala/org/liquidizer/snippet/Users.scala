@@ -67,25 +67,21 @@ class UserDetails extends MultipageSnippet with InRoom {
   /** load delegates chosen by this user */
   def loadDelegates() = {
     data= 
-      VoteMap.getActiveVotes(user, room)
+      VoteMap.getActiveVotes(user, room.get)
       .filter { n => n.isUser && searchFilter(n.user.obj.get) }
     sortData(user)
   }
 
   /** Render the HTML snippet */
   def render(in : NodeSeq) : NodeSeq = {
-    val helper= new VotingHelper {
-      override def getVotes() : List[Votable] = {
-	if (data.isEmpty) loadVotes()
-	data.slice(from,to)
-      }
-      override def getSupporters() : List[User] = {
-	if (data.isEmpty) loadSupporters()
-	data.slice(from,to).map { case VotableUser(user) => user }
-      }
-      override def getDelegates() : List[User] = {
-	if (data.isEmpty) loadDelegates()
-	data.slice(from,to).map { case VotableUser(user) => user }
+    val helper= new VotingHelper with PageHelper {
+      override def getData(src : String) : List[Votable] = {
+	if (data.isEmpty) src match {
+	  case "votes" => loadVotes
+	  case "supporters" => loadSupporters
+	  case "delegates" => loadDelegates
+	}
+	data
       }
     }
     if (nominee.isEmpty) NodeSeq.Empty

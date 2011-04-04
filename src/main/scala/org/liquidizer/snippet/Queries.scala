@@ -63,11 +63,10 @@ class QueryDetails extends MultipageSnippet {
     hasMe= !me.isEmpty && data.exists { _.user.is == me.get.id.is }
   }
 
-  val helper= new VotingHelper {
-    override def getSupporters() : List[User] = {
-      if (data.isEmpty)
-	loadData()
-      data.slice(from,to).map { case VotableUser(user) => user }
+  val helper= new VotingHelper with PageHelper {
+    override def getData(src : String) = {
+      if (data.isEmpty) loadData()
+      data
     }
     override def ajaxUpdate(votedNominee : Votable) : JsCmd = {
       val update= super.ajaxUpdate(votedNominee)

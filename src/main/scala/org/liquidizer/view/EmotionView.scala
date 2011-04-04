@@ -25,7 +25,8 @@ object EmotionView {
   def doubleParam(id : String, default : Double) = 
     S.param(id).map { _.toDouble }.getOrElse(default)
 
-  def face() = {
+  /** snippet to create a html embed tag for an emoticon */
+  def face() : Box[XmlResponse] = {
     val v= doubleParam("v", 0.5)
     val a= doubleParam("a", 0.5)
     val p= doubleParam("p", 0.5)
@@ -66,12 +67,14 @@ object EmotionView {
 	    val fdist= SVGUtil.format(dist min 1.25)
 
 	    // extract corresponding emotion
-	    VoteMap.getEmotion(me, other.user.obj.get) match {
+	    val user= other.user.obj.get
+	    val room= other.room.obj.get
+	    VoteMap.getEmotion(me, user, room) match {
 	    case Some(emo) => {
 	      val p= emo.potency.is
 	      val v= Math.pow(emo.valence.is / (.9*p + .1) / 2.0 + 0.5, 2.0)
 	      val a= emo.arousal.is min 1.0 max 0.
-	      val w= VoteMap.getCurrentWeight(other.user.obj.get)
+	      val w= VoteMap.getCurrentWeight(user)
 	      Map("v" -> SVGUtil.format(v), 
 		  "a" -> SVGUtil.format(a), 
 		  "p" -> SVGUtil.format(p),

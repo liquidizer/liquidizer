@@ -4,15 +4,15 @@
     <h3>
       <img src="/images/menu/weight.png" alt=""/>
       <lift:loc>menu.votes</lift:loc>
-      (<user:numVotes/>)</h3>
+      (<data:size src="votes"/>)</h3>
     <hr/>
     <table>
-      <user:votes>
+      <data:votes>
 	<tr>
 	  <td align="center"><vote:result format="weight"/></td>
 	  <td><poll:name/></td>
 	</tr>
-      </user:votes>
+      </data:votes>
       <tr>
 	<div class="navi">
 	  <me:a href="index.html">
@@ -29,30 +29,30 @@
 	<td>
 	  <img src="/images/menu/follow.png" alt=""/>
 	  <lift:loc>menu.supporters</lift:loc>
-	  (<poll:numSupporters/>)</td>
+	  (<data:size src="supporters"/>)</td>
 	<td/>
 	<td>
 	  <img src="/images/menu/distance.png" alt=""/>
 	  <lift:loc>$menu.delegates</lift:loc>
-	  (<user:numDelegates/>)</td>
+	  (<data:size src="delegates"/>)</td>
       </tr>
       <tr><td colspan="3"><hr/></td></tr>
       <td>
-	<poll:supporters>
+	<data:supporters>
 	  <tr class="votable">
 	    <td align="right"><user:emoticon size="20"/></td>
 	    <td><user:name/></td>
 	  </tr>
-	</poll:supporters>
+	</data:supporters>
       </td>
       <td width="20px"/>
       <td>
-	<user:delegates>
+	<data:delegates>
 	  <tr>
 	    <td align="right"><user:emoticon size="20"/></td>
 	    <td><poll:name/></td>
 	  </tr>
-	</user:delegates>
+	</data:delegates>
       </td>
       <tr>
 	<td>

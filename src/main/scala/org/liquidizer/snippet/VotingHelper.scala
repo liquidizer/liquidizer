@@ -121,11 +121,6 @@ class VotingHelper extends InRoom {
 	    })))
 	case "chart" => chart(nominee.uri, "chart", in.attributes)
 	case "hist" => chart(nominee.uri, "histogram", in.attributes)
-	case "numSupporters" => Text(getSupporters().size.toString)
-	case "supporters" =>
-	  getSupporters().flatMap {
-	    user => bind(bind(children, user, nominee), VotableUser(user))
-	  }
 	case "aboutLastComment" => 
 	  Comment.getLatest(nominee) match {
 	    case Some(comment) => 
@@ -208,17 +203,11 @@ class VotingHelper extends InRoom {
 	    case "sympathy" =>  
 	      renderVote(() => formatPercent(
 		currentUser.map {
-		VoteMap.getSympathy(_, user) }.getOrElse(0.0)))
+		VoteMap.getSympathy(_, user, room.get) }.getOrElse(0.0)))
 	    case "popularity" =>  
 	      renderVote(() => formatPercent(VoteMap.getCurrentResult(nominee).value))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
-	    case "numVotes" => Text(getVotes().size.toString)
-	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
-	    case "numDelegates" => Text(getDelegates().size.toString)
-	    case "delegates" => getDelegates().flatMap { 
-	      delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate))
-	    }
 	    case "emoticon" => 
 		renderVote(() => EmotionView.emoticon(nominee, attribs))
 	    case _ => in
@@ -228,6 +217,18 @@ class VotingHelper extends InRoom {
 	    case "notme" => bind(children, nominee)
 	    case _ => in
 	  }
+	}
+      
+      // sub lists of dependent entries
+      case Elem("data", tag, attribs, scope, children @ _*) => 
+	val src= attribs.get("src").map { _.text }.getOrElse(tag)
+        val data= getData(src)
+        tag match {
+	  case "size" => Text(data.size.toString)
+	  case "votes"|"delegates" => slice(data).flatMap { 
+	    item => bind(bind(children, nominee.user.obj.get, item), item) }
+	  case "supporters" => slice(data).flatMap {
+	    item => bind(bind(children, item.user.obj.get, nominee), item) }
 	}
 
       // Default treatment of unknown tags
@@ -291,7 +292,7 @@ class VotingHelper extends InRoom {
 	    renderVote(() => formatWeight(user,nominee))
 	  case "sympathy" => renderVote(() => {nominee match {
 	    case VotableUser(other) =>
-	      formatPercent(VoteMap.getSympathy(user, other))
+	      formatPercent(VoteMap.getSympathy(user, other, room.get))
 	    case _ => Text("0.0")
 	  }})
 	  case "delegation" => 
@@ -324,7 +325,7 @@ class VotingHelper extends InRoom {
       result= list.filter { p => VoteMap.getPreference( p.head, nominee)!=0 }
       if (result.isEmpty) {
 	list= list.flatMap { 
-	  path => VoteMap.getActiveVotes(path.head, room).map { _ match {
+	  path => VoteMap.getActiveVotes(path.head, room.get).map { _ match {
 	    case VotableUser(user)
 	      if (!visited.contains(user) && VoteMap.getWeight(user, nominee)!=0) 
 		=> 
@@ -341,17 +342,8 @@ class VotingHelper extends InRoom {
   }
 
   /** returns a list of votes as defined by the overriding class */
-  def getVotes() : List[Votable] = {
-    throw new Exception("No votes for this item")
-  }
+  def getData(src : String) : List[Votable] = Nil
 
-  /** returns a list of delegates as defined by the overriding class */
-  def getDelegates() : List[User] = {
-    throw new Exception("No delegates for this item")
-  }
-
-  /** returns a list of voters as defined by the overriding class */
-  def getSupporters() : List[User] = {
-    throw new Exception("No supporters for this item")
-  }
+  /** Select the items of the current view */
+  def slice(data : List[Votable]) : List[Votable] = data
 }

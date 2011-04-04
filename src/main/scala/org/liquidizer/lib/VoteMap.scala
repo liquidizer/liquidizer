@@ -116,11 +116,11 @@ object VoteMap {
   }
 
   /** Find votes a user is actively participating with non zero preference */
-  def getActiveVotes(user : User, room : Option[Room]) : List[Votable] = {
+  def getActiveVotes(user : User, room : Room) : List[Votable] = {
     Vote.findAll(By(Vote.owner, user))
     .filter { _.weight!=0 }
     .map { _.nominee.obj.get }
-    .filter { n => room.exists( _ == n.room.obj.get ) }
+    .filter { room.id.is == _.room.is }
   }
 
   /** Determine if a user is directly or indirectly delegating a nominee */
@@ -128,21 +128,21 @@ object VoteMap {
     user==nominee || VoteMap.getWeight(user, nominee)>EPS
 
   /** Get currently weighted sympathy */
-  def getSympathy(user1 : User, user2 : User) : Double =
+  def getSympathy(user1 : User, user2 : User, room : Room) : Double =
     VoteMap.getCurrentWeight(user1) *
     VoteMap.getCurrentWeight(user2) *
-    getEmotion(user1,user2).map{ _.valence.is }.getOrElse(0.0)
+    getEmotion(user1, user2, room).map{ _.valence.is }.getOrElse(0.0)
 
   /** Get currently weighted arousal */
-  def getArousal(user1 : User, user2 : User) : Double =
+  def getArousal(user1 : User, user2 : User, room : Room) : Double =
     VoteMap.getCurrentWeight(user1) *
     VoteMap.getCurrentWeight(user2) *
-    getEmotion(user1,user2).map{ _.arousal.is }.getOrElse(0.0)
+    getEmotion(user1, user2, room).map{ _.arousal.is }.getOrElse(0.0)
 
   /** Get and update the emotion between two users */
-  def getEmotion(user1 : User, user2 : User) : Option[Emotion] = {
+  def getEmotion(user1 : User, user2 : User, room : Room) : Option[Emotion] = {
     if (isActive(user1) && isActive(user2)) {
-      val emo= Emotion.get(user1, user2)
+      val emo= Emotion.get(user1, user2, room)
 
       // check if emotion needs to be updated
       val head1= users.get(user1).get

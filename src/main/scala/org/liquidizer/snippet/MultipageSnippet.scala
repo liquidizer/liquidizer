@@ -47,6 +47,9 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
   
   def from = pagesize * page
   def to = Math.min(pagesize * (page+1), size)
+  trait PageHelper extends VotingHelper {
+    override def slice(list : List[Votable]) = list.slice(from, to)
+  }
 
   /** Create a sort ordering function for users voting on a fixed nominee */
   def sortFunction(order: String, nominee:Votable) : (Votable => Double) = {
@@ -107,11 +110,11 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
       case "comment" => 
 	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)
       case "valence" => 
-	withMe((me,v) => isUser(v,VoteMap.getSympathy(me,_)))
+	withMe((me,v) => isUser(v, VoteMap.getSympathy(me, _, v.room.obj.get)))
       case "avalence" =>
-	withMe((me,v) => isUser(v,- VoteMap.getSympathy(me,_)))
+	withMe((me,v) => isUser(v,-VoteMap.getSympathy(me, _,  v.room.obj.get)))
       case "arousal" =>
-	withMe((me,v) => isUser(v,VoteMap.getArousal(me,_)))
+	withMe((me,v) => isUser(v,VoteMap.getArousal(me, _,  v.room.obj.get)))
     }
   }
 
