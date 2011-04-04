@@ -114,6 +114,7 @@ object Solver {
     }
   }
 
+  /** Store the new result, trigger save to disk if necessary */
   def setResult(nominee : Votable, quote : Quote) = {
     nominees.get(nominee).getOrElse {
       val head= new NomineeHead(nominee)

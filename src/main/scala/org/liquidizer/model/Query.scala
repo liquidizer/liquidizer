@@ -7,11 +7,13 @@ import Helpers._
 
 import _root_.org.liquidizer.lib.TaggedUtils
 
+/** A discussed query */
 object Query extends Query with LongKeyedMetaMapper[Query] {
   override def dbTableName = "queries"
   override def fieldOrder = List(what, creator, keys, creation)
 }
 
+/** A discussed query */
 class Query extends LongKeyedMapper[Query] with IdPK {
   def getSingleton = Query
 
@@ -26,18 +28,5 @@ class Query extends LongKeyedMapper[Query] with IdPK {
   
   def keyList() : List[String] = {
     TaggedUtils.getTags(keys.is)
-  }
-  
-  def loadNominee = Votable.find(By(Votable.query,this))
-  lazy val nominee= loadNominee.getOrElse {
-    throw new Exception("No Votable found for query "+toString)
-  }
-
-  override def save() = {
-    if (loadNominee.isEmpty) {
-      super.save
-      Votable.create.query(this).save
-    }
-    super.save
   }
 }

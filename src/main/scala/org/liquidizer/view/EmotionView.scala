@@ -12,11 +12,11 @@ import net.liftweb.util.Helpers.TheStrBindParam
 import org.liquidizer.model._
 import org.liquidizer.lib._
 
+/** Display code for the display of emoticons in HTML */
 object EmotionView {
 
   lazy val morpher= new Mesmerizer
-
-  val sleeping= {
+  lazy val sleeping= {
     val root="src/main/resources/"
     val src= scala.io.Source.fromFile(new java.io.File(root+"sleeping.svg"))
     scala.xml.parsing.XhtmlParser.apply(src).first

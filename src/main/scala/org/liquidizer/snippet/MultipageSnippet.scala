@@ -12,6 +12,7 @@ import Helpers._
 import org.liquidizer.model._
 import org.liquidizer.lib._
 
+/** Gets the room id and provides room related convenience functions */
 trait InRoom {
   lazy val roomId= Room.getId(S.param("room"))
   lazy val room= Room.get(roomId)
@@ -19,8 +20,10 @@ trait InRoom {
   def toNominee(user : User) =
     Votable.find(By(Votable.user, user), By(Votable.room, room))
 
+  def uri(user : User) = "/room/"+roomId+"/users/"+user.id.is+"/index.html"
 }
 
+/** Base class for searched and sorted multi-page views of votables */
 abstract class MultipageSnippet extends StatefulSnippet with InRoom {
   var dispatch : DispatchIt = { 
     case "render" => render _ 

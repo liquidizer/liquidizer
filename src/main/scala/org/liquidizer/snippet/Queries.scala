@@ -14,6 +14,7 @@ import Helpers._
 import _root_.org.liquidizer.lib._
 import _root_.org.liquidizer.model._
 
+/** Snippet code to show all discussed queries */
 class Queries extends MultipageSnippet {
   
   def getData() = {
@@ -45,16 +46,15 @@ class Queries extends MultipageSnippet {
   }
 }
 
-class QueryDetails extends MultipageSnippet {
+/** Snippet code to show details on a query's voters */
+class QueryDetails extends MultipageSnippet with InRoom {
   val quid= S.param("query").get.toLong
   val query= Votable.find(By(Votable.query, quid.toLong))
   var hasMe= true;
 
   def loadData() = {
-    data=  VoteMap.getAllVoters(query.get)
-    .filter { searchFilter _ }
-    .map { VotableUser(_) }
-
+    data=  Votable.get(
+      VoteMap.getAllVoters(query.get).filter { searchFilter _ }, room.get)
     sortData(query.get)
 
     // check if my own vote is registered. 

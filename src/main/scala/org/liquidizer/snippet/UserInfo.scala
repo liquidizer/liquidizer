@@ -14,6 +14,7 @@ import org.liquidizer.model._
 import org.liquidizer.lib._
 import org.liquidizer.lib.ssl._
 
+/** User related snippet code */
 class UserInfo extends InRoom {
   val buttonFactory = new EditButtonToggler()
   var username=""
@@ -98,7 +99,7 @@ class UserInfo extends InRoom {
   def out(in:NodeSeq) : NodeSeq = 
     if (User.currentUser.isEmpty) bind(in) else NodeSeq.Empty
 
-  /** List of recent votes by the current user, to be shown in the index page */
+  /** List of votes by the current user, to be shown in the index page */
   def votes(in : NodeSeq) : NodeSeq = {
     User.currentUser match {
       case Full(me) if !room.isEmpty => 

@@ -11,6 +11,7 @@ import org.liquidizer.model._
 
 case class Edge(val from: User, val to: Votable)
 
+/** Control graphviz to plot a dependency graph centered around a root node */
 class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 
   var nodes= List[Votable]()
@@ -20,8 +21,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     def compare(x: Votable, y: Votable) = -(weight(x).abs compare weight(y).abs)
   })
 
-  def formatDouble(value : Double)= String.format("%3.2f",double2Double(value))
-
+  /** Compute the priority with which a node should be added to the graph */
   def computeWeight(node : Votable) = {
     if (!weight.contains(node)) {
       def sqr(x:Double)= x*x
@@ -40,11 +40,13 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     }
   }
 
+  /** add an entry to the queue of connected nodes */
   def addEntry(node : Votable) = {
     computeWeight(node)
     queue.add(node)
   }
 
+  /** continue searching for connected nodes */
   def process(node : Votable) = {
     for (user <- VoteMap.getActiveVoters(node)) {
       val edge= Edge(user, node)
@@ -66,6 +68,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     }
   }
 
+  /** build the graph centered around nominee with a maximum number of nodes */
   def build(nominee : Votable, size : Int) : Unit = {
     nodes::= nominee
     process(nominee)
@@ -79,6 +82,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     nodes= nodes.reverse
   }
   
+  /** Write dot code and run graphviz */
   def runGraphviz() : NodeSeq = {
     out("digraph delegationMap {")
     out("size=\"12,12\"")

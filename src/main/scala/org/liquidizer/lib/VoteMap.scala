@@ -80,12 +80,13 @@ object VoteMap {
     var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
     // find voters recursively as voters and followers
     var proc= List(nominee)
+    val room= nominee.room.obj.get
     while (!proc.isEmpty) {
       val votes= proc.flatMap{ n => Vote.findAll(By(Vote.nominee, n)) }
       val next= votes
       .filter{ _.weight.is!=0 }.map{ _.owner.obj.get }
       .removeDuplicates -- list
-      proc=  next.map { VotableUser(_) }
+      proc= Votable.get(next, room)
       list ++= next
     }
     list

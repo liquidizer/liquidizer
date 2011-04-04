@@ -4,6 +4,7 @@ import _root_.net.liftweb.mapper._
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 
+/** Parametric emotion for the generation of emoticons */
 class Emotion extends LongKeyedMapper[Emotion] with IdPK {
   def getSingleton = Emotion
 
@@ -31,6 +32,7 @@ class Emotion extends LongKeyedMapper[Emotion] with IdPK {
   }
 }
 
+/** Parametric emotion for the generation of emoticons */
 object Emotion extends Emotion with LongKeyedMetaMapper[Emotion] {
   override def dbTableName = "emotions"
 

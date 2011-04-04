@@ -9,6 +9,7 @@ import _root_.net.liftweb.mapper._
 import _root_.org.liquidizer.model._
 import _root_.org.liquidizer.lib._
 
+/** Snippet code to generate a list of all users */
 class Users extends MultipageSnippet {
 
   def getData() = {
@@ -41,6 +42,7 @@ class Users extends MultipageSnippet {
   }
 }
 
+/** Snippet code to display details on a user's voting behaviour */
 class UserDetails extends MultipageSnippet with InRoom {
 
   val uid= S.param("user").get.toLong
@@ -57,11 +59,12 @@ class UserDetails extends MultipageSnippet with InRoom {
 
   /** load active supporters for this user */
   def loadSupporters() = {
-    if (!nominee.isEmpty) data= 
-      VoteMap.getActiveVoters(nominee.get)
-      .filter { searchFilter _ }
-      .map { VotableUser(_) }
-    nominee.foreach { sortData(_) }
+    if (!nominee.isEmpty) {
+      data= Votable.get(
+	VoteMap.getActiveVoters(nominee.get)
+        .filter { searchFilter _ }, room.get)
+      sortData(nominee.get) 
+    }
   }
 
   /** load delegates chosen by this user */

@@ -66,6 +66,9 @@ class VotingHelper extends InRoom {
   def formatWeight(user: User, nominee : Votable):Node =
     formatResult(VoteMap.getWeight(user,nominee))
 
+  def formatUser(user : User) : NodeSeq = 
+    Markup.renderHeader(user.toString, uri(user))
+
   def formatNominee(nominee : Votable) : NodeSeq = 
     Markup.renderHeader(nominee.toString, nominee.uri+"/index.html")
   
@@ -152,9 +155,6 @@ class VotingHelper extends InRoom {
 		override def updateValue(newValue : Int) : JsCmd = 
 		  super.updateValue(newValue) & vote(nominee, newValue) }
 	      .render(children)
-	    case "a" =>
-	      val href= attribs.get("href").get.text
-	      <a href={VotableUser(me).uri+"/"+href}>{ children }</a>
 	    case "editButton" =>
 	      buttonFactory.toggleButton
 	    case "isDelegated" => if (nominee match {
@@ -170,7 +170,7 @@ class VotingHelper extends InRoom {
       case Elem("query", tag, attribs, scope, _*) =>
 	nominee match {
 	  case VotableQuery(query) => tag match { 
-	    case "creator" => formatNominee(VotableUser(query.creator.obj.get))
+	    case "creator" => formatUser(query.creator.obj.get)
 	    case "time" => Text(Tick.format(query.creation.is))
 	    case "keys" => 
 	      buttonFactory.newKeyListRecord(() => query.keyList,
@@ -180,7 +180,7 @@ class VotingHelper extends InRoom {
 	      val sign= attribs.get("weight").get.text.toInt
 	      renderVote(() => 
 		Text(VoteMap
-		     .getAllVoters(VotableQuery(query))
+		     .getAllVoters(nominee)
 		     .filter{ sign*VoteMap.getWeight(_, nominee)>0 } 
 		     .size.toString))
 	    case _ => in
@@ -262,7 +262,7 @@ class VotingHelper extends InRoom {
 
     in match {
       case Elem("user", label, attribs, scope, _*) => label match {
-	case "name" => formatNominee(VotableUser(user))
+	case "name" => formatUser(user)
 	case "notme" => rec(currentUser!=Full(user))
 	case "itsme" => rec(currentUser==Full(user))
 	case "comment" => {
@@ -302,7 +302,7 @@ class VotingHelper extends InRoom {
 		  <div class="path">{ S ? "vote.delegated.by" }<ul>{
 		  for (path <- getDelegationPath(user, nominee)) yield {
 		    <li>{ path.reverse.tail.flatMap { 
-		      sec => {Text(" → ") ++ formatNominee(VotableUser(sec)) } } 
+		      sec => {Text(" → ") ++ formatUser(sec) } } 
 		    }</li>
 		  }
 		}</ul></div>
