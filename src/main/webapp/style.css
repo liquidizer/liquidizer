@@ -164,6 +164,13 @@ textarea {
 .popup .active {
     background-color: #FF9933;
 }
+.sort {
+    list-style-type:none;
+    display: inline;
+}
+.sort li {
+    float: left;
+}
 
 .content { 
     margin: 30px 5% 30px 10%; 

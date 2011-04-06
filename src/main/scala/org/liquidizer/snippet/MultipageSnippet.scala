@@ -17,10 +17,14 @@ trait InRoom {
   lazy val roomId= Room.getId(S.param("room"))
   lazy val room= Room.get(roomId)
 
-  def toNominee(user : User) =
+  def toNominee(user : User) : Option[Votable] =
     Votable.find(By(Votable.user, user), By(Votable.room, room))
 
-  def uri(user : User) = "/room/"+roomId+"/users/"+user.id.is+"/index.html"
+  lazy val myNominee= if (User.currentUser.isEmpty) None else
+    toNominee(User.currentUser.get)
+
+  def home() = "/room/"+roomId
+  def uri(user : User) = home() + "/users/" + user.id.is + "/index.html"
 }
 
 /** Base class for searched and sorted multi-page views of votables */
@@ -50,7 +54,8 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
   
   def from = pagesize * page
   def to = Math.min(pagesize * (page+1), size)
-  trait PageHelper extends VotingHelper {
+  trait MultiPageHelper extends VotingHelper {
+    no= from
     override def slice(list : List[Votable]) = list.slice(from, to)
   }
 
@@ -90,8 +95,8 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
   def sortFunction(order : String) : (Votable => Double) = {
     def result(q:Votable)= VoteMap.getCurrentResult(q)
     def isUser(q:Votable, f:(User=>Double)) = 
-      q match { 
-	case VotableUser(u) if VoteMap.isActive(u)=> f(u) 
+      q match {
+	case VotableUser(u) if VoteMap.isActive(u, q.room.obj.get)=> f(u) 
 	case _ => -1e10 }
     def withMe(f : (User, Votable) => Double) : Votable => Double =
       nominee => User.currentUser match {

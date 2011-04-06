@@ -59,7 +59,8 @@ object EmotionView {
 	User.currentUser match {
 	  case Full(me) if other.isUser => {
 	    // compute face size based on distance metrics
-	    val maxPref= VoteMap.getMaxDelegationPref(me)
+	    val room= other.room.obj.get
+	    val maxPref= VoteMap.getMaxDelegationPref(me, room)
 	    val dist= if (other.is(me)) 1.0 else {
 	      val w= Math.sqrt(VoteMap.getWeight(me, other))
 		1.0 + 0.2*(w - 0.5)*(maxPref min 3)
@@ -68,13 +69,12 @@ object EmotionView {
 
 	    // extract corresponding emotion
 	    val user= other.user.obj.get
-	    val room= other.room.obj.get
 	    VoteMap.getEmotion(me, user, room) match {
 	    case Some(emo) => {
 	      val p= emo.potency.is
 	      val v= Math.pow(emo.valence.is / (.9*p + .1) / 2.0 + 0.5, 2.0)
 	      val a= emo.arousal.is min 1.0 max 0.
-	      val w= VoteMap.getCurrentWeight(user)
+	      val w= VoteMap.getCurrentWeight(user, room)
 	      Map("v" -> SVGUtil.format(v), 
 		  "a" -> SVGUtil.format(a), 
 		  "p" -> SVGUtil.format(p),

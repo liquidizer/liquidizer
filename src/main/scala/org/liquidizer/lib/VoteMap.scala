@@ -11,10 +11,13 @@ object VoteMap {
   val SWING_DECAY= 0.05 / Tick.day
   val WEIGHT_DECAY= 0.01 / Tick.day
   val EPS= 1e-5
-
-  var users= Map[User, UserHead]()
-  var nominees= Map[Votable, NomineeHead]()
   var latestUpdate = 0L
+
+  private var solverMap = Map[Long, Solver]()
+  private def solver(room : Long) : Solver = solverMap.get(room).getOrElse {
+    solverMap+= room -> new Solver(Room.get(room).get)
+    solverMap.get(room).get
+  }
 
   /** Update to the current time */
   def refresh(blocking : Boolean = true) = update(Tick.now, blocking)
@@ -26,7 +29,7 @@ object VoteMap {
       val thread= new Thread() with Logger {
 	override def run() = {
 	  val t0= Tick.now
-	  Solver.recompute()
+	  updateSolver()
 	  val t1= Tick.now
 	  info("Vote results update took "+(t1-t0)+" ms")
 	}}
@@ -36,32 +39,43 @@ object VoteMap {
     }
   }
 
-  /** Get the VoteVector */
-  def getVoteVector(user : User) : Option[VoteVector] =
-    users.get(user).map { _.vec }
+  private def updateSolver() : Unit = synchronized {
+    // read votes
+    val votes = Vote.findAll(By_>(Vote.date, latestUpdate))
+    for (vote <- votes)
+      solver(vote.nominee.obj.get.room.is).votersList::= vote.owner.is
+
+    // recompute
+    for (s <- solverMap.values) s.recompute
+
+    // finish
+    latestUpdate= votes.map { _.date.is }.foldLeft(0L) { _ max _ }
+  }
 
   /** Get a measure of how much the vote changed recently */
   def getSwing(nominee : Votable) : Double = {
-    VoteMap.nominees.get(nominee).map { 
+    solver(nominee.room.is).nominees.get(nominee.id.is).map { 
       head => (head.result.value - head.smooth) }.getOrElse(0.0)
   }
 
   /** get the global voting result for the nominee */
   def getCurrentResult(nominee : Votable) : Quote = {
-    nominees.get(nominee).map{ _.result(Tick.now) }.getOrElse(Quote(0,0))
+    solver(nominee.room.is).nominees.get(nominee.id.is).map { 
+      _.result(Tick.now) }.getOrElse(Quote(0,0))
   }
 
   /** get the active weight of the user */
-  def getCurrentWeight(user : User) : Double =
-    users.get(user).map { _.weight(Tick.now) }.getOrElse(0.0)
+  def getCurrentWeight(user : User, room : Room) : Double =
+    solver(room.id.is).users.get(user.id.is).map { 
+      _.weight(Tick.now) }.getOrElse(0.0)
 
   /** get the user's contribution to a vote on the nominee */
   def getWeight(user : User, nominee: Votable) : Double = {
-    getCurrentWeight(user) * getVoteVector(user).map { vec =>
-      nominee match {
-	case VotableUser(other) => vec.getDelegationWeight(nominee.id.is)
-	case _                  => vec.getVotingWeight(nominee.id.is)
-      }}.getOrElse(0.)
+    solver(nominee.room.is).users.get(user.id.is).map { uHead =>
+      uHead.weight(Tick.now) * {
+	if (nominee.isQuery) uHead.vec.getDelegationWeight(nominee.id.is) 
+	else uHead.vec.getVotingWeight(nominee.id.is)
+      }}.getOrElse(0.0)
   }
 
   /** Get the integer preference number */
@@ -69,12 +83,14 @@ object VoteMap {
     Vote.get(user,nominee).map { _.weight.is }.getOrElse(0)
 
   /** Get the highest preference for a delegate */
-  def getMaxDelegationPref(user : User) = 
-    users.get(user).map{ _.vec.maxIdolPref }.getOrElse(0)
+  def getMaxDelegationPref(user : User, room : Room) = 
+    solver(room.id.is).users.get(user.id.is).map{ 
+      _.vec.maxIdolPref }.getOrElse(0)
 
   /** Check if the user is actively participating */
-  def isActive(user : User) : Boolean =
-    user.validated && users.get(user).exists { _.active }
+  def isActive(user : User, room : Room) : Boolean =
+    user.validated && 
+     solver(room.id.is).users.get(user.id.is).exists { _.active }
 
   def getAllVoters(nominee : Votable) : List[User] = {
     var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
@@ -93,11 +109,11 @@ object VoteMap {
   }
 
   /** Find all queries a user is actively or indirectly voting for */
-  def getAllVotes(user : User) : List[Votable] = {
+  def getAllVotes(user : User, room : Room) : List[Votable] = {
     // extract list from voting vector
     var list= List[Votable]()
-    VoteMap.getVoteVector(user).foreach { vec =>
-      vec.votes.elements.foreach { case (i,e) =>
+    solver(room.id.is).users.get(user.id.is).foreach { uHead =>
+      uHead.vec.votes.elements.foreach { case (i,e) =>
 	if (e.value.abs > EPS) Votable.get(i).foreach { list ::= _ }
       }
     }
@@ -130,24 +146,24 @@ object VoteMap {
 
   /** Get currently weighted sympathy */
   def getSympathy(user1 : User, user2 : User, room : Room) : Double =
-    VoteMap.getCurrentWeight(user1) *
-    VoteMap.getCurrentWeight(user2) *
+    getCurrentWeight(user1, room) *
+    getCurrentWeight(user2, room) *
     getEmotion(user1, user2, room).map{ _.valence.is }.getOrElse(0.0)
 
   /** Get currently weighted arousal */
   def getArousal(user1 : User, user2 : User, room : Room) : Double =
-    VoteMap.getCurrentWeight(user1) *
-    VoteMap.getCurrentWeight(user2) *
+    getCurrentWeight(user1, room) *
+    getCurrentWeight(user2, room) *
     getEmotion(user1, user2, room).map{ _.arousal.is }.getOrElse(0.0)
 
   /** Get and update the emotion between two users */
   def getEmotion(user1 : User, user2 : User, room : Room) : Option[Emotion] = {
-    if (isActive(user1) && isActive(user2)) {
+    if (isActive(user1, room) && isActive(user2, room)) {
       val emo= Emotion.get(user1, user2, room)
 
       // check if emotion needs to be updated
-      val head1= users.get(user1).get
-      val head2= users.get(user2).get
+      val head1= solver(room.id.is).users.get(user1.id.is).get
+      val head2= solver(room.id.is).users.get(user2.id.is).get
 
       // compute new emotion
       if (Math.max(head1.latestUpdate,head2.latestUpdate)>emo.time.is) {

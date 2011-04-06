@@ -17,17 +17,17 @@ import _root_.org.liquidizer.model._
 /** Snippet code to show all discussed queries */
 class Queries extends MultipageSnippet {
   
+  /** load all queries form the current room */
   def getData() = {
-    if (data.isEmpty) loadData()
+    if (data.isEmpty) {
+      data = Votable.findAll(By_>(Votable.query, 0), By(Votable.room, room))
+      .filter { searchFilter _ }
+      sortData()
+    }
     data
   }
-    
-  def loadData() = {
-    data = Votable.findAll(By_>(Votable.query, 0), By(Votable.room, room))
-    .filter { searchFilter _ }
-    sortData()
-  }
 
+  /** Render a list of category tags */
   override def categories(in:NodeSeq) : NodeSeq = {
     val markup= new CategoryView(search, "/queries.html")
     <span>{
@@ -35,6 +35,7 @@ class Queries extends MultipageSnippet {
     }</span>
   }
 
+  /** Render a list of all queries */
   def render(in: NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
     helper.no= from
@@ -63,7 +64,7 @@ class QueryDetails extends MultipageSnippet with InRoom {
     hasMe= !me.isEmpty && data.exists { _.user.is == me.get.id.is }
   }
 
-  val helper= new VotingHelper with PageHelper {
+  val helper= new VotingHelper with MultiPageHelper {
     override def getData(src : String) = {
       if (data.isEmpty) loadData()
       data

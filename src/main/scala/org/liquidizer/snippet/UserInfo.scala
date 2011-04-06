@@ -75,8 +75,8 @@ class UserInfo extends InRoom {
       case Some(user) if user.validated && user.password.match_?(password) =>  
 	User.logUserIn(user)
         // restore voting weight to 1.00
-        PollingBooth.vote(user, VotableUser(user), 0)
-        S.redirectTo("/index.html")
+        myNominee.foreach { PollingBooth.vote(user, _, 0) }
+        S.redirectTo(home() + "/index.html")
       case Some(user) if !user.validated =>  
 	S.error(S.??("account.validation.error"))  
       case Some(user) =>
@@ -86,7 +86,7 @@ class UserInfo extends InRoom {
     }  
   }  
   
-  /** Show this content only if the user is logged out */
+
   def in(in:NodeSeq) : NodeSeq =
     if (User.currentUser.isEmpty) NodeSeq.Empty else bind(in)
 
@@ -98,52 +98,6 @@ class UserInfo extends InRoom {
   /** Show this content only if the user is logged in */
   def out(in:NodeSeq) : NodeSeq = 
     if (User.currentUser.isEmpty) bind(in) else NodeSeq.Empty
-
-  /** List of votes by the current user, to be shown in the index page */
-  def votes(in : NodeSeq) : NodeSeq = {
-    User.currentUser match {
-      case Full(me) if !room.isEmpty => 
-	val nominee= toNominee(me)
-	val helper= new VotingHelper {
-	  val listVotes= VoteMap.getActiveVotes(me, room.get)
-	    .sort { _.id.is > _.id.is }
-	  val listQueryVotes= listVotes.filter { _.isQuery }
-	  val listSupporters= toNominee(me).map {
-	    VoteMap.getActiveVoters(_).sort { _.id.is > _.id.is } }
-            .getOrElse(Nil)
-          val listUserVotes= listVotes
-	    .filter { _.isUser }
-
-	  override def slice(list : List[Votable]) = list.slice(0, 10)
-	  override def getData(src : String) = src match {
-	    case "votes" => listQueryVotes
-	    case "supporters" => listSupporters.map { toNominee(_).get }
-	    case "delegates" => listUserVotes
-	  }
-	}
-        if (nominee.isEmpty) NodeSeq.Empty
-        else helper.bind(in, nominee.get)
-      case _ => NodeSeq.Empty
-    }
-  }
-
-  /** List of new users to be shown in the sidebar */
-  def newUsers(in : NodeSeq) : NodeSeq = {
-    val helper= new VotingHelper
-    User
-    .findAll(By(User.validated, true), OrderBy(User.id,Descending)).slice(0,5)
-    .flatMap { user => helper.bind(in, VotableUser(user)) }
-  }
-
-  /** List of new queries to be shown in the sidebar */
-  def newQueries(in : NodeSeq) : NodeSeq = {
-    val room= Room.getId(S.param("room"))
-    val helper= new VotingHelper
-    Votable
-    .findAll(By_>(Votable.query,0), By(Votable.room, room), OrderBy(Votable.id, Descending))
-    .slice(0,4)
-    .flatMap { query => helper.bind(in, query) }
-  }
 
   /** change the password */
   def passwd(in : NodeSeq) : NodeSeq = {
@@ -243,18 +197,26 @@ class UserReset extends StatefulSnippet {
   def process() = {
     val user= User.currentUser.get
     if (deleteVotes || deleteAccount) {
+      // delete all votes cast by the current user
       PollingBooth.clearVotes(user)
       S.notice(S ? "data.delete.votes.succ")
     }
     if (deleteComments || deleteAccount) {
+      // delete all comments placed by the current user
       PollingBooth.clearComments(user)
       S.notice(S ? "data.delete.comment.succ")
     }
     if (deleteAccount) {
+      // completely delete all private information
       User.logUserOut()
-      Vote.findAll(By(Vote.nominee, VotableUser(user))).foreach { _.delete_! }
+      // delete all delegations to the deleted user
+      for (nominee <- Votable.findAll(By(Votable.user, user)))
+	for (vote <- Vote.findAll(By(Vote.nominee, nominee)))
+	  vote.delete_!
+      // delete identity
       user.profile("").email("").nick("---").validated(false)
       user.save
+      // success message
       S.notice(S ? "data.delete.account.succ")
     }
     this.unregisterThisSnippet

@@ -20,7 +20,6 @@ import org.liquidizer.view.EmotionView
  */
 class VotingHelper extends InRoom {
   lazy val currentUser= User.currentUser
-  lazy val myNominee= currentUser.map { VotableUser(_) }
   var no= 0
 
   val buttonFactory = new EditButtonToggler
@@ -101,10 +100,9 @@ class VotingHelper extends InRoom {
     in.flatMap(bind(_, nominee))
   }
 
-  /** bind the input html segment to a given nominee, either a query or a user */
+  /** Bind the input html to a given nominee, either a query or a user */
   def bind(in : Node, nominee:Votable) : NodeSeq = {
     in match {
-
       // The poll name space for tags that apply for all kind of nominees
       case Elem("poll", tag, attribs, scope, children @ _*) => tag match {
 	case "name" => formatNominee(nominee)
@@ -129,7 +127,8 @@ class VotingHelper extends InRoom {
 	    case Some(comment) => 
 	      Text(S.?("time.commented")+" "+ 
 		   Markup.formatRelTime(comment.date.is)+" (") ++
-		   formatNominee(VotableUser(comment.getAuthor)) ++ Text(")")
+		   comment.author.obj.map { formatUser(_) }
+		   .openOr { Text("-") } ++ Text(")")
 	    case _ => Nil }
 
 	case "graph-nodes" => 
@@ -157,9 +156,12 @@ class VotingHelper extends InRoom {
 	      .render(children)
 	    case "editButton" =>
 	      buttonFactory.toggleButton
+	    //TODO democratic tagging system
 	    case "isDelegated" => if (nominee match {
-	      case VotableUser(other) => VoteMap.isDelegated(other, myNominee.get)
-	      case VotableQuery(q) => VoteMap.isDelegated(q.creator.obj.get, myNominee.get)})
+	      case VotableUser(other) => 
+		myNominee.exists { VoteMap.isDelegated(other, _) }
+	      case VotableQuery(q) => 
+		myNominee.exists { VoteMap.isDelegated(q.creator.obj.get, _) }})
 	      bind(children,nominee) else NodeSeq.Empty
 	    case _ => in
 	  }

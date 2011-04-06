@@ -12,9 +12,6 @@ class Comment extends LongKeyedMapper[Comment] with IdPK {
   object nominee extends MappedLongForeignKey(this, Votable)
   object content extends MappedText(this)
   
-  def getAuthor() : User = author.obj.get
-  def getVotable() : Votable = nominee.obj.get
-
   val format= new java.text.SimpleDateFormat("HH:mm:ss")
   override def toString() : String = {
     format.format(new java.util.Date(date.is))+content.is

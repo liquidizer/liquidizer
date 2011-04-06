@@ -44,7 +44,7 @@ object HistogramView {
     VoteMap
     .getAllVoters(nominee)
     .foreach { user => 
-      val w= VoteMap.getCurrentWeight(user)
+      val w= VoteMap.getCurrentWeight(user, nominee.room.obj.get)
       if (w>5e-3) {
 	val v= VoteMap.getWeight(user, nominee)
 	if (v.abs > 5e-3) {      

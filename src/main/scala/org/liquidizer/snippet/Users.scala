@@ -12,18 +12,18 @@ import _root_.org.liquidizer.lib._
 /** Snippet code to generate a list of all users */
 class Users extends MultipageSnippet {
 
+  /** load user data */
   def getData() = {
-    if (data.isEmpty) loadData()
+    if (data.isEmpty) {
+      data = Votable.findAll(By_>(Votable.user, 0), By(Votable.room, room))
+      .filter { _.user.obj.get.validated }
+      .filter { searchFilter _ }
+      sortData()
+    }
     data
   }
     
-  def loadData() = {
-    data = Votable.findAll(By_>(Votable.user, 0), By(Votable.room, room))
-    .filter { _.user.obj.get.validated }
-    .filter { searchFilter _ }
-    sortData()
-  }
-
+  /** List of all hash tags in user comments */
   override def categories(in:NodeSeq) : NodeSeq = {
     val keys= search.split(" +").toList.map { _ toLowerCase }
     val markup= new CategoryView(keys, "/users.html")
@@ -32,6 +32,7 @@ class Users extends MultipageSnippet {
     }</span>
   }
 
+  /** Render list of all users in the current room */
   def render(in: NodeSeq) : NodeSeq = {
     val helper= new VotingHelper
     getData()
@@ -51,9 +52,9 @@ class UserDetails extends MultipageSnippet with InRoom {
 
   /** load queries voted for by this user */
   def loadVotes() = {
-    data= 
-      VoteMap.getAllVotes(user)
-      .filter { searchFilter _ }
+    if (!room.isEmpty) 
+      data= 
+	VoteMap.getAllVotes(user, room.get).filter { searchFilter _ }
     sortData(user)
   }
 
@@ -77,7 +78,7 @@ class UserDetails extends MultipageSnippet with InRoom {
 
   /** Render the HTML snippet */
   def render(in : NodeSeq) : NodeSeq = {
-    val helper= new VotingHelper with PageHelper {
+    val helper= new VotingHelper with MultiPageHelper {
       override def getData(src : String) : List[Votable] = {
 	if (data.isEmpty) src match {
 	  case "votes" => loadVotes
@@ -92,3 +93,32 @@ class UserDetails extends MultipageSnippet with InRoom {
   }
 }
 
+/** List of votes by the current user, to be shown in the overview page */
+class UserOverview extends InRoom{
+  def render(in : NodeSeq) : NodeSeq = {
+    User.currentUser match {
+      case Full(me) if !room.isEmpty => 
+	val nominee= toNominee(me)
+	val helper= new VotingHelper {
+	  val listVotes= VoteMap.getActiveVotes(me, room.get)
+	    .sort { _.id.is > _.id.is }
+	  val listQueryVotes= listVotes.filter { _.isQuery }
+	  val listSupporters= toNominee(me).map {
+	    VoteMap.getActiveVoters(_).sort { _.id.is > _.id.is } }
+            .getOrElse(Nil)
+          val listUserVotes= listVotes
+	    .filter { _.isUser }
+
+	  override def slice(list : List[Votable]) = list.slice(0, 10)
+	  override def getData(src : String) = src match {
+	    case "votes" => listQueryVotes
+	    case "supporters" => listSupporters.map { toNominee(_).get }
+	    case "delegates" => listUserVotes
+	  }
+	}
+        if (nominee.isEmpty) NodeSeq.Empty
+        else helper.bind(in, nominee.get)
+      case _ => NodeSeq.Empty
+    }
+  }
+}

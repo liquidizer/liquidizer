@@ -9,7 +9,7 @@ import net.liftweb.common._
 import org.liquidizer.lib._
 import org.liquidizer.model._
 
-case class Edge(val from: User, val to: Votable)
+case class Edge(val from: Votable, val to: Votable)
 
 /** Control graphviz to plot a dependency graph centered around a root node */
 class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
@@ -48,17 +48,18 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 
   /** continue searching for connected nodes */
   def process(node : Votable) = {
-    for (user <- VoteMap.getActiveVoters(node)) {
-      val edge= Edge(user, node)
-      if (!edges.contains(edge)) {
-	edges+=edge
-      }
-      if (!nodes.contains(VotableUser(user))) addEntry(VotableUser(user))
+    // find followers
+    val voters= VoteMap.getActiveVoters(node)
+    val vnodes= Votable.get(voters, node.room.obj.get)
+    vnodes.foreach { other =>
+      edges += Edge(other, node)
+      if (!nodes.contains(other)) addEntry(_)
     }
+
     node match {
       case VotableUser(user) => 
 	for (nominee <- VoteMap.getActiveVotes(user, node.room.obj.get)) {
-	  val edge= Edge(user, nominee)
+	  val edge= Edge(node, nominee)
 	  if (!edges.contains(edge)) {
 	    edges+= edge
 	  }
@@ -101,15 +102,14 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 	  out("\""+node.uri+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
       }}
     edges
-    .filter{ e => nodes.contains(VotableUser(e.from)) && nodes.contains(e.to)}
+    .filter{ e => nodes.contains(e.from) && nodes.contains(e.to)}
     .foreach{ e=>
       var opt=""
       if (e.to.isQuery) {
-	val w= VoteMap.getWeight(e.from, e.to)
+	val w= VoteMap.getWeight(e.from.user.obj.get, e.to)
 	opt= "[color=\""+(if (w>=0) "black" else "red")+"\"]"
       }
-      out("\""+VotableUser(e.from).uri+
-	  "\" -> \""+e.to.uri+"\" "+opt)
+      out("\"" + e.from.uri + "\" -> \"" + e.to.uri + "\" " + opt)
     }
     out("}")
     getSVG()
