@@ -83,7 +83,7 @@ class VoteVector(val userID : Long) {
   }
   
   def distanceTo(other : VoteVector) : Double = {
-    votes.distanceTo(other.votes) + 0.01*idols.distanceTo(other.votes)
+    votes.distanceTo(other.votes) + 0.01*idols.distanceTo(other.idols)
   }
 
   def getVotingWeight(queryId : Long) = votes.get(queryId)
