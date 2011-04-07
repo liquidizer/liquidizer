@@ -41,8 +41,8 @@ class SparseVec {
   }
 
   override def toString() = 
-    data.keySet.toList.sort{_ < _}
-    .map{ i => "%d -> %2.2f".format(i,get(i)) }.mkString("(",",",")")
+    elements.toList.sort { _._1 < _._1 }.filter { _._2.value != 0.0 }
+    .map{ case (i,v) => "%d : %2.2f".format(i,v.value) }.mkString("(",", ",")")
 }
 
 /** This class keeps track of voting weights and delegation influences */
