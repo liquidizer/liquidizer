@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+
+<title>Liquidizer Source</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2011-04-07 16:23:23 "/>
+<meta name="author" content="Stefan Dirnstorfer"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Liquidizer Source</h1>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Installation </a></li>
+<li><a href="#sec-2">2 Source code overview </a>
+<ul>
+<li><a href="#sec-2.1">2.1 Data model </a></li>
+<li><a href="#sec-2.2">2.2 The rendering pipeline </a></li>
+<li><a href="#sec-2.3">2.3 Snippet binding </a></li>
+<li><a href="#sec-2.4">2.4 Library classes </a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3 Links </a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Installation </h2>
+<div class="outline-text-2" id="text-1">
+
+
+<p>
+Installing and running the Liquidizer is very easy. First you must make sure, that the prerequisits are installed: Git, Maven, Gnuplot, and Graphviz. On Ubuntu you can install them with the following command:
+</p>
+<pre class="example">
+sudo apt-get install git-core maven2 gnuplot graphviz
+</pre>
+
+
+<p>
+Then you can download the code from its git repository and run it with the provided maven script:
+</p>
+<pre class="example">
+git clone git://github.com/liquidizer/liquidizer.git
+cd liquidizer
+mvn jetty:run
+</pre>
+
+
+<p>
+After that a new Liquidizer instance will be accessible locally on <a href="http://localhost:8080">http://localhost:8080</a>. 
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Source code overview </h2>
+<div class="outline-text-2" id="text-2">
+
+<p>The Liquidizer source code is concise, well documented, and easy to maintain. Still, it is written in Scala programming language and makes heavy use of complicated functional and object oriented programming styles.
+</p>
+
+</div>
+
+<div id="outline-container-2.1" class="outline-3">
+<h3 id="sec-2.1"><span class="section-number-3">2.1</span> Data model </h3>
+<div class="outline-text-3" id="text-2.1">
+
+<p>All Liquidizer functions operate on classes that are defined by the data model in <i>src/main/scala/org/liquidizer/model</i>. The data structures are persisted in SQL tables through the Liftweb mapping framework. No bespoke SQL queries are used.
+</p>
+<p>
+The entities of the data model are summarized below. Central classes are <i>User</i> and <i>Votable</i>. They define who casts a vote on what, as this is what the Liquidizer system is centered around:
+</p><ul>
+<li>
+<b>User</b> represents a user of the system with nick name, password, and profile settings.
+</li>
+<li>
+<b>Query</b> is a suggestion or a question that can be voted on.
+</li>
+<li>
+<b>Room</b> refers to a discussion room, where different queries can be discussed and voted for seperately.
+</li>
+<li>
+<b>Votable</b> can either point to a query or to a user. In case of a user, it is a delegated vote. Each votable is tied to one room. If items are votable in many rooms multiple votable instances are created.
+</li>
+<li>
+<b>Vote</b> represents a weighted vote cast by one user on a votable.
+</li>
+<li>
+<b>Comment</b> represents a text comment placed by a user about a votable.
+</li>
+<li>
+<b>Tick</b> contains a poll result of a votable at one point in time. Historic as well as current results are stored as ticks.
+</li>
+<li>
+<b>Emotion</b> maps the relation between two users within one room. The emotion data is used to compute the displayed emoticons.
+</li>
+<li>
+<b>Certificate</b> enables secure password free logins.
+</li>
+<li>
+<b>InviteCode</b> might be neccessary for users to participate in restricted rooms.
+
+
+</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="model.png"  alt="model.png" /></p>
+<p>Class diagram: Boxes are classes and/or database tables. Arrows are n-to-1 relations.</p>
+</div>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-2.2" class="outline-3">
+<h3 id="sec-2.2"><span class="section-number-3">2.2</span> The rendering pipeline </h3>
+<div class="outline-text-3" id="text-2.2">
+
+<p>The Liquidizer is a web application. All actions are triggered through HTTP page requests and are handled by the Liftweb rendering pipeline. This pipeline is defined by a number of rules in the Boot class (<i>src/main/scala/bootstrap/liftweb/boot/Boot.scala</i>).
+</p>
+<p>
+Starting with an HTTPRequest, the pipeline consists of the following steps:
+</p><ul>
+<li>
+<b>DispatchRules</b> These rules point to in memory rendered requests. All dynamic SVG images are rendered in memory. Those requests are handled by appropriate classes in <i>src/main/scala/org/liquidizer/view</i>.
+</li>
+<li>
+<b>RewriteRules</b> Some URLs contain dynamic request parameters and do not directly point to a local HTML file. For those requests the parameters are extracted and are then redirected to HTML snippets in <i>src/main/webapp</i>.
+</li>
+<li>
+<b>SnippetBinding</b> After all rewrite rules are applied the resulting page is loaded. The page may contain snippets of the kind &lt;lift:XXXX  &hellip;.&gt;. In this case the snippet tag is treated dynamically by an appropriate class in <i>src/main/scala/org/liquidizer/snippet</i>.
+</li>
+<li>
+<b>Delivery</b> Finally the result page is delivered. Obviously, non-html requests such as images or style sheets proceed to this step directly.
+
+
+</li>
+</ul>
+
+
+<div class="figure">
+<p><img src="pipeline.png"  alt="pipeline.png" /></p>
+<p>Rendering pipeline: Boxes correspond to functionality provided by the Liftweb framework. Circles are specific Liquidizer functions.</p>
+</div>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-2.3" class="outline-3">
+<h3 id="sec-2.3"><span class="section-number-3">2.3</span> Snippet binding </h3>
+<div class="outline-text-3" id="text-2.3">
+
+<p>All web pages that are served by the Liquidizer are eventually derived from an HTML template in <i>src/main/webapp</i> or its subfolders. Those templates follow a well defined structure:
+</p>
+<pre class="example">
+&lt;lift:surround with="BASE_TEMPLATE"&gt;
+  &lt;lift:bind-at name="PLACE_HOLDER"&gt;
+    ...
+    &lt;lift:CLASS_NAME[.METHOD_NAME]&gt;
+      ...
+    &lt;/lift:CLASS_NAME[.METHOD_NAME]&gt;
+    ...
+  &lt;/lift:bind-at&gt;
+  ...
+&lt;/lift:surround&gt;
+</pre>
+
+
+<p>
+The template is then processed with the specified parameters:
+</p><ul>
+<li>
+<i>BASE_TEMPLATE:</i> refers to base file that contains the html header and the basic structure of the resulting html page.
+</li>
+<li>
+<i>PLACE_HOLDER:</i> the content below the <i>bind-at</i> tag will be inserted into the base template. The position of the insertion is defined by a corresponding tag <i>&lt;lift:bind name="PLACE_HOLDER"&gt;</i> in the base template file.
+</li>
+<li>
+<i>CLASS_NAME:</i> refers to a class of the Liquidizer system. All snippet classes are defined in <i>src/main/scala/org/liquidizer/snippet</i>.
+</li>
+<li>
+<i>METHOD_NAME:</i> is optional. If not provided a method named <i>render</i> is called. The method is called with the sub content of that tag as an argument. The method can can do whatever it wants with that content.
+
+</li>
+</ul>
+
+<p>Most snippets in Liquidizer system are concerned with displaying information about one or more <i>Votable</i> objects. Those snippets make use of two central helper classes to render the content. One class is <i>MultipageSnippet</i> which handles filtering, sorting, and splitting results on multiple pages. The other class is the <i>VotingHelper</i> that provides some binding for XML tags with repeated usage in different contexts:
+</p>
+<ul>
+<li>
+<i>&lt;poll:&hellip;.&gt;</i> Handles common information about a <i>Votable</i>:
+<ul>
+<li>
+<i>&lt;poll:name&gt;</i> A string representation with a link on a votables main page
+</li>
+<li>
+<i>&lt;poll:no&gt;</i> The number of that item in a list of many
+</li>
+<li>
+<i>&lt;poll:result&gt;</i> The polling result
+</li>
+</ul>
+</li>
+<li>
+<i>&lt;me:&hellip;.&gt;</i> Handles requests that involve the current user:
+<ul>
+<li>
+<i>&lt;me:weight&gt;</i> Current user's voting weight for the displayed votable
+</li>
+<li>
+<i>&lt;me:vote&gt;</i> Voting controls
+</li>
+<li>
+<i>&lt;me:editButton&gt;</i> A button that switches into the edit mode of a previously displayed content.
+</li>
+</ul>
+</li>
+<li>
+<i>&lt;user:&hellip;&gt;</i> Extracts information of votables that point to users.
+<ul>
+<li>
+<i>&lt;user:profile&gt;</i> A self introduction of that user
+</li>
+<li>
+<i>&lt;user:popularity&gt;</i> The users popularity
+</li>
+<li>
+<i>&lt;user:emoticon&gt;</i> An emoticon representing the user's relation
+</li>
+<li>
+<i>&lt;user:itsme&gt;</i> The displayed user is the current user
+</li>
+<li>
+<i>&lt;user:notme&gt;</i> The displayed user is not the current user
+</li>
+</ul>
+</li>
+<li>
+<i>&lt;data:&hellip;&gt;</i> Loads additional referenced votables and processes them recursively
+<ul>
+<li>
+<i>&lt;data:supporters&gt;</i> All voters of the displayed votable
+</li>
+<li>
+<i>&lt;data:delegates&gt;</i> votes cast on other users (users only)
+</li>
+<li>
+<i>&lt;data:votes&gt;</i> votes cast on queries (users only)
+
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2.4" class="outline-3">
+<h3 id="sec-2.4"><span class="section-number-3">2.4</span> Library classes </h3>
+<div class="outline-text-3" id="text-2.4">
+
+<p>Some common functionality is provided by the library classes in <i>src/main/org/liquidizer/lib</i>.
+</p>
+<ul>
+<li>
+<b>PollingBooth</b> handles all vote casting and commenting.
+</li>
+<li>
+<b>VoteMap</b> provides quick access to current polling results.
+</li>
+<li>
+<b>TagUtil</b> computes and caches category tags and their frequencies.
+
+</li>
+</ul>
+
+<p>Most other classes in the <i>lib</i> directory are concerned with solving the vote equations.
+</p>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Links </h2>
+<div class="outline-text-2" id="text-3">
+
+<ul>
+<li>
+<a href="http://github.com/liquidizer">http://github.com/liquidizer</a> The Liquidizer source code
+</li>
+<li>
+<a href="http://liftweb.org">http://liftweb.org</a> Liftweb framework
+</li>
+<li>
+<a href="http://scala-lang.org">http://scala-lang.org</a> Scala programming language
+</li>
+<li>
+<a href="http://www.graphviz.org">http://www.graphviz.org</a> Graph layout engine
+</li>
+<li>
+<a href="http://www.gnuplot.info">http://www.gnuplot.info</a> Graph plotting engine
+</li>
+</ul>
+</div>
+</div>
+<div id="postamble">
+<p class="author"> Author: Stefan Dirnstorfer
+<a href="mailto:stefan@dadim.de">&lt;stefan@dadim.de&gt;</a>
+</p>
+<p class="date"> Date: 2011-04-07 16:23:23 </p>
+<p class="creator">HTML generated by org-mode 6.31trans in emacs 23</p>
+</div>
+</div>
+</body>
+</html>

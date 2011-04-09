@@ -1,37 +1,37 @@
 <div>
-  <script type="text/javascript" language="JavaScript">
-    if ($(window).width()&lt;600)
-    $(document).ready(function () { $('#sidebar').hide(); })
-  </script>
   <table id="sidebar" width="200px">
     <lift:Rooms.in eager_eval="true">
       <tr>
-	<h3><lift:loc>menu.new.queries</lift:loc></h3>
+	<h3>
+	  <lift:MenuMarker>
+	    <local:a href="#/queries.html?sort=age">
+	      <img src="/images/menu/new.png"/>
+	      <lift:loc>menu.new.queries</lift:loc>
+	    </local:a>
+	  </lift:MenuMarker>
+	</h3>
 	<hr/>
-	<lift:System.newQueries>
-	  <p><poll:name/></p>
-	</lift:System.newQueries>
-	<div class="navi">
-	  <a href="/queries.html?sort=age">
-	  <div><lift:loc>home.more</lift:loc></div>
-	  </a>
-	</div>
+	<lift:Rooms.newQueries>
+	  <p><img src="/images/menu/pro.png"/><poll:name/></p>
+	</lift:Rooms.newQueries>
       </tr>
       <tr height="30px"/>
       <tr>
-	<h3><lift:loc>menu.new.users</lift:loc></h3>
+	<h3>
+	  <lift:MenuMarker>
+	    <local:a href="#/users.html?sort=age">
+	      <img src="/images/menu/new.png"/>
+	      <lift:loc>menu.new.users</lift:loc>
+	    </local:a>
+	  </lift:MenuMarker>
+	</h3>
 	<hr/>
-	<lift:System.newUsers>
+	<lift:Rooms.newUsers>
 	  <p>
 	    <user:emoticon size="20"/>
 	    <poll:name/>
 	  </p>
-	</lift:System.newUsers>
-	<div class="navi">
-	  <a href="/users.html?sort=age">
-	    <div><lift:loc>home.more</lift:loc></div>
-	  </a>
-	</div>
+	</lift:Rooms.newUsers>
       </tr>
     </lift:Rooms.in>
     <lift:Rooms.out eager_eval="true">

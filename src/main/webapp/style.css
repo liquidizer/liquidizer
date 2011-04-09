@@ -41,6 +41,9 @@ a.extern {
    color: #CC0000;
     text-decoration:underline; 
 }
+h3 a {
+    font-weight: bold;
+}
 
 .view { float: right; }
 .view form { float: right; }

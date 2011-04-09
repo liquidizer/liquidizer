@@ -13,7 +13,7 @@ import org.liquidizer.model._
 import org.liquidizer.lib._
 
 /** List of rooms and room ceration */
-class Rooms {
+class Rooms extends InRoom {
 
   /** Show this content only if the user entered a room */
   def in(in : NodeSeq) : NodeSeq =
@@ -42,10 +42,31 @@ class Rooms {
     }
   }
 
+  /** create a new room with the given name */
   def createRoom(name : String) = {
     if (name.length > 0) {
       val room= Room.create.name(name).saveMe
+      PollingBooth.refresh(User.currentUser.get, Some(room))
       RedirectTo("/room/"+room.id.is+"/index.html")
     } else Noop
   } 
+
+  /** List of new users to be shown in the sidebar */
+  def newUsers(in : NodeSeq) : NodeSeq = {
+    val data= Votable.findAll(By(Votable.room, room),
+			      By_>(Votable.user, 0),
+			      OrderBy(Votable.id, Descending), MaxRows(5))
+    val helper= new VotingHelper
+    data.flatMap { helper.bind(in, _) }
+  }
+
+  /** List of new queries to be shown in the sidebar */
+  def newQueries(in : NodeSeq) : NodeSeq = {
+    val data= Votable.findAll(By(Votable.room, room),
+			      By_>(Votable.query, 0),
+			      OrderBy(Votable.id, Descending), MaxRows(4))
+    val helper= new VotingHelper
+    data.flatMap { helper.bind(in, _) }
+  }
+
 }

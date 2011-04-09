@@ -207,9 +207,11 @@ class MenuMarker extends InRoom {
 
       case Elem("local", "a", attribs, scope, children @ _*) =>
 	// keep a number of current request attributes in the target url
-        val keep= attribs.get("keep").map{_.text}.getOrElse("").split(" ")
-        val url= toUrl(attribs.get("href")) + 
-         keep.map(p => p+"="+S.param(p).getOrElse("")).mkString("?","&","")
+        val keep= attribs.get("keep").map {
+	  _.text.split(" ").map { p => p+"="+S.param(p).getOrElse("") }
+	  .mkString("?","&","")
+	} .getOrElse("")
+        val url= toUrl(attribs.get("href")) + keep
         val title= attribs.get("title").map( Localizer.loc(_) )
         <a href={url} alt={title} title={title}>{ children }</a>
 

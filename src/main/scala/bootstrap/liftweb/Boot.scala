@@ -37,6 +37,13 @@ class Boot {
     Schemifier.schemify(true, Schemifier.infoF _, Votable, User, Query, 
 			Vote, Comment, Room, Certificate, Emotion, Tick)
 
+    if (Room.findAll.isEmpty) {
+      lazy val room= Room.create.name("Default").saveMe
+      Votable.findAll.foreach { _.room(room).save }
+      Emotion.findAll.foreach { _.room(room).save }
+    }
+
+
     println("Starting LIQUIDIZER")
     VoteMap.refresh(false)
 
