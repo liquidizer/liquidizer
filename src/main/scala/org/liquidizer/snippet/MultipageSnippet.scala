@@ -93,7 +93,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "contra" => isActive(-result(_).value)
       case "conflict" => isActive(v => { val r=result(v); r.pro min r.contra })
       case "myweight" => withMe(VoteMap.getWeight(_ , _))
-      case "swing" => isActive(VoteMap.getSwing(_).abs)
+      case "swing" => isActive(q => (VoteMap.getSwing(q)/(1+result(q).value.abs)).abs)
       case "volume" => isActive(result(_).volume)
       case "comment" => 
 	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)
