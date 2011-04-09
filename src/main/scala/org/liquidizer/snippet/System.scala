@@ -16,17 +16,17 @@ class System extends InRoom {
   def newUsers(in : NodeSeq) : NodeSeq = {
     val data= Votable.findAll(By(Votable.room, room),
 			      By_>(Votable.user, 0),
-			      OrderBy(Votable.id, Descending))
+			      OrderBy(Votable.id, Descending), MaxRows(5))
     val helper= new VotingHelper
-    data.slice(0,5).flatMap { helper.bind(in, _) }
+    data.flatMap { helper.bind(in, _) }
   }
 
   /** List of new queries to be shown in the sidebar */
   def newQueries(in : NodeSeq) : NodeSeq = {
     val data= Votable.findAll(By(Votable.room, room),
 			      By_>(Votable.query, 0),
-			      OrderBy(Votable.id, Descending))
+			      OrderBy(Votable.id, Descending), MaxRows(4))
     val helper= new VotingHelper
-    data.slice(0,4).flatMap { helper.bind(in, _) }
+    data.flatMap { helper.bind(in, _) }
   }
 }

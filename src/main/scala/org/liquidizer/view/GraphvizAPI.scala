@@ -8,11 +8,13 @@ import net.liftweb.common._
 
 import org.liquidizer.lib._
 import org.liquidizer.model._
+import org.liquidizer.snippet.InRoom
 
 case class Edge(val from: Votable, val to: Votable)
 
 /** Control graphviz to plot a dependency graph centered around a root node */
-class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
+class GraphvizAPI(root : Votable) 
+extends CommandAPI("dot -Tsvg") with InRoom {
 
   var nodes= List[Votable]()
   var edges= Set[Edge]()
@@ -33,7 +35,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 	    VoteMap.getWeight(user2, root)
 	}
 	case _ => node match {
-	  case VotableUser(user) => sqr(VoteMap.getWeight(user, node))
+	  case VotableUser(user) => sqr(VoteMap.getWeight(user, root))
 	  case _ => 0.0
 	}
       })
@@ -50,15 +52,15 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
   def process(node : Votable) = {
     // find followers
     val voters= VoteMap.getActiveVoters(node)
-    val vnodes= Votable.get(voters, node.room.obj.get)
+    val vnodes= Votable.get(voters, room.get)
     vnodes.foreach { other =>
       edges += Edge(other, node)
-      if (!nodes.contains(other)) addEntry(_)
+      if (!nodes.contains(other)) addEntry(other)
     }
 
     node match {
       case VotableUser(user) => 
-	for (nominee <- VoteMap.getActiveVotes(user, node.room.obj.get)) {
+	for (nominee <- VoteMap.getActiveVotes(user, room.get)) {
 	  val edge= Edge(node, nominee)
 	  if (!edges.contains(edge)) {
 	    edges+= edge
@@ -96,10 +98,10 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
       node match {
 	case node @ VotableUser(user) => 
 	  val label= user.toString.replaceAll(" ","\\\\n")
-	out("\""+node.uri+"\" ["+opt+" label=\""+label+"\" shape=\"circle\"]")
+	out("\""+uri(node)+"\" ["+opt+" label=\""+label+"\" shape=\"circle\"]")
 	case node @ VotableQuery(query) => 
 	  no+= 1
-	  out("\""+node.uri+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
+	  out("\""+uri(node)+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
       }}
     edges
     .filter{ e => nodes.contains(e.from) && nodes.contains(e.to)}
@@ -109,7 +111,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 	val w= VoteMap.getWeight(e.from.user.obj.get, e.to)
 	opt= "[color=\""+(if (w>=0) "black" else "red")+"\"]"
       }
-      out("\"" + e.from.uri + "\" -> \"" + e.to.uri + "\" " + opt)
+      out("\"" + uri(e.from) + "\" -> \"" + uri(e.to) + "\" " + opt)
     }
     out("}")
     getSVG()

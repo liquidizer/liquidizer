@@ -35,6 +35,16 @@ object PollingBooth {
     vote.save
   }
 
+  /** Refresh the users voting weight */
+  def refresh(user : User, room : Option[Room]) = {
+    if (!room.isEmpty) {
+      val n= Votable.find(By(Votable.user, user), By(Votable.room, room.get))
+      .getOrElse {
+	Votable.create.user(user).room(room.get).saveMe }
+      PollingBooth.vote(user, n, 0)
+    }
+  }
+
   /** Clear all comments given by a user */
   def clearComments(owner : User) = {
     for(comment <- Comment.findAll(By(Comment.author, owner))) {

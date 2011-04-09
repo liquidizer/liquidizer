@@ -69,7 +69,7 @@ class VotingHelper extends InRoom {
     Markup.renderHeader(user.toString, uri(user))
 
   def formatNominee(nominee : Votable) : NodeSeq = 
-    Markup.renderHeader(nominee.toString, nominee.uri+"/index.html")
+    Markup.renderHeader(nominee.toString, uri(nominee))
   
   /** Update the voting preferences */
   def vote(nominee : Votable, newVote : Int) : JsCmd = {
@@ -120,8 +120,8 @@ class VotingHelper extends InRoom {
 	      case "volume" => VoteMap.getCurrentResult(nominee).pro
 	      case _ => VoteMap.getCurrentResult(nominee).value
 	    })))
-	case "chart" => chart(nominee.uri, "chart", in.attributes)
-	case "hist" => chart(nominee.uri, "histogram", in.attributes)
+	case "chart" => chart(uri(nominee), "chart", in.attributes)
+        case "hist" => chart(uri(nominee), "histogram", in.attributes)
 	case "aboutLastComment" => 
 	  Comment.getLatest(nominee) match {
 	    case Some(comment) => 

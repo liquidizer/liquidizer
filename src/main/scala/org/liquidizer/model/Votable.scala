@@ -27,11 +27,6 @@ class Votable extends LongKeyedMapper[Votable] with IdPK {
   def isUser() = user.defined_?
   def is(other : User) = user.is == other.id.is
 
-  def uri : String = room.obj.get.uri + (this match {
-    case VotableUser(user) => "/users/"+user.id.is
-    case VotableQuery(query) => "/queries/"+query.id.is
-  })
-
   override def toString() = this match {
     case VotableUser(user) => user.toString
     case VotableQuery(query) => query.toString
@@ -45,6 +40,8 @@ object Votable extends Votable with LongKeyedMetaMapper[Votable] {
   override def fieldOrder = List(user, query, room)
 
   def get(id : Long) = find(By(this.id, id))
+  def getQuery(id : Long, room : Room) = find(By(query,id), By(this.room,room))
+  def getUser(id : Long, room : Room) = find(By(user,id), By(this.room,room))
 
   def get(users : List[User], room : Room) =
     findAll(ByList(user, users.map { _.id.is }), By(this.room, room))

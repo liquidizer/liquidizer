@@ -9,7 +9,7 @@ class Room extends LongKeyedMapper[Room] with IdPK {
 
   object name extends MappedString(this,32)
 
-  def uri : String = "/room/"+id.is
+  override def toString() = name.is
 }
 
 object Room extends Room with LongKeyedMetaMapper[Room] {

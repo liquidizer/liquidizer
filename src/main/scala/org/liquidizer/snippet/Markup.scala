@@ -169,9 +169,7 @@ class MenuMarker extends InRoom {
   val user= User.currentUser.map { _.id.is }.getOrElse(0L)
 
   def toUrl(url : Option[Seq[Node]]) =
-    url.map { _.text }.getOrElse(S.uri)
-    .replaceAll("~", user.toString)
-    .replaceAll("#", room.map { _.uri }.getOrElse(""))
+    uri(url.map { _.text }.getOrElse(S.uri))
 
   def bind(in :NodeSeq) : NodeSeq = in.flatMap(bind(_))
   def bind(in :Node) : NodeSeq = {
@@ -208,10 +206,12 @@ class MenuMarker extends InRoom {
         <li><a href={href}><div class={style}>{entry}</div></a></li>
 
       case Elem("local", "a", attribs, scope, children @ _*) =>
-        val url= attribs.get("href")
-        Elem(null, "a", 
-	     attribs.remove("href")
-	     .append(new UnprefixedAttribute("href", toUrl(url), Null)), scope, children:_*)
+	// keep a number of current request attributes in the target url
+        val keep= attribs.get("keep").map{_.text}.getOrElse("").split(" ")
+        val url= toUrl(attribs.get("href")) + 
+         keep.map(p => p+"="+S.param(p).getOrElse("")).mkString("?","&","")
+        val title= attribs.get("title").map( Localizer.loc(_) )
+        <a href={url} alt={title} title={title}>{ children }</a>
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, Localizer.loc(attribs), scope, bind(children) : _*)

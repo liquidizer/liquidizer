@@ -27,7 +27,8 @@ class Rooms {
   def list(in : Node) : NodeSeq = {
     Room.findAll.flatMap { room =>
       Helpers.bind("room", in,
-		   "name" -> <a href={room.uri+"/index.html"}>{room.name.is}</a>,
+		   "name" -> <a href={"/room/"+room.id.is+"/index.html"}>{
+		     room.name.is}</a>,
 		   "id" -> Text(room.id.is.toString))}
   }
 
@@ -44,7 +45,7 @@ class Rooms {
   def createRoom(name : String) = {
     if (name.length > 0) {
       val room= Room.create.name(name).saveMe
-      RedirectTo(room.uri+"/index.html")
+      RedirectTo("/room/"+room.id.is+"/index.html")
     } else Noop
   } 
 }

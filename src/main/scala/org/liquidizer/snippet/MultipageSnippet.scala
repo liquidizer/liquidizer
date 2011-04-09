@@ -14,17 +14,34 @@ import org.liquidizer.lib._
 
 /** Gets the room id and provides room related convenience functions */
 trait InRoom {
+  val showRoomInUrl= S.param("room").exists ( !_.startsWith("_") )
   lazy val roomId= Room.getId(S.param("room"))
   lazy val room= Room.get(roomId)
 
+  /** searches the votable for user in the current room */
   def toNominee(user : User) : Option[Votable] =
     Votable.find(By(Votable.user, user), By(Votable.room, room))
 
+  /** searches the current users votable */
   lazy val myNominee= if (User.currentUser.isEmpty) None else
     toNominee(User.currentUser.get)
 
-  def home() = "/room/"+roomId
+  /** formats the URL prefix for the current room */
+  def home() = if (showRoomInUrl) "/room/"+roomId else ""
   def uri(user : User) = home() + "/users/" + user.id.is + "/index.html"
+  def uri(query : Query) = home() + "/queries/" + query.id.is + "/index.html"
+  def uri(nominee : Votable) : String = nominee match {
+    case VotableUser(user) => uri(user)
+    case VotableQuery(query) => uri(query)
+  }
+
+  /** formats the URL by replacing # and ~ place holders */
+  def uri(rel : String) = {
+    var u= rel.replaceAll("#", home())
+    if (u.contains("~"))
+      u= u.replaceAll("~", User.currentUser.get.id.is.toString)
+    u
+  }
 }
 
 /** Base class for searched and sorted multi-page views of votables */
@@ -34,8 +51,7 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
     case "navigator" => navigator _
     case "lastpage" => lastpage _
     case "categories" => categories _
-    case "view" => view _
-    case "addQuery" => addQuery _
+    case "search" => search _
   }
 
   def size= data.size
@@ -176,9 +192,7 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
 	     <div>{text}</div>)
   }
 
-  def lastpage(in:NodeSeq) : NodeSeq = if (page>=numPages-1) view(in) else Nil
-
-  def view(in : NodeSeq) : NodeSeq = in.flatMap(view(_))
+  def lastpage(in:NodeSeq) : NodeSeq = if (page>=numPages-1) in else Nil
 
   def attribUri(params : (String,String)*) = {
     S.uri + {
@@ -189,29 +203,21 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
     }
   }
 
-  def view(in : Node) : NodeSeq = {
-    in match {
-      case <search:input/> => 
-	SHtml.text(search, search = _ , 
-		   "width" -> "20", 
-		   "placeholder" -> "search", "class" -> "searchText") ++
-	SHtml.ajaxSubmit("Search", { () =>
-	  this.unregisterThisSnippet
-	  S.redirectTo(attribUri("search"-> search)) },
-		       "class" -> "searchSubmit") ++
-        {
-	  // Display a clear search text button if applicable
-	  if (search.length==0) Nil else
-	    SHtml.ajaxSubmit("X", { () =>
-	      this.unregisterThisSnippet
-	      S.redirectTo(attribUri("search"->"")) },
-				 "class" -> "searchClear")
-	}
-
-      case Elem(prefix, label, attribs, scope, children @ _*) =>
-	Elem(prefix, label, attribs, scope, view(children) : _*)
-
-      case _ => in
+  def search(in : NodeSeq) : NodeSeq = {
+    SHtml.text(search, search = _ , 
+	       "width" -> "20", 
+	       "placeholder" -> "search", "class" -> "searchText") ++
+    SHtml.ajaxSubmit("Search", { () =>
+      this.unregisterThisSnippet
+      S.redirectTo(attribUri("search"-> search)) },
+      "class" -> "searchSubmit") ++
+    {
+      // Display a clear search text button if applicable
+      if (search.length==0) Nil else
+	SHtml.ajaxSubmit("X", { () =>
+	this.unregisterThisSnippet
+	S.redirectTo(attribUri("search"->"")) },
+	"class" -> "searchClear")
     }
   }
 
@@ -236,9 +242,5 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
   def searchFilter(nominee : Votable) : Boolean = nominee match {
     case VotableUser(user) => searchFilter(user)
     case VotableQuery(query) => searchFilter(query)
-  }
-
-  def addQuery(in: NodeSeq) : NodeSeq = {
-    <a href={"/add_query?search="+search}>{in}</a>
   }
 }

@@ -29,7 +29,7 @@ class Queries extends MultipageSnippet {
 
   /** Render a list of category tags */
   override def categories(in:NodeSeq) : NodeSeq = {
-    val markup= new CategoryView(search, "/queries.html")
+    val markup= new CategoryView(search, "queries.html")
     <span>{
       markup.renderTagList(TaggedUtils.sortedTags(getData()), 10)
     }</span>
@@ -50,7 +50,7 @@ class Queries extends MultipageSnippet {
 /** Snippet code to show details on a query's voters */
 class QueryDetails extends MultipageSnippet with InRoom {
   val quid= S.param("query").get.toLong
-  val query= Votable.find(By(Votable.query, quid.toLong))
+  val query= Votable.getQuery(quid.toLong, room.get)
   var hasMe= true;
 
   def loadData() = {
@@ -73,7 +73,7 @@ class QueryDetails extends MultipageSnippet with InRoom {
       val update= super.ajaxUpdate(votedNominee)
       if (!hasMe && votedNominee==query.get) {
 	hasMe= true
-	update & RedirectTo(query.get.uri+"/index.html")
+	update & RedirectTo(uri(query.get))
       }
       else update
     }
@@ -87,7 +87,7 @@ class QueryDetails extends MultipageSnippet with InRoom {
   }
 }
 
-class AddQuery extends StatefulSnippet {
+class AddQuery extends StatefulSnippet with InRoom {
 
   var dispatch : DispatchIt = { 
     case "create" => create _ 
@@ -102,7 +102,8 @@ class AddQuery extends StatefulSnippet {
 		 "what" -> SHtml.textarea(what, what = _, "rows"-> "3", "cols"-> "40", "placeholder" -> S ? "new.query"),
 		 "keys" -> SHtml.text(keys, keys = _, 
 				      "size"-> "40", "id" -> "keys"),
-		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>verifyQuery),
+		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>
+		   verifyQuery.getOrElse { redirectTo("add_query_confirm")} ),
 		 "keyset" -> 
 		 new CategoryView(keys, "") {
 		   override def renderTag(tag : String) : Node = {
@@ -122,26 +123,33 @@ class AddQuery extends StatefulSnippet {
 		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>saveQuery))
   }
 
-  def isValid() = what.trim.length>0 && Query.find(By(Query.what, what)).isEmpty
-
-  def verifyQuery() =
-    if (isValid) redirectTo("/add_query_confirm") else redirectTo("/add_query")
+  def verifyQuery() : Option[JsCmd] = {
+    if (what.trim.length==0)
+      redirectTo(home()+"/add_query")
+    else {
+      val exists= Query.findAll(By(Query.what, what))
+      .map { q => Votable.find(By(Votable.query, q)) }
+      .filter { _.exists { _.room.obj == room }}
+      if (!exists.isEmpty) redirectTo(uri(exists.head.get))
+      else 
+	None
+    }
+  }
 
   def saveQuery() = {
-    if (isValid) {
-      val query= 
-	Query.create
+    verifyQuery.getOrElse {
+      val query= Query.create
       .what(what)
       .keys(keys)
       .creator(User.currentUser.get)
       .creation(Tick.now)
       query.save
+      Votable.create
+      .query(query)
+      .room(room.get).save
 
       unregisterThisSnippet
-      S.redirectTo("/queries/"+query.id+"/index.html")
-    } else {
-      what=""
-      redirectTo("/add_query")
+      S.redirectTo(uri(query))
     }
   }
 }

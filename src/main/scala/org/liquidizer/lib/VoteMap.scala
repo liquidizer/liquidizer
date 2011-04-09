@@ -39,17 +39,18 @@ object VoteMap {
     }
   }
 
-  private def updateSolver() : Unit = synchronized {
+  private def updateSolver() : Unit = {
     // read votes
     val votes = Vote.findAll(By_>(Vote.date, latestUpdate))
     for (vote <- votes)
       solver(vote.nominee.obj.get.room.is).votersList::= vote.owner.is
 
     // recompute
-    for (s <- solverMap.values) s.recompute
-
-    // finish
-    latestUpdate= votes.map { _.date.is }.foldLeft(0L) { _ max _ }
+    val time= votes.map { _.date.is }.foldLeft(0L) { _ max _ }
+    for (s <- solverMap.values) { 
+      s.recompute(time) 
+    }
+    latestUpdate=  time
   }
 
   /** Get a measure of how much the vote changed recently */
@@ -73,8 +74,8 @@ object VoteMap {
   def getWeight(user : User, nominee: Votable) : Double = {
     solver(nominee.room.is).users.get(user.id.is).map { uHead =>
       uHead.weight(Tick.now) * {
-	if (nominee.isQuery) uHead.vec.getDelegationWeight(nominee.id.is) 
-	else uHead.vec.getVotingWeight(nominee.id.is)
+	if (nominee.isQuery) uHead.vec.getVotingWeight(nominee.query.is) 
+	else uHead.vec.getDelegationWeight(nominee.user.is)
       }}.getOrElse(0.0)
   }
 
@@ -114,12 +115,13 @@ object VoteMap {
     var list= List[Votable]()
     solver(room.id.is).users.get(user.id.is).foreach { uHead =>
       uHead.vec.votes.elements.foreach { case (i,e) =>
-	if (e.value.abs > EPS) Votable.get(i).foreach { list ::= _ }
+	if (e.value.abs > EPS) Votable.getQuery(i,room).foreach { list ::= _ }
       }
     }
     // include commentors
     val commentors= Comment.findAll(By(Comment.author, user))
     .map { _.nominee.obj.get }
+    .filter { _.room.is == room.id.is }
     .filter { _.isQuery }
     // remove duplicates
     (list -- commentors) ++ commentors

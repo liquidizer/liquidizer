@@ -16,7 +16,7 @@ class DelegationGraphView(node : Votable, count : Int) {
 
   def getGraph : Node = {
     val svgNode= grapher.runGraphviz.first
-    val svg= DelegationGraphView.addLink(svgNode)
+    val svg= addLink(svgNode)
     val width= svg.attribute("width").get.text.replace("pt","").toInt
     val height= svg.attribute("height").get.text.replace("pt","").toInt
     val scale= Math.min(600.0/width, 600.0/height)
@@ -25,17 +25,6 @@ class DelegationGraphView(node : Votable, count : Int) {
     }
     else svg
   }
-
-  def getQueries = grapher.nodes.filter {
-    _ match {
-      case VotableQuery(_) => true
-      case _ => false
-    }}
-}
-
-object DelegationGraphView {
-
-  val cache = new ResultCache[Node]
 
   private def addLink(in : NodeSeq) : NodeSeq = {
     for( node <- in ) yield addLink(node)
@@ -46,7 +35,7 @@ object DelegationGraphView {
 
       case Elem(prefix, "g", attribs, scope, children @ _*)
       if (attribs.get("class").map{ _.text }.getOrElse("")=="node") =>
-	<a xlink:href={ (in \ "title").text+"/graph.html"} target="_parent">{
+	<a xlink:href={ (in \ "title").text.replace("index","graph")} target="_parent">{
 	  Elem(prefix, "g", attribs, scope, addLink(children) : _*)
 	}</a>
 
@@ -58,6 +47,13 @@ object DelegationGraphView {
     }
   }
   
+  def getQueries = grapher.nodes.filter { _ isQuery }
+}
+
+object DelegationGraphView {
+
+  val cache = new ResultCache[Node]
+
   def graphSVG(node : Votable, count:Int) : Node = {
     new DelegationGraphView(node, count).getGraph
   }
