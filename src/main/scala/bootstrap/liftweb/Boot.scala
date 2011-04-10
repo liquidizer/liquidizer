@@ -35,9 +35,11 @@ class Boot {
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
     Schemifier.schemify(true, Schemifier.infoF _, Votable, User, 
-			Query, Vote, Comment, Certificate, Emotion, Tick)
+			Query, Vote, Comment, Certificate, Emotion, Tick,
+		        InviteCode)
 
     println("Starting LIQUIDIZER")
+    bpt.StartUp.run()
     VoteMap.refresh(false)
 
     // where to search snippet

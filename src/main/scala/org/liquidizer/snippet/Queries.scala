@@ -88,7 +88,7 @@ class QueryDetails extends MultipageSnippet {
 }
 
 class AddQuery extends StatefulSnippet {
-
+  
   var dispatch : DispatchIt = { 
     case "create" => create _ 
     case "confirm" => confirm _
