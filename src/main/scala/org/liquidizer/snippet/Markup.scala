@@ -165,6 +165,7 @@ object Localizer {
     }	
 }
 
+/** Create menu item elements with links and automatic styles */
 class MenuMarker extends InRoom {
   val user= User.currentUser.map { _.id.is }.getOrElse(0L)
 
@@ -176,11 +177,10 @@ class MenuMarker extends InRoom {
     in match {
       case Elem("menu", "a", attribs, scope, children @ _*) =>
 	// determine target and current link
-	var keep= attribs.get("keep").map { _.text }
 	var href= toUrl(attribs.get("href"))
 
         var active= href == (if (href.startsWith("/")) S.uri else S.uri.replaceAll(".*/",""))
-	val isDefault= attribs.get("default").map{ _.text=="true" }.getOrElse(false)
+	val isDefault= attribs.get("default").exists{ _.text=="true" }
 
         // set up parameters
         attribs.get("action").foreach { action =>
@@ -189,12 +189,7 @@ class MenuMarker extends InRoom {
 	  if (isDefault && field=="sort") S.set("defaultOrder", value)
 	  active &&= S.param(field).map { value == _ }.getOrElse(isDefault)
 	  href += "?"+field+"="+value
-	  if (keep.isEmpty)
-	    keep=Some("search")
 	}
-        // add persisted parameters
-        keep.foreach { _.split(" ").foreach { key => S.param(key).foreach { value =>
-	  if (value.length>0) href += ("&" + key + "=" + value) }}}
 
         // make menu entry
 	val entry= attribs.get("icon").map { url =>
@@ -203,7 +198,8 @@ class MenuMarker extends InRoom {
 
         // format link as either active (currently visited) or inaktive
         val style= if (active) "active" else "inactive" 
-        <li><a href={href}><div class={style}>{entry}</div></a></li>
+        val title= attribs.get("title").map( Localizer.loc(_) )
+        <li><a href={href} title={title} alt={title}><div class={style}>{entry}</div></a></li>
 
       case Elem("local", "a", attribs, scope, children @ _*) =>
 	// keep a number of current request attributes in the target url

@@ -172,7 +172,7 @@ class VotingHelper extends InRoom {
       case Elem("query", tag, attribs, scope, _*) =>
 	nominee match {
 	  case VotableQuery(query) => tag match { 
-	    case "creator" => formatUser(query.creator.obj.get)
+	    case "creator" => query.creator.obj.map (formatUser(_)).getOrElse(Text("---"))
 	    case "time" => Text(Tick.format(query.creation.is))
 	    case "keys" => 
 	      buttonFactory.newKeyListRecord(() => query.keyList,

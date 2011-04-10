@@ -58,13 +58,12 @@
   </lift:bind-at>
   <lift:bind-at name="selection">
     <div style="position:absolute">
-      <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
       <lift:MenuMarker>
-	<ul class="popup" id="sort">
-	  <menu:a action="sort" value="weight" default="true" icon="weight">$sort.weight</menu:a>
-	  <menu:a action="sort" value="comment_age" icon="comment">$sort.comment_age</menu:a>
-	  <menu:a action="sort" value="approval" icon="pro">$sort.pro</menu:a>
-	  <menu:a action="sort" value="objection" icon="contra">$sort.contra</menu:a>
+	<ul class="sort">
+	  <menu:a action="sort" value="weight" default="true" icon="weight" title="$sort.weight"/>
+	  <menu:a action="sort" value="comment_age" icon="comment" title="$sort.comment_age"/>
+	  <menu:a action="sort" value="approval" icon="pro" title="$sort.pro"/>
+	  <menu:a action="sort" value="objection" icon="contra" title="$sort.contra"/>
 	</ul>
       </lift:MenuMarker>
     </div>

@@ -45,9 +45,6 @@ h3 a {
     font-weight: bold;
 }
 
-.view { float: right; }
-.view form { float: right; }
-
 .navi { display:table; }
 .navi div {
     float:left;
@@ -61,6 +58,12 @@ h3 a {
 }
 .navi a div {
     background-color: #660099;
+}
+.navi .active {
+    margin: 1px;
+    border: 1px #660099 solid;
+    background-color: white;
+    color: #660099;
 }
 .keys { 
     color: gray;
@@ -115,10 +118,11 @@ input.searchText:hover {
     background-color: lightgray;
 }
 input {
-    border: 1px #FF9933 solid;
+    border: 1px #660099 solid;
+    margin: 0 0 0 10px;
 }
 textarea {
-    border: 1px #FF9933 solid;
+    border: 1px #660099 solid;
 }
 
 #header {
@@ -142,6 +146,7 @@ textarea {
     width: 200px;
     display: none;
     position: absolute;
+    z-index: 2;
     list-style-type: none;
     line-height: 120%;
     font-size: 120%;
@@ -168,17 +173,25 @@ textarea {
     background-color: #FF9933;
 }
 .sort {
-    list-style-type:none;
+    list-style-type: none;
     display: inline;
 }
 .sort li {
     float: left;
+    border: 1px solid #660099;
+    margin: 2px;
 }
-
+.sort .active {
+}
+.sort .inactive {
+    background-color: gray;
+}
+.toprow {
+    margin: 0 0 30px 10%; 
+}
 .content { 
-    margin: 30px 5% 30px 10%; 
+    margin: 0 5% 30px 10%; 
 }
-
 .help {
     font-weight: normal;
     font-size: 120%;
