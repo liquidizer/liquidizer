@@ -82,11 +82,8 @@ abstract class MultipageSnippet extends StatefulSnippet {
       nominee => User.currentUser match {
 	case Full(me) => f(me, nominee) + 1e-5*result(nominee).value
 	case _ => 0 }
-    def isActive(f : Votable => Double) : Votable => Double = _ match {
-      case n @ VotableQuery(_) if VoteMap.getActiveVoters(n).isEmpty => -1e5
-      case VotableUser(user) if !VoteMap.isActive(user) => -1e5
-      case n => f(n)
-    }
+    def isActive(f : Votable => Double) : Votable => Double = 
+      q => if (result(q).volume==0) -1e5 else f(q)
 
     order match {
       case "value" => isActive(result(_).value.abs)

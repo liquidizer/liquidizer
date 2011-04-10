@@ -44,8 +44,8 @@ object EmotionView {
     Full(new XmlResponse(node, 200, "image/svg+xml", Nil) {
       // override the cache expiry
       override def headers = 
-	TheStrBindParam("Cache-Control", 
-			 "max-age= %d, public".format(60 * 60 * 24 * 7)) ::
+	TheStrBindParam("Date", (new java.util.Date).toString) ::
+	TheStrBindParam("Cache-Control", "max-age= 600000, public") ::
 			 super.headers
     })
  } 
