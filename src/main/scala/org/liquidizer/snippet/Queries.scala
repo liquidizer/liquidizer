@@ -98,6 +98,7 @@ class AddQuery extends StatefulSnippet {
   var keys= S.param("search").getOrElse("")
 
   def create(in:NodeSeq) : NodeSeq = {
+    throw new Exception("Feature disabled")
     Helpers.bind("addquery", in,
 		 "what" -> SHtml.textarea(what, what = _, "rows"-> "3", "cols"-> "40", "placeholder" -> S ? "new.query"),
 		 "keys" -> SHtml.text(keys, keys = _, 
@@ -115,6 +116,7 @@ class AddQuery extends StatefulSnippet {
   }
 
   def confirm(in:NodeSeq) : NodeSeq = {
+    throw new Exception("Feature disabled")
     Helpers.bind("addquery", in,
 		 "what" -> Markup.renderHeader(what, link("/add_query", {()=>}, _)),
 		 "keys" -> Markup.renderTagList(TaggedUtils.getTags(keys)),
@@ -128,6 +130,7 @@ class AddQuery extends StatefulSnippet {
     if (isValid) redirectTo("/add_query_confirm") else redirectTo("/add_query")
 
   def saveQuery() = {
+    throw new Exception("Feature disabled")
     if (isValid) {
       val query= 
 	Query.create

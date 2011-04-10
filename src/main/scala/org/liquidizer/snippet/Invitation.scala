@@ -18,11 +18,18 @@ class Invitation {
  
   val code= S.param("code").getOrElse("")
 
+  def isValid() = code=="GODMODE" ||
+      InviteCode.get(code).exists {
+      ic => !ic.user.defined_? || !ic.user.obj.get.validated }
+
   def validAndFree(in : NodeSeq) : NodeSeq = 
-    if (InviteCode.get(code).exists(!_.user.defined_?)) in else NodeSeq.Empty
+    if (isValid) in else NodeSeq.Empty
 
   def invalid(in : NodeSeq) : NodeSeq = 
-    if (InviteCode.get(code).isEmpty) in else NodeSeq.Empty
+    if (!code.isEmpty && !isValid) in else NodeSeq.Empty
+
+  def isEmpty(in : NodeSeq) : NodeSeq =
+    if (code.isEmpty) in else NodeSeq.Empty
 
   def code(in : NodeSeq) : NodeSeq = Text(code)
 }
