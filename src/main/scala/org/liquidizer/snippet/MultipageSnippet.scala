@@ -102,6 +102,10 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	withMe((me,v) => isUser(v,- VoteMap.getSympathy(me,_)))
       case "arousal" =>
 	withMe((me,v) => isUser(v,VoteMap.getArousal(me,_)))
+      case "bpt" => {
+	val order = new bpt.BPTQueryOrder
+	q => order.getWeight(q)
+      }
     }
   }
 
