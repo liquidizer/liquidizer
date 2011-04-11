@@ -163,7 +163,7 @@ class VotingHelper {
 	      buttonFactory.toggleButton
 	    case "isDelegated" => if (nominee match {
 	      case VotableUser(other) => VoteMap.isDelegated(other, me)
-	      case VotableQuery(q) => VoteMap.isDelegated(q.creator.obj.get, me)})
+	      case VotableQuery(q) => q.creator.obj.exists{ VoteMap.isDelegated(_, me)}})
 	      bind(children,nominee) else NodeSeq.Empty
 	    case _ => in
 	  }
@@ -174,7 +174,7 @@ class VotingHelper {
       case Elem("query", tag, attribs, scope, _*) =>
 	nominee match {
 	  case VotableQuery(query) => tag match { 
-	    case "creator" => formatNominee(VotableUser(query.creator.obj.get))
+	    case "creator" => query.creator.obj.map (formatUser(_)).getOrElse(Text("---"))
 	    case "time" => Text(Tick.format(query.creation.is))
 	    case "keys" => 
 	      buttonFactory.newKeyListRecord(() => query.keyList,

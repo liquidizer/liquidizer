@@ -1,25 +1,26 @@
 <lift:surround with="default">
   <lift:bind-at name="title"><lift:loc>title.queries</lift:loc></lift:bind-at>
-  <lift:bind-at name="content">
-
-    <img src="/images/sort.png" class="button" onclick="togglePopup('sort')"/>
-    <lift:MenuMarker>
-      <ul class="popup" id="sort">
-	<menu:a action="sort" value="pro" icon="pro" default="true">$sort.pro</menu:a>
-	<menu:a action="sort" value="contra" icon="contra">$sort.contra</menu:a>
-	<menu:a action="sort" value="swing" icon="swing">$sort.swing</menu:a>
-	<menu:a action="sort" value="conflict" icon="conflict">$sort.conflict</menu:a>
-	<menu:a action="sort" value="comment" icon="comment">$sort.comment</menu:a>
-	<menu:a action="sort" value="age" icon="new">$sort.age</menu:a>
-      </ul>
-    </lift:MenuMarker>
+  <lift:bind-at name="toprow">
+    <div class="toprow">
+      <lift:MenuMarker>
+	<ul class="sort">
+	  <menu:a action="sort" value="pro" icon="pro" default="true" title="$sort.pro"/>
+	  <menu:a action="sort" value="contra" icon="contra" title="$sort.contra"/>
+	  <menu:a action="sort" value="swing" icon="swing" title="$sort.swing"/>
+	  <menu:a action="sort" value="conflict" icon="conflict" title="$sort.conflict"/>
+	  <menu:a action="sort" value="comment" icon="comment" title="$sort.comment"/>
+	  <menu:a action="sort" value="age" icon="new" title="$sort.age"/>
+	</ul>
+      </lift:MenuMarker>
+    </div>
     <div style="float:right">
       <lift:Queries.view form="POST" eager_eval="true">
 	<search:input/>
       </lift:Queries.view>
     </div>
-    <div style="height:20px; clear:both"/>
-
+    <div style="clear:both"/>
+  </lift:bind-at>
+  <lift:bind-at name="content">
   <table width="100%">
     <lift:Queries eager_eval="true">
       <tr>

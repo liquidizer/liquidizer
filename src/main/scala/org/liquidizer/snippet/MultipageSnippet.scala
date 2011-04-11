@@ -82,9 +82,8 @@ abstract class MultipageSnippet extends StatefulSnippet {
       nominee => User.currentUser match {
 	case Full(me) => f(me, nominee) + 1e-5*result(nominee).value
 	case _ => 0 }
-    def isActive(f : Votable => Double) : Votable => Double = n => { 
-      if (n.isQuery && VoteMap.getActiveVoters(n).isEmpty) -1e5 else f(n) 
-    }
+    def isActive(f : Votable => Double) : Votable => Double = 
+      q => if (result(q).volume==0) -1e5 else f(q)
 
     order match {
       case "value" => isActive(result(_).value.abs)
@@ -93,7 +92,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "contra" => isActive(-result(_).value)
       case "conflict" => isActive(v => { val r=result(v); r.pro min r.contra })
       case "myweight" => withMe(VoteMap.getWeight(_ , _))
-      case "swing" => isActive(VoteMap.getSwing(_).abs)
+      case "swing" => isActive(q => (VoteMap.getSwing(q)/(1+result(q).value.abs)).abs)
       case "volume" => isActive(result(_).volume)
       case "comment" => 
 	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)
@@ -114,6 +113,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def sortData(user : User): Unit = 
     sortData(sortFunction(order.getOrElse(defaultOrder), user))
 
+  /** Sort data according to the sort order in request parameter */
   def sortData(f : Votable => Double): Unit = {
     data = data
     .map { item => (f(item), item) }
@@ -127,28 +127,31 @@ abstract class MultipageSnippet extends StatefulSnippet {
     .map { _._2 }
   }
   
+  /** Display a navigation bar to access each page directly */
   def navigator(in: NodeSeq) : NodeSeq = {
     if (numPages<=1)
       <span/>
-    else
-      <div class="navi">
-      {
-	link(page-1, Text("<<<"))
-      }
-      {
-	(1 to numPages).flatMap {
-	  index =>
-	    link(index-1, Text(index.toString))
-	}
-      }
-      {
+    else {
+      val SPAN= 5 
+      <div class="navi"> {
+	link(page-1, Text("<<<")) ++
+	link(0, Text("1")) ++
+	(if (page-SPAN > 1) 
+	  link(-1,Text("...")) else NodeSeq.Empty) ++
+	(2 max (page-SPAN+1) to numPages.min(page+SPAN+1)).flatMap {
+	  index => link(index-1, Text(index.toString)) } ++
+	(if (page+SPAN < numPages-1) 
+	  link(-1,Text("..."))++link(numPages-1, Text(numPages.toString)) 
+	 else NodeSeq.Empty) ++
 	link(page+1, Text(">>>"))
-      }
-      </div>
+      } </div>
+    }
   }
   
   private def link(targetPage:Int, text:Node):Node = {
-    if (targetPage<0 || targetPage >= numPages || targetPage==page) 
+    if (targetPage==page)
+      <div class="active">{text}</div>
+    else if (targetPage<0 || targetPage >= numPages)
       <div>{text}</div>
     else 
 	link("" , () => {

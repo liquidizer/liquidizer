@@ -41,9 +41,9 @@ a.extern {
    color: #CC0000;
     text-decoration:underline; 
 }
-
-.view { float: right; }
-.view form { float: right; }
+h3 a {
+    font-weight: bold;
+}
 
 .navi { display:table; }
 .navi div {
@@ -58,6 +58,12 @@ a.extern {
 }
 .navi a div {
     background-color: #660099;
+}
+.navi .active {
+    margin: 1px;
+    border: 1px #660099 solid;
+    background-color: white;
+    color: #660099;
 }
 .keys { 
     color: gray;
@@ -112,10 +118,11 @@ input.searchText:hover {
     background-color: lightgray;
 }
 input {
-    border: 1px #FF9933 solid;
+    border: 1px #660099 solid;
+    margin: 0 0 0 10px;
 }
 textarea {
-    border: 1px #FF9933 solid;
+    border: 1px #660099 solid;
 }
 
 #header {
@@ -139,6 +146,7 @@ textarea {
     width: 200px;
     display: none;
     position: absolute;
+    z-index: 2;
     list-style-type: none;
     line-height: 120%;
     font-size: 120%;
@@ -148,7 +156,6 @@ textarea {
     -webkit-box-shadow: 3px 3px 3px #aaa;
 }
 .popup li {
-    float: none;
     margin: 2px 0 2px 0;
     padding: 0px;
     background-color: white;
@@ -164,11 +171,26 @@ textarea {
 .popup .active {
     background-color: #FF9933;
 }
-
-.content { 
-    margin: 30px 5% 30px 10%; 
+.sort {
+    list-style-type: none;
+    display: inline;
 }
-
+.sort li {
+    float: left;
+    border: 1px solid #660099;
+    margin: 2px;
+}
+.sort .active {
+}
+.sort .inactive {
+    background-color: gray;
+}
+.toprow {
+    margin: 0 0 30px 10%; 
+}
+.content { 
+    margin: 0 5% 30px 10%; 
+}
 .help {
     font-weight: normal;
     font-size: 120%;
@@ -215,6 +237,7 @@ textarea {
     text-align: center;
     vertical-align: middle;
     height: 25px;
+    white-space: nowrap;
 }
 .vote .active {
     width: 20px;

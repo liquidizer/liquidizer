@@ -33,7 +33,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 	    VoteMap.getWeight(user2, VotableUser(user1))
 	}
 	case _ => node match {
-	  case VotableUser(user) => sqr(VoteMap.getWeight(user, node))
+	  case VotableUser(user) => sqr(VoteMap.getWeight(user, root))
 	  case _ => 0.0
 	}
       })
