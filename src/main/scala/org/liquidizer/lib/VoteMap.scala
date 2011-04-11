@@ -43,12 +43,12 @@ object VoteMap {
     // read votes
     val votes = Vote.findAll(By_>(Vote.date, latestUpdate))
     for (vote <- votes)
-      solver(vote.nominee.obj.get.room.is).votersList::= vote.owner.is
+      solver(vote.nominee.obj.get.room.is).voteList::= vote
 
     // recompute
     val time= votes.map { _.date.is }.foldLeft(0L) { _ max _ }
     for (s <- solverMap.values) { 
-      s.recompute(time) 
+      s.recompute() 
     }
     latestUpdate=  time
   }

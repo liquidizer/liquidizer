@@ -69,13 +69,13 @@ class UserHead(val user : User, val nominee : Votable) {
 class Solver(val room : Room) {
   var users= Map[Long, UserHead]()
   var nominees= Map[Long, NomineeHead]()
-  var votersList : List[Long] = Nil
+  var voteList= List[Vote]()
   var time = 0L
 
   /** Recompute all results following the latest votes */
-  def recompute(time : Long) : Unit = if (!votersList.isEmpty) {
+  def recompute() : Unit = if (!voteList.isEmpty) {
     // iterative matrix solving
-    this.time= time
+    preprocessVotes()
     sweep(100)
 
     // collect the results for each nominee
@@ -140,44 +140,51 @@ class Solver(val room : Room) {
     }
   }
 
+  /** process the list of votes in the voteList */
+  def preprocessVotes() = {
+    for (vote <- voteList) {
+      // update activity time for user
+      val uHead= getUserHead(vote.owner.is)
+      uHead.update(vote.date.is)
+      time = time max vote.date.is
+      if (vote.weight.is==0 && uHead.latestVote > vote.date.is)
+	vote.delete_!
+      else
+	getNomineeHead(vote.nominee.is)
+    }
+  }
+
   /** Iterative solution of the users voting vectors */
   def sweep(maxIter : Int) : Unit = {
     var iterCount= 0
 
-    while (!votersList.isEmpty && iterCount<maxIter) {
+    while (!voteList.isEmpty && iterCount<maxIter) {
       var results = Map[Long, VoteVector]()
-      votersList= votersList.removeDuplicates
       
-      // retreive new votes for that room
-      val newVotes= Vote.findAll(ByList(Vote.owner, votersList))
+      // retreive affected votes for this room
+      val votersList= voteList.map{ _.owner.is }.removeDuplicates
+      val newVotes= Vote.findAll(ByList(Vote.owner, votersList),
+			       ByList(Vote.nominee, nominees.keySet.toList))
 
       for (vote <- newVotes) {
 	val userId= vote.owner.is
 	val nominee= getNomineeHead(vote.nominee.is).nominee
-	if (nominee.room.is == room.id.is) {
 
-	  // update activity time for user
-	  users.get(userId).foreach { uHead =>
-	    uHead.update(vote.date.is)
-	    if (vote.weight.is==0 && uHead.latestVote > vote.date.is) vote.delete_!
-	  }
+	// prepare result vector for that user
+	val vec= results.get(userId).getOrElse {
+	  results+= userId -> new VoteVector(userId)
+	  results.get(userId).get
+	}
 
-	  // prepare result vector for that user
-	  val vec= results.get(userId).getOrElse {
-	    results+= userId -> new VoteVector(userId)
-	    results.get(userId).get
-	  }
-
-	  if (vote.weight.is != 0) {
-	    if (nominee.isUser) {
-	      // the vote is a delegation, mix in delegate's voting weights
-	      users.get(nominee.user.is).foreach {
-		uHead=> vec.addDelegate(vote.weight.is, uHead.vec)
-	      }
-	    } else {
-	      // the vote is cast on a query
-	      vec.addVote(vote.weight.is, nominee.query.is)
+	if (vote.weight.is != 0) {
+	  if (nominee.isUser) {
+	    // the vote is a delegation, mix in delegate's voting weights
+	    users.get(nominee.user.is).foreach {
+	      uHead=> vec.addDelegate(vote.weight.is, uHead.vec)
 	    }
+	  } else {
+	    // the vote is cast on a query
+	    vec.addVote(vote.weight.is, nominee.query.is)
 	  }
 	}
       }
@@ -187,7 +194,7 @@ class Solver(val room : Room) {
   }
 
   def updateVecs(results : Map[Long, VoteVector]) = {
-    votersList= Nil
+    var votersList= List[Long]()
     for (userId <- results.keySet) {
       // normalize voting weight
       val head= getUserHead(userId)
@@ -203,8 +210,7 @@ class Solver(val room : Room) {
     }
     // determine affected delegating users
     val dlgts= Votable.get(votersList.map{ users.get(_).get.user }, room)
-    val votes= Vote.findAll(ByList(Vote.nominee, dlgts.map{ _.id.is }))
-    votersList= votes.map{ _.owner.is }
+    voteList= Vote.findAll(ByList(Vote.nominee, dlgts.map{ _.id.is }))
   }
 }
 

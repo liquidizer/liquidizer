@@ -103,7 +103,7 @@ h3 a {
 }
 input.searchSubmit {
   color: transparent;
-  margin: 0 0 0 10px;
+  margin: 1px 1px 1px 10px;
   border: 0px;
   height: 25px;
   width: 14px;
@@ -119,7 +119,7 @@ input.searchText:hover {
 }
 input {
     border: 1px #660099 solid;
-    margin: 0 0 0 10px;
+    margin: 1px;
 }
 textarea {
     border: 1px #660099 solid;
