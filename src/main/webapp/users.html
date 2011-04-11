@@ -14,13 +14,13 @@
 	  </lift:UserInfo.in>
 	</ul>
       </lift:MenuMarker>
+      <div style="float:right">
+	<lift:Users.view form="POST" eager_eval="true">
+	  <search:input/>
+	</lift:Users.view>
+      </div>
+      <div style="clear:both"/>
     </div>
-    <div style="float:right">
-      <lift:Users.view form="POST" eager_eval="true">
-	<search:input/>
-      </lift:Users.view>
-    </div>
-    <div style="clear:both"/>
   </lift:bind-at>
   <lift:bind-at name="content">
     <lift:Users eager_eval="true">

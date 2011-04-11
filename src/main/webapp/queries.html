@@ -12,13 +12,13 @@
 	  <menu:a action="sort" value="age" icon="new" title="$sort.age"/>
 	</ul>
       </lift:MenuMarker>
+      <div style="float:right">
+	<lift:Queries.view form="POST" eager_eval="true">
+	  <search:input/>
+	</lift:Queries.view>
+      </div>
+      <div style="clear:both"/>
     </div>
-    <div style="float:right">
-      <lift:Queries.view form="POST" eager_eval="true">
-	<search:input/>
-      </lift:Queries.view>
-    </div>
-    <div style="clear:both"/>
   </lift:bind-at>
   <lift:bind-at name="content">
   <table width="100%">
