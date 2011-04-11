@@ -148,12 +148,15 @@ class VotingHelper extends InRoom {
 	    case "weight" => renderVote(() => formatWeight(me, nominee))
 	    case "vote" =>
 	      val isUser= nominee.isUser
-	      new VoteControl(VoteMap.getPreference(me, nominee),
-			      displayedVotes.size, 
-			      if (isUser) 0 else -3, 3) {
-		override def updateValue(newValue : Int) : JsCmd = 
+	      if (nominee.user.is==me.id.is) <span class="pass">−</span> 
+	      else {
+		new VoteControl(VoteMap.getPreference(me, nominee),
+				displayedVotes.size, 
+				if (isUser) 0 else -3, 3) {
+		  override def updateValue(newValue : Int) : JsCmd = 
 		  super.updateValue(newValue) & vote(nominee, newValue) }
 	      .render(children)
+	      }
 	    case "editButton" =>
 	      buttonFactory.toggleButton
 	    //TODO democratic tagging system
