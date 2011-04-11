@@ -36,7 +36,7 @@ object PollingBooth {
   }
 
   /** Refresh the users voting weight */
-  def refresh(user : User, room : Option[Room]) = {
+  def activate(user : User, room : Option[Room]) = {
     if (!room.isEmpty) {
       val n= Votable.find(By(Votable.user, user), By(Votable.room, room.get))
       .getOrElse {

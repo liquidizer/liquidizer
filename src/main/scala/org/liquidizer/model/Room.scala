@@ -16,6 +16,7 @@ object Room extends Room with LongKeyedMetaMapper[Room] {
   override def dbTableName = "rooms"
 
   def get(id : Long) = find(By(this.id, id))
-  def getId(room : Option[String]) = room.map { _.toLong }.getOrElse(0L)
+  def get(room : String) : Option[Room] = if (room.matches("[0-9]+"))
+    get(room.toLong) else find(By(name, room))
 }
 

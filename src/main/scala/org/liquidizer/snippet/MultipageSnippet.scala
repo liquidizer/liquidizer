@@ -15,19 +15,19 @@ import org.liquidizer.lib._
 /** Gets the room id and provides room related convenience functions */
 trait InRoom {
   val showRoomInUrl= S.param("room").exists ( !_.startsWith("_") )
-  lazy val roomId= Room.getId(S.param("room"))
-  lazy val room= Room.get(roomId)
+  val roomName= S.param("room").getOrElse("").replaceAll("^_?","")
+  lazy val room= Room.get(roomName)
 
   /** searches the votable for user in the current room */
   def toNominee(user : User) : Option[Votable] =
-    Votable.find(By(Votable.user, user), By(Votable.room, room))
+    Votable.find(By(Votable.user, user), By(Votable.room, room.get))
 
   /** searches the current users votable */
   lazy val myNominee= if (User.currentUser.isEmpty) None else
     toNominee(User.currentUser.get)
 
   /** formats the URL prefix for the current room */
-  def home() = if (showRoomInUrl) "/room/"+roomId else ""
+  def home() = if (showRoomInUrl) "/room/"+roomName else ""
   def uri(user : User) = home() + "/users/" + user.id.is + "/index.html"
   def uri(query : Query) = home() + "/queries/" + query.id.is + "/index.html"
   def uri(nominee : Votable) : String = nominee match {

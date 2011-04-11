@@ -75,7 +75,7 @@ class UserInfo extends InRoom {
       case Some(user) if user.validated && user.password.match_?(password) =>  
 	User.logUserIn(user)
         // restore voting weight to 1.00
-        PollingBooth.refresh(user, room)
+        PollingBooth.activate(user, room)
         S.redirectTo(home() + "/index.html")
       case Some(user) if !user.validated =>  
 	S.error(S.??("account.validation.error"))  
