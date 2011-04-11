@@ -156,7 +156,6 @@ textarea {
     -webkit-box-shadow: 3px 3px 3px #aaa;
 }
 .popup li {
-    float: none;
     margin: 2px 0 2px 0;
     padding: 0px;
     background-color: white;
@@ -238,6 +237,7 @@ textarea {
     text-align: center;
     vertical-align: middle;
     height: 25px;
+    white-space: nowrap;
 }
 .vote .active {
     width: 20px;

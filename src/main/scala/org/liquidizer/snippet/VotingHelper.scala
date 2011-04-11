@@ -161,7 +161,8 @@ class VotingHelper extends InRoom {
 	      case VotableUser(other) => 
 		myNominee.exists { VoteMap.isDelegated(other, _) }
 	      case VotableQuery(q) => 
-		myNominee.exists { VoteMap.isDelegated(q.creator.obj.get, _) }})
+		q.creator.obj.exists { c =>
+		myNominee.exists { VoteMap.isDelegated(c, _) }}})
 	      bind(children,nominee) else NodeSeq.Empty
 	    case _ => in
 	  }
