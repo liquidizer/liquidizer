@@ -14,8 +14,11 @@ import org.liquidizer.lib._
 
 /** Gets the room id and provides room related convenience functions */
 trait InRoom {
-  val showRoomInUrl= S.param("room").exists ( !_.startsWith("_") )
-  val roomName= S.param("room").getOrElse("").replaceAll("^_?","")
+  /** Prefix to indicate that rooms are hidden from the links */
+  val SINGLE_ROOM_PRFIX= "_"
+
+  val showRoomInUrl= S.param("room").exists ( !_.startsWith(SINGLE_ROOM_PRFIX) )
+  val roomName= S.param("room").getOrElse("").replaceAll("^"+SINGLE_ROOM_PRFIX+"?","")
   lazy val room= Room.get(roomName)
 
   /** searches the votable for user in the current room */
@@ -40,6 +43,8 @@ trait InRoom {
     var u= rel.replaceAll("#", home())
     if (u.contains("~"))
       u= u.replaceAll("~", User.currentUser.get.id.is.toString)
+    if (!showRoomInUrl)
+      u= u.replaceAll("^/room/[^/]+","")
     u
   }
 }
@@ -198,12 +203,12 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
   def lastpage(in:NodeSeq) : NodeSeq = if (page>=numPages-1) in else Nil
 
   def attribUri(params : (String,String)*) = {
-    S.uri + {
+    uri(S.uri + {
       (Map("sort" -> order.getOrElse(""), "search" -> search) ++ Map(params:_*))
       .filter { case (key, value) => value.length>0 }
       .map { case (key,value) => key+"="+value }
       .mkString("?","&","")
-    }
+    })
   }
 
   def search(in : NodeSeq) : NodeSeq = {
