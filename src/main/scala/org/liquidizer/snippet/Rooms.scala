@@ -27,7 +27,7 @@ class Rooms extends InRoom {
   def list(in : Node) : NodeSeq = {
     Room.findAll.flatMap { room =>
       Helpers.bind("room", in,
-		   "name" -> <a href={"/room/"+room.id.is+"/index.html"}>{
+		   "name" -> <a href={"/room/"+room.name.is+"/index.html"}>{
 		     room.name.is}</a>,
 		   "id" -> Text(room.id.is.toString))}
   }
@@ -38,17 +38,22 @@ class Rooms extends InRoom {
     if (User.currentUser.isEmpty) NodeSeq.Empty else {
       Helpers.bind("room", in,
 		   "name" -> SHtml.text(name, name = _),
-		   "submit" -> SHtml.ajaxSubmit(S ? "create", () => createRoom(name)))
+		   "submit" -> SHtml.ajaxSubmit(S ? "create", () => createRoom(name.trim)))
     }
   }
 
   /** create a new room with the given name */
   def createRoom(name : String) = {
-    if (name.length > 0) {
-      val room= Room.create.name(name).saveMe
-      PollingBooth.activate(User.currentUser.get, Some(room))
-      RedirectTo("/room/"+room.id.is+"/index.html")
-    } else Noop
+    if (name.length == 0) {
+      Noop
+    } 
+    else {
+      if (Room.get(name).isEmpty) {
+	val room= Room.create.name(name).saveMe
+	PollingBooth.activate(User.currentUser.get, Some(room))
+      }
+      RedirectTo("/room/"+name+"/index.html")
+    } 
   } 
 
   /** List of new users to be shown in the sidebar */
