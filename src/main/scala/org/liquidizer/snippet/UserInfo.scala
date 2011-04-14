@@ -303,6 +303,8 @@ class UserSignUp extends StatefulSnippet {
       case Some(user) =>
 	S.notice((S ? "error.user.exists").format(username))
       case None => 
+	val code= InviteCode.get(S.param("code").getOrElse(""))
+        println("CODE="+code)
 	if (username.isEmpty) {
 	  S.error(S ? "error.name.is.empty")
 	}
@@ -312,13 +314,16 @@ class UserSignUp extends StatefulSnippet {
 	else if (passwd1.length<=4) {
 	  S.error(S ? "error.password.too.short")
 	}
-	else {
+        else if (code.isEmpty || code.get.user.defined_?) {
+	  S.error(S ? "Invite-Code invalid") // Should not get here
+	} else {
 	  val user= User.create
 	  .nick(username)
 	  .email(email)
 	  .password(passwd1)
 	  .validated(User.skipEmailValidation)
 	  user.save
+	  code.get.user(user).save
 
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet
