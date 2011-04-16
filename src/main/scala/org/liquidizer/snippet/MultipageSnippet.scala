@@ -148,24 +148,29 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
 
   def defaultOrder= S.get("defaultOrder").getOrElse("value")
   def sortData(): Unit = 
-    sortData(sortFunction(order.getOrElse(defaultOrder)))
+    sortData(() => sortFunction(order.getOrElse(defaultOrder)))
   def sortData(nominee: Votable) : Unit = 
-    sortData(sortFunction(order.getOrElse(defaultOrder), nominee))
+    sortData(() => sortFunction(order.getOrElse(defaultOrder), nominee))
   def sortData(user : User): Unit = 
-    sortData(sortFunction(order.getOrElse(defaultOrder), user))
+    sortData(() => sortFunction(order.getOrElse(defaultOrder), user))
 
   /** Sort data according to the sort order in request parameter */
-  def sortData(f : Votable => Double): Unit = {
-    data = data
-    .map { item => (f(item), item) }
-    .sort { (a,b) =>  
-      if (a._1 > b._1) 
-	true
-      else 
-	 if (a._1 < b._1) 
-	   false
-	 else a._2.id > b._2.id }
-    .map { _._2 }
+  def sortData(f : () => Votable => Double): Unit = {
+    if (order.exists(_=="alpha")) {
+      data = data.sort { _.toString < _.toString }
+    } else {
+      val f_ = f()
+      data = data
+      .map { item => (f_(item), item) }
+      .sort { (a,b) =>  
+	if (a._1 > b._1) 
+	  true
+	else 
+	  if (a._1 < b._1) 
+	    false
+	  else a._2.id > b._2.id }
+      .map { _._2 }
+    }
   }
   
   /** Display a navigation bar to access each page directly */
