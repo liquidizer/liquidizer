@@ -145,9 +145,10 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	  link(-1,Text("...")) else NodeSeq.Empty) ++
 	(2 max (page-SPAN+1) to numPages.min(page+SPAN+1)).flatMap {
 	  index => link(index-1, Text(index.toString)) } ++
-	(if (page+SPAN < numPages-1) 
-	  link(-1,Text("..."))++link(numPages-1, Text(numPages.toString)) 
-	 else NodeSeq.Empty) ++
+	(if (page+SPAN < numPages-2) 
+	  link(-1,Text("...")) else NodeSeq.Empty)++
+	(if (page+SPAN < numPages-1)
+	  link(numPages-1, Text(numPages.toString)) else NodeSeq.Empty) ++
 	link(page+1, Text(">>>"))
       } </div>
     }
