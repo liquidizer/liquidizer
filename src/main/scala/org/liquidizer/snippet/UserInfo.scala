@@ -271,6 +271,7 @@ class UserReset extends StatefulSnippet {
 
 /** Signup snippet. */
 class UserSignUp extends StatefulSnippet {
+  val code= InviteCode.get(S.param("code").getOrElse(""))
   var username= SSLClient.valid_certificates map { certs =>
       certs.headOption map { head =>
           PrincipalUtils.name_as_map(head.getSubjectX500Principal)("CN")
@@ -302,8 +303,8 @@ class UserSignUp extends StatefulSnippet {
     User.getUserByNick(username) match {
       case Some(user) =>
 	S.notice((S ? "error.user.exists").format(username))
+        redirectTo(S.uri+"?code="+code.map { _.code.is }.getOrElse(""))
       case None => 
-	val code= InviteCode.get(S.param("code").getOrElse(""))
         println("CODE="+code)
 	if (username.isEmpty) {
 	  S.error(S ? "error.name.is.empty")
@@ -311,17 +312,16 @@ class UserSignUp extends StatefulSnippet {
 	else if (passwd1!=passwd2) {
 	  S.error(S ? "error.password.not.match")
 	} 
-	else if (passwd1.length<=4) {
-	  S.error(S ? "error.password.too.short")
-	}
         else if (code.isEmpty || code.get.user.defined_?) {
 	  S.error(S ? "Invite-Code invalid") // Should not get here
 	} else {
 	  val user= User.create
 	  .nick(username)
 	  .email(email)
-	  .password(passwd1)
 	  .validated(User.skipEmailValidation)
+	  if (passwd1.length > 4) {
+	    user.password(passwd1)
+	  }
 	  user.save
 	  code.get.user(user).save
 

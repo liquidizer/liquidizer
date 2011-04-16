@@ -53,7 +53,7 @@ class Boot {
       "liquidizer" ::  LiftRules.resourceNames
 
     LiftSession.onBeginServicing =
-      certificateLogin _ :: LiftSession.onBeginServicing
+      codeLogin _ :: certificateLogin _ :: LiftSession.onBeginServicing
     
     // dynamic pages
     LiftRules.dispatch.append {
@@ -122,6 +122,16 @@ class Boot {
       LocaleSelector.suggestLocale(locale)
     }
     LocaleSelector.getLocale
+  }
+
+  private def codeLogin(session: LiftSession, req: Req) {
+    val code= req.params.get("code").map 
+     { l => if (l.isEmpty) "" else l.head.toString }.getOrElse("")
+    InviteCode.get(code).foreach {
+      _.user.obj.foreach {
+	User.logUserIn(_)
+      }
+    }
   }
 
   private def certificateLogin(session: LiftSession, req: Req) {
