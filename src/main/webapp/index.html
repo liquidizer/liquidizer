@@ -4,7 +4,6 @@
     <lift:form>
       <lift:UserInfo.in eager_eval="true">
 	  <h2>
-	    <lift:loc>welcome.to.liquidizer</lift:loc>,
 	    <span class="purple"><me:name/></span>!
 	  </h2>
 	  <div style="color:red"><lift:Msgs showAll="true"/></div>
@@ -15,10 +14,6 @@
       <table>
 	<tr>
 	  <td>
-	    <div class="head">
-	      <h2><lift:loc>welcome.to.liquidizer</lift:loc></h2>
-	    </div>
-
 	    <lift:Invitation.invalid eager_eval="true">
 	      Der Invite Code ist ungültig: <lift:Invitation.code/>
 	    </lift:Invitation.invalid>
@@ -54,6 +49,11 @@
 
 	    <lift:Invitation.isEmpty eager_eval="true">
 	      <table>
+		<tr><td colspan="2"> <b>Ahoi,</b> <br/> um dich anzumelden
+		    brauchst Du entweder einen gültigen Invite-Code,
+		    oder einen bereits registrierten Account.
+		</td></tr>
+		<tr><td height="20px"/></tr>
 		<tr>
       		  <td><lift:loc>user.name</lift:loc></td>
       		  <td><me:name/></td>
@@ -67,10 +67,10 @@
 		  <td colspan="3"><hr/></td>
 		</tr>
 	      </table>
-	      <div>
-		<h3>Dies ist eine offene Testinstance</h3>
+	      <h3>Testinstanz</h3>
+	      <div style="border:1px #CC0000 solid; padding:10px">
 		<lift:Invitation.cheatLink form="POST">
-		  Invite code generieren
+		  <b><u>Invite code generieren</u></b>
 		</lift:Invitation.cheatLink>
 	      </div>
 	    </lift:Invitation.isEmpty>
