@@ -305,7 +305,6 @@ class UserSignUp extends StatefulSnippet {
 	S.notice((S ? "error.user.exists").format(username))
         redirectTo(S.uri+"?code="+code.map { _.code.is }.getOrElse(""))
       case None => 
-        println("CODE="+code)
 	if (username.isEmpty) {
 	  S.error(S ? "error.name.is.empty")
 	}

@@ -122,8 +122,9 @@ abstract class MultipageSnippet extends StatefulSnippet {
     if (order.exists(_=="alpha")) {
       data = data.sort { _.toString < _.toString }
     } else {
+      val f_ = f()
       data = data
-      .map { item => (f()(item), item) }
+      .map { item => (f_(item), item) }
       .sort { (a,b) =>  
 	if (a._1 > b._1) 
 	  true
