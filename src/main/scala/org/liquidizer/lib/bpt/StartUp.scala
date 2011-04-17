@@ -2,7 +2,6 @@ package org.liquidizer.lib.bpt
 
 import java.io._
 import java.text._
-import scala.xml._
 
 import net.liftweb.util._
 import net.liftweb.common._
@@ -12,14 +11,6 @@ import org.liquidizer.model._
 import org.liquidizer.lib._
 
 object StartUp {
-
-  def load(file:File) : Node = {
-    val src= scala.io.Source.fromFile(file)
-    val doc= scala.xml.parsing.XhtmlParser.apply(src)
-    doc.first
-  }
-
-  def load(file:String) : Node = load(new File(file))
 
   val TITLE_R= "class=\"firstHeading\"[^>]*>([^<]*)<".r
   val HEAD_R= "class=\"mw-headline\"[^>]*>([^<]*)<".r
@@ -93,17 +84,28 @@ object StartUp {
     }
   }
 
+  def readInviteCodes(file : File) {
+    val input= new BufferedReader(new FileReader(file))
+    try {
+      var aws = input.readLine
+      while(aws!=null) {
+	val code= aws.trim
+	if (code.length>0 && InviteCode.get(code).isEmpty) {
+	  println("Adding invitation code: "+code)
+	  InviteCode.create.code(code).save
+	}
+	aws= input.readLine
+      }
+    } finally {
+      input.close
+    }
+  }
+
   def run() : Unit = {
     val dir= new File("wiki.piratenpartei.de/Antragsportal/")
     process(dir)
 
-    val codes= load("invitations.xml")
-    for (code <- codes \ "code") {
-      val text= code.child.text.trim
-      if (InviteCode.get(text).isEmpty) {
-	println("Adding invitation code: "+text)
-	InviteCode.create.code(text).save
-      }
-    }
+    val inv= new File("invitations.txt")
+    readInviteCodes(inv)
   }
 }

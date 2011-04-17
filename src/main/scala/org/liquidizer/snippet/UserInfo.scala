@@ -311,7 +311,7 @@ class UserSignUp extends StatefulSnippet {
 	else if (passwd1!=passwd2) {
 	  S.error(S ? "error.password.not.match")
 	} 
-        else if (code.isEmpty || code.get.user.defined_?) {
+        else if (code.isEmpty || code.get.user.exists { _.validated } ) {
 	  S.error(S ? "Invite-Code invalid") // Should not get here
 	} else {
 	  val user= User.create

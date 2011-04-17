@@ -128,8 +128,8 @@ class Boot {
     val code= req.params.get("code").map 
      { l => if (l.isEmpty) "" else l.head.toString }.getOrElse("")
     InviteCode.get(code).foreach {
-      _.user.obj.foreach {
-	User.logUserIn(_)
+      _.user.obj.foreach { user =>
+	if (user.validated) User.logUserIn(user)
       }
     }
   }
