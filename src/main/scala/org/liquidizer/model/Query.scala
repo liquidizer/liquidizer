@@ -10,7 +10,7 @@ import _root_.org.liquidizer.lib.TaggedUtils
 /** A discussed query */
 object Query extends Query with LongKeyedMetaMapper[Query] {
   override def dbTableName = "queries"
-  override def fieldOrder = List(what, creator, keys, creation)
+  override def fieldOrder = List(what, creator, creation)
 }
 
 /** A discussed query */
@@ -24,9 +24,5 @@ class Query extends LongKeyedMapper[Query] with IdPK {
 
   override def toString() : String = {
     what.is.toString
-  }
-  
-  def keyList() : List[String] = {
-    TaggedUtils.getTags(keys.is)
   }
 }

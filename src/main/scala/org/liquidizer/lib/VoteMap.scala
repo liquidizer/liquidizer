@@ -142,10 +142,6 @@ object VoteMap {
     .filter { room.id.is == _.room.is }
   }
 
-  /** Determine if a user is directly or indirectly delegating a nominee */
-  def isDelegated(user : User, nominee : Votable) : Boolean = 
-    user==nominee || VoteMap.getWeight(user, nominee)>EPS
-
   /** Get currently weighted sympathy */
   def getSympathy(user1 : User, user2 : User, room : Room) : Double =
     getCurrentWeight(user1, room) *

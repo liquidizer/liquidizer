@@ -21,7 +21,8 @@ class Queries extends MultipageSnippet {
   def getData() = {
     if (data.isEmpty) {
       data = Votable.findAll(By_>(Votable.query, 0), By(Votable.room, room.get))
-      .filter { searchFilter _ }
+      tags.load(data)
+      data= data.filter { searchFilter _ }
       sortData()
     }
     data
@@ -31,13 +32,16 @@ class Queries extends MultipageSnippet {
   override def categories(in:NodeSeq) : NodeSeq = {
     val markup= new CategoryView(search, "queries.html")
     <span>{
-      markup.renderTagList(TaggedUtils.sortedTags(getData()), 10)
+      markup.renderTagList(tags.sortedTags(data), 10)
     }</span>
   }
 
   /** Render a list of all queries */
   def render(in: NodeSeq) : NodeSeq = {
-    val helper= new VotingHelper
+    val helper= new VotingHelper {
+      override def getKeyTags(nominee : Votable) = 
+	Text(tags.keyList(nominee).mkString(" "))
+    }
     helper.no= from
     getData()
     .slice(from, to)
@@ -55,7 +59,8 @@ class QueryDetails extends MultipageSnippet with InRoom {
 
   def loadData() = {
     data=  Votable.get(
-      VoteMap.getAllVoters(query.get).filter { searchFilter _ }, room.get)
+      VoteMap.getAllVoters(query.get)
+      .filter{ u => searchFilter( u.toString ) }, room.get)
     sortData(query.get)
 
     // check if my own vote is registered. 
@@ -111,14 +116,15 @@ class AddQuery extends StatefulSnippet with InRoom {
 		     id={"key_"+tag}
 		     onclick={"toggleTag('"+tag+"')"}>{tag}</div>
 		   }
-		 }.renderTagList(TaggedUtils.sortedQueryTags(), 20)
+		 }.renderTagList(TaggedUtils.tagList(room.get), 20)
 	       )
   }
 
   def confirm(in:NodeSeq) : NodeSeq = {
+    keys= keys.split("[, ]").mkString(", ")
     Helpers.bind("addquery", in,
 		 "what" -> Markup.renderHeader(what, link("/add_query", {()=>}, _)),
-		 "keys" -> Markup.renderTagList(TaggedUtils.getTags(keys)),
+		 "keys" -> Text(keys),
 		 "cancel" -> SHtml.submit(S ? "new.query.cancel", ()=>redirectTo("/add_query")),
 		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>saveQuery))
   }
@@ -140,14 +146,16 @@ class AddQuery extends StatefulSnippet with InRoom {
     verifyQuery.getOrElse {
       val query= Query.create
       .what(what)
-      .keys(keys)
       .creator(User.currentUser.get)
       .creation(Tick.now)
       query.save
-      Votable.create
+      val nominee=Votable.create
       .query(query)
-      .room(room.get).save
-
+      .room(room.get)
+      nominee.save
+      if (keys.trim.length>0)
+	PollingBooth.comment(User.currentUser.get, nominee, 
+			     keys.split("[, ]").mkString("#"," #",""))
       unregisterThisSnippet
       S.redirectTo(uri(query))
     }
