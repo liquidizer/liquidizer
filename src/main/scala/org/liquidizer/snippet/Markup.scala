@@ -100,7 +100,7 @@ object Markup {
   }
 }
 
-class CategoryView(val keys : List[String], rootLink:String) {
+class CategoryView(val keys : List[String], rootLink:String)  {
 
   def this(keyStr : String, rootLink : String) = 
     this(keyStr.toLowerCase.split(",| ").distinct.toList, rootLink)
@@ -108,7 +108,7 @@ class CategoryView(val keys : List[String], rootLink:String) {
   def isActive(tag : String) = keys.contains(tag.toLowerCase)
 
   def link(node : Node, keys : List[String]) = {
-    val uri= rootLink+"?search="+keys.mkString(" ")
+    val uri= Helpers.appendParams(rootLink, ("search" -> keys.mkString(" ")) :: Nil)
     <a href={uri}>{node}</a>
   }
 
