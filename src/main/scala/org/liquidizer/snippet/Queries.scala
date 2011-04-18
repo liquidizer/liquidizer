@@ -19,7 +19,7 @@ class Queries extends MultipageSnippet {
   
   /** load all queries form the current room */
   def getData() = {
-    if (data.isEmpty) {
+    if (data.isEmpty && !room.isEmpty) {
       data = Votable.findAll(By_>(Votable.query, 0), By(Votable.room, room.get))
       tags.load(data)
       data= data.filter { searchFilter _ }
