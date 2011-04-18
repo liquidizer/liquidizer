@@ -17,7 +17,7 @@ class Users extends MultipageSnippet {
     if (data.isEmpty) {
       data = Votable.findAll(By_>(Votable.user, 0), By(Votable.room, room.get))
       .filter { _.user.obj.get.validated }
-      .filter { searchFilter _ }
+      data= data.filter { searchFilter _ }
       sortData()
     }
     data
@@ -27,9 +27,7 @@ class Users extends MultipageSnippet {
   override def categories(in:NodeSeq) : NodeSeq = {
     val keys= search.split(" +").toList.map { _ toLowerCase }
     val markup= new CategoryView(keys, "/users.html")
-    <span>{
-      markup.renderTagList(TaggedUtils.sortedTags(data), 5)
-    }</span>
+    <span>{ markup.renderTagList(tags.sortedTags(data), 10) }</span>
   }
 
   /** Render list of all users in the current room */
@@ -63,7 +61,7 @@ class UserDetails extends MultipageSnippet with InRoom {
     if (!nominee.isEmpty) {
       data= Votable.get(
 	VoteMap.getActiveVoters(nominee.get)
-        .filter { searchFilter _ }, room.get)
+        .filter { u => searchFilter(u.toString) }, room.get)
       sortData(nominee.get) 
     }
   }
@@ -72,7 +70,7 @@ class UserDetails extends MultipageSnippet with InRoom {
   def loadDelegates() = {
     data= 
       VoteMap.getActiveVotes(user, room.get)
-      .filter { n => n.isUser && searchFilter(n.user.obj.get) }
+      .filter { n => n.isUser && searchFilter(n.toString) }
     sortData(user)
   }
 

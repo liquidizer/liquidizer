@@ -40,7 +40,7 @@ trait InRoom {
 
   /** formats the URL by replacing # and ~ place holders */
   def uri(rel : String) = {
-    var u= rel.replaceAll("#", home())
+    var u= rel.replaceAll("^#", home())
     if (u.contains("~"))
       u= u.replaceAll("~", User.currentUser.get.id.is.toString)
     if (!showRoomInUrl)
@@ -61,6 +61,7 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
 
   def size= data.size
   var data : List[Votable] = Nil
+  val tags= new TaggedUtil()
 
   def render(in:NodeSeq) : NodeSeq
   def categories(in:NodeSeq) : NodeSeq = NodeSeq.Empty
@@ -208,13 +209,11 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
 
   def lastpage(in:NodeSeq) : NodeSeq = if (page>=numPages-1) in else Nil
 
+  /** Format a link with parameters that persists current search and sort */
   def attribUri(params : (String,String)*) = {
-    uri(S.uri + {
-      (Map("sort" -> order.getOrElse(""), "search" -> search) ++ Map(params:_*))
-      .filter { case (key, value) => value.length>0 }
-      .map { case (key,value) => key+"="+value }
-      .mkString("?","&","")
-    })
+    uri(Helpers.appendParams(S.uri, {
+      order.map { o => Map("sort" -> o) }.getOrElse(Map()) ++
+      Map("search" -> search) ++ Map(params:_*) }.toList))
   }
 
   def search(in : NodeSeq) : NodeSeq = {
@@ -235,26 +234,22 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
     }
   }
 
-  def searchFilter : String => Boolean = {
+  def searchFilter(text : String) : Boolean = {
     val keys= search.split(" +").map { _.toUpperCase }
-    val f= {
-      text:String =>
-	val uText= if (text==null) "" else text.toUpperCase
-      keys.isEmpty || keys.filter { key => !uText.contains(key) }.size==0
+    var pass= true;
+    for (key <- keys) pass &&= text.toUpperCase.contains(key)
+    pass
+  }
+
+  def searchFilter(nominee : Votable) : Boolean = {
+    val keys= search.split(" +").map { _.toUpperCase }
+    var pass= true;
+    for (key <- keys) {
+      pass &&=
+	nominee.toString.toUpperCase.contains(key) || (
+	  key.startsWith("#") &&
+	  tags.keyList(nominee).map{ _.toUpperCase }.contains(key))
     }
-    f
-  }
-
-  def searchFilter(query : Query) : Boolean = {
-    searchFilter(query.what.is) || searchFilter(query.keys.is)
-  }
-
-  def searchFilter(user : User) : Boolean = {
-    searchFilter(user.nick.is) || searchFilter(user.profile.is)
-  }
-
-  def searchFilter(nominee : Votable) : Boolean = nominee match {
-    case VotableUser(user) => searchFilter(user)
-    case VotableQuery(query) => searchFilter(query)
+    pass
   }
 }

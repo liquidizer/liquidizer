@@ -51,7 +51,7 @@ object Markup {
     def tail= renderBlock(in.tail)
     in match {
       case Nil => Nil
-      case List(line, _*) if line.matches(" *[*#].*") => {
+      case List(line, _*) if line.matches(" *[*-] .*") => {
 	val li = <li>{ renderLine(line.replaceAll("^ *[*#]","")) }</li>
 	tail match {
 	  case <ul>{ c @ _* }</ul> :: t => <ul>{ li ++ c }</ul> :: t

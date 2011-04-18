@@ -160,14 +160,6 @@ class VotingHelper extends InRoom {
 	      }
 	    case "editButton" =>
 	      buttonFactory.toggleButton
-	    //TODO democratic tagging system
-	    case "isDelegated" => if (nominee match {
-	      case VotableUser(other) => 
-		myNominee.exists { VoteMap.isDelegated(other, _) }
-	      case VotableQuery(q) => 
-		q.creator.obj.exists { c =>
-		myNominee.exists { VoteMap.isDelegated(c, _) }}})
-	      bind(children,nominee) else NodeSeq.Empty
 	    case _ => in
 	  }
 	  case _ => NodeSeq.Empty
@@ -179,10 +171,7 @@ class VotingHelper extends InRoom {
 	  case VotableQuery(query) => tag match { 
 	    case "creator" => query.creator.obj.map (formatUser(_)).getOrElse(Text("---"))
 	    case "time" => Text(Tick.format(query.creation.is))
-	    case "keys" => 
-	      buttonFactory.newKeyListRecord(() => query.keyList,
-					     list => query.keys(list).save )
-	      buttonFactory.toggleText
+	    case "keys" => getKeyTags(nominee)
 	    case "numVoters" => 
 	      val sign= attribs.get("weight").get.text.toInt
 	      renderVote(() => 
@@ -353,4 +342,8 @@ class VotingHelper extends InRoom {
 
   /** Select the items of the current view */
   def slice(data : List[Votable]) : List[Votable] = data
+
+  /** Get the tags for a nominee */
+  def getKeyTags(nominee : Votable) : NodeSeq = 
+    Text(TaggedUtils.keyList(nominee).mkString(" "))
 }

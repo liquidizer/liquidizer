@@ -37,6 +37,8 @@ class Boot {
     Schemifier.schemify(true, Schemifier.infoF _, Votable, User, Query, 
 			Vote, Comment, Room, Certificate, Emotion, Tick)
 
+    // convert the data base
+    org.liquidizer.lib.TaggedUtils.convertDB
     if (Room.findAll.isEmpty) {
       lazy val room= Room.create.name("Default").saveMe
       Votable.findAll.foreach { _.room(room).save }
