@@ -100,7 +100,7 @@ class AddQuery extends StatefulSnippet with InRoom {
   }
 
   var what= ""
-  var keys= S.param("search").getOrElse("")
+  var keys= S.param("search").getOrElse("").replaceAll("#","")
 
   def create(in:NodeSeq) : NodeSeq = {
     Helpers.bind("addquery", in,
@@ -116,7 +116,7 @@ class AddQuery extends StatefulSnippet with InRoom {
 		     id={"key_"+tag}
 		     onclick={"toggleTag('"+tag+"')"}>{tag}</div>
 		   }
-		 }.renderTagList(TaggedUtils.tagList(room.get), 20)
+		 }.renderTagList(TaggedUtils.tagList(room.get).map { _.replaceAll("^#","") }, 20)
 	       )
   }
 

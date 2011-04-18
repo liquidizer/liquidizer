@@ -6,30 +6,6 @@ import org.liquidizer.model._
 
 object TaggedUtils {
 
-  def convertDB() = {
-    for (query <- Query.findAll) {
-      val keys= query.keys.is.split("[, ]").filter { _.trim.length>0 }
-      
-      if (!keys.isEmpty) {
-	val nominee= Votable.find(By(Votable.query, query)).get
-	val author= query.creator.obj.get
-	val comment= Comment.get(author, nominee).getOrElse {
-    	  Comment
-	  .create
-	  .author(author)
-	  .nominee(nominee)
-	  .date(query.creation.is)
-	  .content("")
-	}
-	if (keys.size>0)
-	  comment.content(comment.content.is+ keys.mkString(" #"," #",""))
-	comment.save
-	query.keys("")
-	query.save
-      }
-    }
-  }
-
   /** Pattern tomatch a hash tag in a comment */
   val HASHTAG_R= "#(\\p{L}|\\d)+".r
 

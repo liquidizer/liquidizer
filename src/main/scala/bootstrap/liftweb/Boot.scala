@@ -38,9 +38,8 @@ class Boot {
 			Vote, Comment, Room, Certificate, Emotion, Tick)
 
     // convert the data base
-    org.liquidizer.lib.TaggedUtils.convertDB
     if (Room.findAll.isEmpty) {
-      lazy val room= Room.create.name("Default").saveMe
+      lazy val room= Room.create.name("default").saveMe
       Votable.findAll.foreach { _.room(room).save }
       Emotion.findAll.foreach { _.room(room).save }
     }

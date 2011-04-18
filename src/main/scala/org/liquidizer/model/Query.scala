@@ -18,7 +18,6 @@ class Query extends LongKeyedMapper[Query] with IdPK {
   def getSingleton = Query
 
   object what extends MappedString(this,255)
-  object keys extends MappedString(this,255)
   object creation extends MappedLong(this) 
   object creator extends MappedLongForeignKey(this, User)
 

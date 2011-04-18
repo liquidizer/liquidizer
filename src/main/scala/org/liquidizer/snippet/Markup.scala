@@ -188,7 +188,7 @@ class MenuMarker extends InRoom {
 	  val field= action.text
 	  if (isDefault && field=="sort") S.set("defaultOrder", value)
 	  active &&= S.param(field).map { value == _ }.getOrElse(isDefault)
-	  href += "?"+field+"="+value
+	  href = Helpers.appendParams(href, List(field->value))
 	}
 
         // make menu entry
@@ -203,11 +203,9 @@ class MenuMarker extends InRoom {
 
       case Elem("local", "a", attribs, scope, children @ _*) =>
 	// keep a number of current request attributes in the target url
-        val keep= attribs.get("keep").map {
-	  _.text.split(" ").map { p => p+"="+S.param(p).getOrElse("") }
-	  .mkString("?","&","")
-	} .getOrElse("")
-        val url= toUrl(attribs.get("href")) + keep
+        val keep= attribs.get("keep").map{_.text}.getOrElse("").split(" ")
+        val para= keep.filter(!S.param(_).isEmpty).map{p => p -> S.param(p).get} 
+        val url= Helpers.appendParams(toUrl(attribs.get("href")), para)
         val title= attribs.get("title").map( Localizer.loc(_) )
         <a href={url} alt={title} title={title}>{ children }</a>
 
