@@ -108,7 +108,8 @@ class CategoryView(val keys : List[String], rootLink:String)  {
   def isActive(tag : String) = keys.contains(tag.toLowerCase)
 
   def link(node : Node, keys : List[String]) = {
-    val uri= Helpers.appendParams(rootLink, ("search" -> keys.mkString(" ")) :: Nil)
+    val sort= S.param("sort").map { v => List(("sort", v)) }.getOrElse(Nil)
+    val uri= Helpers.appendParams(rootLink, ("search" -> keys.mkString(" ")) :: sort)
     <a href={uri}>{node}</a>
   }
 
@@ -186,7 +187,8 @@ class MenuMarker {
 	  val field= action.text
 	  if (isDefault && field=="sort") S.set("defaultOrder", value)
 	  active &&= S.param(field).map { value == _ }.getOrElse(isDefault)
-	  href += "?"+field+"="+value
+	  val search= S.param("search").map { v => List(("search",v))}.getOrElse(Nil)
+	  href = Helpers.appendParams(href, (field, value) :: search)
 	}
 
         // make menu entry
