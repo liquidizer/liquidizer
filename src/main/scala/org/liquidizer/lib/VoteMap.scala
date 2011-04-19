@@ -8,8 +8,8 @@ import org.liquidizer.model._
  *  It provides fast access to the latest results and statistical data.
  */
 object VoteMap {
-  val SWING_DECAY= 0.05 / Tick.day
-  val WEIGHT_DECAY= 0.01 / Tick.day
+  val SWING_DECAY= 0.25 / Tick.day
+  val WEIGHT_DECAY= 0.0 / Tick.day
   val EPS= 1e-5
 
   var users= Map[User, UserHead]()

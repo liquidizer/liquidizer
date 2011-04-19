@@ -17,6 +17,8 @@ object StartUp {
   val CONTENT_R= "^(<p>|<ul><li>)(.*)".r
   val DATE_FORMAT= new SimpleDateFormat("dd.mm.yyyy")
 
+  var concMap= Map[String, List[String]]()
+
   def dehtml(str:String) = str.replaceAll("&amp;","&")
 
   def process(dir : File) : Unit = {
@@ -28,7 +30,8 @@ object StartUp {
 	var state : Option[String] = None
 	var values= Map[String,String]()
 
-	val input= new BufferedReader(new FileReader(file))
+	val reader = new InputStreamReader(new FileInputStream(file), "UTF-8")
+	val input= new BufferedReader(reader)
 	try {
 	  var aws = input.readLine
 	  while(aws!=null) {
@@ -76,9 +79,18 @@ object StartUp {
 	  val group= if (typ.contains("Satzung")) "" else
 	    values.get("Antragsgruppe").getOrElse("")
 	  .replaceAll("Keine der Gruppen","")
+	  .replaceAll(" und ","&")
+	  .replaceAll("^.$","")
 	  .replaceAll(" ","")
 	  query.keys(typ+" "+group)
 	  query.save
+	  
+	  val conc= values.get("Konkurrenzantrge")
+	  if (conc.exists { _.matches("^\\p{L}+[0-9]+ ") }) {
+	     val a2= conc.get.split(" ").head
+	     concMap += a -> (a2 :: concMap.get(a).getOrElse(Nil))
+	  }
+
 	}
       }
     }
@@ -98,6 +110,24 @@ object StartUp {
       }
     } finally {
       input.close
+    }
+  }
+
+  def processConcurrency() {
+    concMap.toList.foreach { e => println(e._1+" -> "+e_2) }
+    var blocks= concMap.toList.flatMap { e => e._1 :: e._2 }.removeDuplicates
+    val queries= Query.findAll
+    var bno= 1
+    while (!blocks.isEmpty) {
+      val h= blocks.head
+      val block= h :: concMap.get(h).get
+      for (b <- block) {
+      	for (q <- queries.filter { _.what.is.startsWith(b) }) {
+          q.keys(q.keys.is+" #block"+bno).save
+        }
+      }
+      bno += 1
+      blocks = blocks -- block
     }
   }
 
