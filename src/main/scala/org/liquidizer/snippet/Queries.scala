@@ -31,7 +31,7 @@ class Queries extends MultipageSnippet {
   override def categories(in:NodeSeq) : NodeSeq = {
     val markup= new CategoryView(search, "/queries.html")
     <span>{
-      markup.renderTagList(TaggedUtils.sortedTags(getData()), 10)
+      markup.renderTagList(TaggedUtils.sortedTags(getData()).filter(!_.startsWith("#")), 10)
     }</span>
   }
 

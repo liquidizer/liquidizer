@@ -13,22 +13,25 @@ class BPTQueryOrder {
 
   var resultMap= Map(queries.map { q => (q, VoteMap.getCurrentResult(q).value) }:_*)
 
+  var subblock=0.0
   var blockMap= Map[String, Double]()
   for (query <- queries) {
     for (key <- query.query.obj.get.keyList() if key.startsWith("#block")) {
       val old= blockMap.get(key).getOrElse(0.0)
       val value = old max resultMap.get(query).get
-      blockMap += key -> value
+      subblock= subblock + 1e-9
+      blockMap += key -> (value + subblock)
     }
   }
   
-  resultMap = resultMap.map { case (query, value) => {
+  
+  resultMap = resultMap.map { case (nominee, value) => {
     val blockValue=
-      query.query.obj.get.keyList()
+      nominee.query.obj.get.keyList()
     .map { blockMap.get(_).getOrElse(0.0) }
     .foldLeft(value) { _ max _ }
     
-    query -> (blockValue + value * 1e-6)
+    nominee -> (blockValue + value * 1e-11)
   }}
 
   def getWeight(n : Votable) : Double = {
