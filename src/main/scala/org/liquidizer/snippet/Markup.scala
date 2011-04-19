@@ -108,7 +108,8 @@ class CategoryView(val keys : List[String], rootLink:String)  {
   def isActive(tag : String) = keys.contains(tag.toLowerCase)
 
   def link(node : Node, keys : List[String]) = {
-    val uri= Helpers.appendParams(rootLink, ("search" -> keys.mkString(" ")) :: Nil)
+    val sort= S.param("sort").map { v => List(("sort", v)) }.getOrElse(Nil)
+    val uri= Helpers.appendParams(rootLink, ("search" -> keys.mkString(" ")) :: sort)
     <a href={uri}>{node}</a>
   }
 
@@ -188,8 +189,9 @@ class MenuMarker extends InRoom {
 	  val field= action.text
 	  if (isDefault && field=="sort") S.set("defaultOrder", value)
 	  active &&= S.param(field).map { value == _ }.getOrElse(isDefault)
-	  href = Helpers.appendParams(href, List(field->value))
-	}
+	  val search= S.param("search").map { v => List(("search",v))}.getOrElse(Nil)
+	  href = Helpers.appendParams(href, (field, value) :: search)
+      }
 
         // make menu entry
 	val entry= attribs.get("icon").map { url =>
@@ -203,9 +205,9 @@ class MenuMarker extends InRoom {
 
       case Elem("local", "a", attribs, scope, children @ _*) =>
 	// keep a number of current request attributes in the target url
-        val keep= attribs.get("keep").map{_.text}.getOrElse("").split(" ")
-        val para= keep.filter(!S.param(_).isEmpty).map{p => p -> S.param(p).get} 
-        val url= Helpers.appendParams(toUrl(attribs.get("href")), para)
+        val keep= attribs.get("keep").map{_.text}.getOrElse("")
+        val para= S.param(keep).map { v => List((keep,v))}.getOrElse(Nil)
+        val url= Helpers.appendParams(toUrl(attribs.get("href")), para )
         val title= attribs.get("title").map( Localizer.loc(_) )
         <a href={url} alt={title} title={title}>{ children }</a>
 
