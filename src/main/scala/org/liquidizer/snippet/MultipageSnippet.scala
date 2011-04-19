@@ -170,12 +170,10 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def view(in : NodeSeq) : NodeSeq = in.flatMap(view(_))
 
   def attribUri(params : (String,String)*) = {
-    S.uri + {
+    Helpers.appendParams(S.uri, {
       (Map("sort" -> order.getOrElse(""), "search" -> search) ++ Map(params:_*))
       .filter { case (key, value) => value.length>0 }
-      .map { case (key,value) => key+"="+value }
-      .mkString("?","&","")
-    }
+      .toList })
   }
 
   def view(in : Node) : NodeSeq = {
