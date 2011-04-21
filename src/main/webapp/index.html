@@ -47,13 +47,13 @@
 	      </lift:UserSignUp>
 	    </lift:Invitation.validAndFree>
 
-	    <lift:Invitation.isEmpty eager_eval="true">
-	      <table>
-		<tr><td colspan="2"> <b>Ahoi,</b> <br/> um dich anzumelden
+	    <lift:Invitation.isEmpty>
+	      <div style="margin: 20px 50px 20px 0px;">
+		    <b>Ahoi,</b> <br/> um dich anzumelden
 		    brauchst Du entweder einen gültigen Invite-Code,
 		    oder einen bereits registrierten Account.
-		</td></tr>
-		<tr><td height="20px"/></tr>
+	      </div>
+	      <table>
 		<tr>
       		  <td><lift:loc>user.name</lift:loc></td>
       		  <td><me:name/></td>
