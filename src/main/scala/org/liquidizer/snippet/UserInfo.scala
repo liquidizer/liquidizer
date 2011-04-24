@@ -326,7 +326,7 @@ class UserSignUp extends StatefulSnippet {
 
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet
-	  redirectTo("/index.html")
+	  redirectTo("/queries.html")
 	}
     }
   }

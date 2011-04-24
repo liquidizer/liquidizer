@@ -120,7 +120,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
   /** Sort data according to the sort order in request parameter */
   def sortData(f : () => Votable => Double): Unit = {
     if (order.exists(_=="alpha")) {
-      data = data.sort { _.toString < _.toString }
+      data = data.sort { _.toString.toLowerCase < _.toString.toLowerCase }
     } else {
       val f_ = f()
       data = data
