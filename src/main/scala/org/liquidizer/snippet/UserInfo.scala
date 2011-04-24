@@ -289,9 +289,9 @@ class UserSignUp extends StatefulSnippet {
     var passwd2= ""
     Helpers.bind("user", in, 
 		 "name" -> SHtml.text(username, username = _),
-		 "email" -> SHtml.text(email, email = _),
-		 "passwd1" -> SHtml.password(passwd1, passwd1 = _),
-		 "passwd2" -> SHtml.password(passwd2, passwd2 = _),
+		 // "email" -> SHtml.text(email, email = _),
+		 // "passwd1" -> SHtml.password(passwd1, passwd1 = _),
+		 // "passwd2" -> SHtml.password(passwd2, passwd2 = _),
 		 "submit" -> SHtml.submit(S?"system.signup", () => {
 		   signup(passwd1, passwd2)
 		 })
@@ -317,6 +317,7 @@ class UserSignUp extends StatefulSnippet {
 	  val user= User.create
 	  .nick(username)
 	  .email(email)
+	  .password(code.get.code.is)
 	  .validated(User.skipEmailValidation)
 	  if (passwd1.length > 4) {
 	    user.password(passwd1)
