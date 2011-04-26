@@ -204,10 +204,7 @@ class MenuMarker extends InRoom {
         <li><a href={href} title={title} alt={title}><div class={style}>{entry}</div></a></li>
 
       case Elem("local", "a", attribs, scope, children @ _*) =>
-	// keep a number of current request attributes in the target url
-        val keep= attribs.get("keep").map{_.text}.getOrElse("")
-        val para= S.param(keep).map { v => List((keep,v))}.getOrElse(Nil)
-        val url= Helpers.appendParams(toUrl(attribs.get("href")), para )
+        val url= toUrl(attribs.get("href"))
         val title= attribs.get("title").map( Localizer.loc(_) )
         <a href={url} alt={title} title={title}>{ children }</a>
 
