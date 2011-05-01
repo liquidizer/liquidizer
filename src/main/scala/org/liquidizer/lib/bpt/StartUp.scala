@@ -78,7 +78,6 @@ object StartUp {
 	    .what(text)
 	    .creation(date)
 	    q.save
-	    Votable.create.query(q).save
 	    q
 	  }
 	  val typ= values.get("Antragstyp").getOrElse("").replaceAll(" ","")
@@ -166,7 +165,11 @@ object StartUp {
     }
   }
 
-  def run() : Unit = {
+  def run() {
+    // init()
+  }
+
+  private def init() {
     Query.findAll.filter { _.what.is.contains("<b>") }
     .foreach { q => q.what(dehtml(q.what.is)).save }
     val dir= new File("wiki.piratenpartei.de/Antragsportal/")
