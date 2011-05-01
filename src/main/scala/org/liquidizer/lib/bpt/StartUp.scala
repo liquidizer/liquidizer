@@ -20,7 +20,9 @@ object StartUp {
 
   var concMap= Map[String, List[String]]()
 
-  def dehtml(str:String) = str.replaceAll("&amp;","&")
+  def dehtml(str:String) = str
+  .replaceAll("&amp;","&")
+  .replaceAll("</?b>","")
 
   def process(dir : File) : Unit = {
     for (file <- dir.listFiles) {

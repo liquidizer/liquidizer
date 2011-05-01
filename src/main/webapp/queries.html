@@ -4,13 +4,13 @@
     <div class="toprow">
       <lift:MenuMarker>
 	<ul class="sort">
-	  <menu:a action="sort" value="bpt" icon="bpt" default="true" title="Antragsreihenfolge"/>
+	  <menu:a action="sort" value="alpha" icon="alpha" default="true" title="$sort.alpha"/>
+	  <menu:a action="sort" value="comment" icon="comment" title="$sort.comment"/>
 	  <menu:a action="sort" value="pro" icon="pro" title="$sort.pro"/>
 	  <menu:a action="sort" value="contra" icon="contra" title="$sort.contra"/>
 	  <menu:a action="sort" value="swing" icon="swing" title="$sort.swing"/>
 	  <menu:a action="sort" value="conflict" icon="conflict" title="$sort.conflict"/>
-	  <menu:a action="sort" value="comment" icon="comment" title="$sort.comment"/>
-	  <menu:a action="sort" value="alpha" icon="alpha" title="$sort.alpha"/>
+	  <menu:a action="sort" value="bpt" icon="bpt" title="Antragsreihenfolge"> Vorläufige Reihenfolge</menu:a>
 	</ul>
       </lift:MenuMarker>
       <div style="float:right">
