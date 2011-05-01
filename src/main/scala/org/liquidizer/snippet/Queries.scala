@@ -22,9 +22,10 @@ class Queries extends MultipageSnippet {
   }
     
   def loadData() = {
-    data = Query.findAll
-    .filter { searchFilter _ }
-    .map { VotableQuery(_) }
+    var queries = Query.findAll.filter { searchFilter _ }
+    if (order.exists{_=="bpt"})
+      queries= queries.filter ( !_.keys.is.contains("#vorselektiert") )
+    data= queries.map { VotableQuery(_) }
     sortData()
   }
 

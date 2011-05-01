@@ -14,8 +14,8 @@ object StartUp {
 
   val TITLE_R= "class=\"firstHeading\"[^>]*>([^<]*)<".r
   val HEAD_R= "class=\"mw-headline\"[^>]*>([^<]*)<".r
-  val CONTENT_R= "^(<p>|<ul><li>)(.*)".r
-  val CONC_R= ">(\\p{L}+[0-9]+) ".r
+  val CONTENT_R= "(<p>|<li>)(.*)".r
+  val CONC_R= "((X|PA|SÄA)[0-9]{3})".r
   val DATE_FORMAT= new SimpleDateFormat("dd.mm.yyyy")
 
   var concMap= Map[String, List[String]]()
@@ -49,10 +49,14 @@ object StartUp {
 	      }
 	      case Some(name) => {
 		val m= CONTENT_R.findFirstMatchIn(aws)
-		if (!m.isEmpty) {
-		  values += name.trim -> dehtml(m.get.group(2).trim)
-		  state = None
-		}}
+		var old= values.get(name.trim).getOrElse("")
+		if (m.isEmpty) {
+		  if (old.length>0) state=None
+		} else {
+		  if (old.length>0) old=old+" ";
+		  values += name.trim -> dehtml(old+m.get.group(2).trim)
+		}
+	      }
 	    }
 	    aws= input.readLine
 	  }
@@ -89,11 +93,13 @@ object StartUp {
 	  
 	  val conc= values.get("Konkurrenzanträge")
 	  if (!conc.isEmpty) {
-	    val m= CONC_R.findFirstMatchIn(conc.get)
-	    if (!m.isEmpty) {
-	      val a2= m.get.group(1)
+	    println()
+	    println(no+": "+conc)
+	    val ms= CONC_R.findAllIn(conc.get)
+	    for (a2 <- ms) {
 	      concMap += no -> (a2 :: concMap.get(no).getOrElse(Nil))
 	    }
+	    println(concMap.get(no))
 	  }
 	}
       }
@@ -116,24 +122,43 @@ object StartUp {
     }
   }
 
+  def processPreselected(file : File) {
+    val queries= Query.findAll
+    val input= new BufferedReader(new FileReader(file))
+    try {
+      var aws = input.readLine
+      while(aws!=null) {
+	val no= aws.trim
+	queries.filter { _.what.is.startsWith(no) }
+	.foreach { q => q.keys(q.keys.is+" #vorselektiert").save }
+	aws= input.readLine
+      }
+    } finally {
+      input.close
+    }
+  }
+
   def processConcurrency() {
+    concMap= concMap.map { case (a,b) => (a, b.map{ _.replaceAll(" ","")}.removeDuplicates ) }
     var blocks= concMap.toList.flatMap { e => e._1 :: e._2 }.removeDuplicates
     val queries= Query.findAll
     var bno= 1
+    concMap.foreach {case (a,b) => println(a + ":" +b) }
     while (!blocks.isEmpty) {
       val h= blocks.head
-      var block= h :: concMap.get(h).get
+      var block= h :: concMap.get(h).getOrElse(Nil)
       for (i <- 1 to 10) {
 	for (b <- block) {
-	  block ++= concMap.filter {_._2.contains(b)}.map { _._1 }.toList
-	  block ++= concMap.get(b).getOrElse(Nil)
+          block ++= concMap.filter {_._2.contains(b)}.map { _._1 }.toList
+          block ++= concMap.get(b).getOrElse(Nil)
 	}
 	block= block.removeDuplicates
       }
-      println(block)
+      println("#block"+bno+" = "+block)
       for (b <- block) {
+	println("'"+b+"'")
       	for (q <- queries.filter { _.what.is.startsWith(b) }) {
-          q.keys(q.keys.is+" #block"+bno).save
+          q.keys(q.keys.is+" #block"+("%02d".format(bno))).save
         }
       }
       bno += 1
@@ -142,9 +167,15 @@ object StartUp {
   }
 
   def run() : Unit = {
+    Query.findAll.filter { _.what.is.contains("<b>") }
+    .foreach { q => q.what(dehtml(q.what.is)).save }
     val dir= new File("wiki.piratenpartei.de/Antragsportal/")
     process(dir)
     processConcurrency()
+
+    val presel= new File("preselect.txt")
+    if (presel.exists)
+      processPreselected(presel)
 
     val inv= new File("invitations.txt")
     if (inv.exists)
