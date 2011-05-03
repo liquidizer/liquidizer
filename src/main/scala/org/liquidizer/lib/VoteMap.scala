@@ -10,7 +10,7 @@ import org.liquidizer.model._
 object VoteMap {
   val SWING_DECAY= 0.25 / Tick.day
   val WEIGHT_DECAY= 0.0 / Tick.day
-  val EPS= 1e-5
+  val EPS= 1e-4
 
   var users= Map[User, UserHead]()
   var nominees= Map[Votable, NomineeHead]()

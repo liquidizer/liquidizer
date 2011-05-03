@@ -25,7 +25,8 @@ class Queries extends MultipageSnippet {
     var queries = Query.findAll.filter { searchFilter _ }
     if (order.exists{_=="bpt"})
       queries= queries.filter ( !_.keys.is.contains("#vorselektiert") )
-    data= queries.map { VotableQuery(_) }
+    data= Votable.findAll(ByList(Votable.query, queries.map {_.id.is}))
+    //data= queries.map { VotableQuery(_) }
     sortData()
   }
 

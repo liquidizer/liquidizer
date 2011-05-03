@@ -51,7 +51,7 @@ class NomineeHead(val nominee : Votable) {
 	  .time(time)
 	  .quote(quote))
 	// persist result
-	tick.get.save
+	if (nominee.isQuery) tick.get.save
     }
   }
 }
