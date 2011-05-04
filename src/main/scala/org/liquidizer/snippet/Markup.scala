@@ -13,7 +13,7 @@ import org.liquidizer.model._
 
 object Markup {
 
-  val url= "(http:/[^\\s\"]*[^\\s!?&.<>])".r
+  val url= "(https?:/[^\\s\"]*[^\\s!?&.<>])".r
  
   def renderComment(in : String) : NodeSeq = {
     if (in==null || in.length==0)
@@ -65,7 +65,13 @@ object Markup {
   def renderLine(in : String) = renderHeader(in, x=>x, x=>x)
 
   def renderTagList(in:List[String]) : Node = {
-    <span class="keys">{in.mkString(", ")}</span>
+    <span class="keys">{
+      var isFirst= true
+      in.map { key =>
+	val suff= if (isFirst) NodeSeq.Empty else Text(", ")
+        isFirst= false
+	suff ++ <a class="tag" href={Helpers.appendParams("/queries.html",("search",key) :: Nil)}>{key}</a>
+    }}</span>
   }
 
   def renderHeader(in : String, link : String) : NodeSeq =

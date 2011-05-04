@@ -71,6 +71,12 @@ h3 a {
     list-style-type: none;
     padding: 0px;
 }
+.keys a.tag:hover {
+    color: #660099;
+}
+.keys .tag {
+    color: gray;
+}
 .keys .inactive {
     padding: 4px;
     margin: 5px;

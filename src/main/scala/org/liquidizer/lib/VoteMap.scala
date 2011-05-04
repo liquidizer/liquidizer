@@ -77,7 +77,7 @@ object VoteMap {
     user.validated && users.get(user).exists { _.active }
 
   def getAllVoters(nominee : Votable) : List[User] = {
-    var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
+    var list= List[User]()
     // find voters recursively as voters and followers
     var proc= List(nominee)
     while (!proc.isEmpty) {
@@ -88,7 +88,10 @@ object VoteMap {
       proc=  next.map { VotableUser(_) }
       list ++= next
     }
-    list
+    list ++ (
+      Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get } -- 
+      list
+    )
   }
 
   /** Find all queries a user is actively or indirectly voting for */
