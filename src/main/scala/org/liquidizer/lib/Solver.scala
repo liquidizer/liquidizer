@@ -38,8 +38,8 @@ class NomineeHead(val nominee : Votable) {
   /** Set the new Result */
   def update(time : Long, quote : Quote) = {
     // update smoothed value for trend indication
-    val tickTime= tick.map { _.time.is }.getOrElse(time)
-    val factor= Math.exp(SWING_DECAY*(tickTime-time))
+    val tickTime= tick.map { _.time.is }.getOrElse(time).min(time)
+    val factor= Math.exp(SWING_DECAY*(tickTime-time)).min(1.0)
     smooth= factor*smooth + (1-factor) * result(time).value
 
     if (!tick.exists( _.quote.distanceTo(quote)<EPS)) {
