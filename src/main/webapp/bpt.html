@@ -1,0 +1,36 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:lift="http://liftweb.net/">
+  <head>
+    <title>Liquidizer</title>
+    <link type="text/css" href="/style.css" rel="stylesheet"/>
+  </head>
+<body>
+  <table width="100%">
+    <lift:BPT eager_eval="true">
+      <tr>
+	<td><span class="rank"><bpt:no/></span></td>
+	<td class="votable">
+	  <bpt:title/><br/>
+	  <query:keys/>
+	</td>
+	<lift:UserInfo.in>
+	  <td class="vote_query">
+	    <me:vote/>
+	  </td>
+	</lift:UserInfo.in>
+	<td class="vote_result">
+	  <poll:result/>
+	</td>
+	<td>
+	  <poll:chart height="30" width="50" grid="off" axis="all"/>
+	</td>
+	<td>
+	  <poll:hist height="30" width="50" grid="off"/>
+	</td>
+      </tr>
+      <tr height="5"/>
+      <tr height="1"><td colspan="4" bgcolor="lightgray"/></tr>
+      <tr height="5"/>
+    </lift:BPT>
+  </table>
+</body>
+</html>
