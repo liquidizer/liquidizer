@@ -71,8 +71,13 @@ class BPT extends MultipageSnippet {
 	  Helpers.bind("bpt", helper.bind(in, item),
 		       "no" -> {if (no._2==0) Text(no._1.toString)
 				else Text(no._1+"."+no._2)},
-		       "title" -> 
-		       <a>{title}</a>)
+		       "title" -> <a>{title}</a>,
+		       "sep" -> (if (no._1 >1 && no._2 <= 1) {
+			 <tr><td colspan="5"><hr/></td></tr>
+		       } else {
+			 NodeSeq.Empty
+		       })
+		     )
 	}
     }
   }

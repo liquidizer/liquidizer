@@ -73,7 +73,7 @@ object Solver {
   /** Recompute all results following the latest votes */
   def recompute() : Unit = synchronized {
     // iterative matrix solving
-    sweep(1000, 1e-4)
+    sweep(1000, 1e-5)
 
     // Prepare result map
     var resultMap= Map(nominees.keys.toSeq.filter{_.isQuery}.map{ case VotableQuery(query) => query.id.is -> Quote(0,0)}:_*)

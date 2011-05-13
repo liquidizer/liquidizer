@@ -6,10 +6,12 @@
 <body>
   <table width="100%">
     <lift:BPT eager_eval="true">
+      <bpt:sep/>
       <tr>
-	<td><span class="rank"><bpt:no/></span></td>
+	<td><span class="rank">
+	    <span style="font-size:120%"><bpt:no/></span></span></td>
 	<td class="votable">
-	  <bpt:title/><br/>
+	  <span style="font-size:120%"><bpt:title/></span><br/>
 	  <query:keys/>
 	</td>
 	<lift:UserInfo.in>
@@ -27,9 +29,6 @@
 	  <poll:hist height="30" width="50" grid="off"/>
 	</td>
       </tr>
-      <tr height="5"/>
-      <tr height="1"><td colspan="4" bgcolor="lightgray"/></tr>
-      <tr height="5"/>
     </lift:BPT>
   </table>
 </body>
