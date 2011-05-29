@@ -42,8 +42,12 @@ object VoteMap {
   private def updateSolver() : Unit = {
     // read votes
     val votes = Vote.findAll(By_>(Vote.date, latestUpdate))
-    for (vote <- votes)
-      solver(vote.nominee.obj.get.room.is).voteList::= vote
+    for (vote <- votes) {
+      if (vote.nominee.obj.isEmpty)
+	vote.delete_!
+      else
+	solver(vote.nominee.obj.get.room.is).voteList::= vote
+    }
 
     // recompute
     val time= votes.map { _.date.is }.foldLeft(0L) { _ max _ }
@@ -94,7 +98,7 @@ object VoteMap {
      solver(room.id.is).users.get(user.id.is).exists { _.active }
 
   def getAllVoters(nominee : Votable) : List[User] = {
-    var list= Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get }
+    var list= List[User]()
     // find voters recursively as voters and followers
     var proc= List(nominee)
     val room= nominee.room.obj.get
@@ -106,7 +110,8 @@ object VoteMap {
       proc= Votable.get(next, room)
       list ++= next
     }
-    list
+    val comments= Comment.findAll(By(Comment.nominee, nominee))
+    list ++ (comments.map{ _.author.obj.get } -- list)
   }
 
   /** Find all queries a user is actively or indirectly voting for */

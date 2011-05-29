@@ -58,4 +58,17 @@ object PollingBooth {
     votes.foreach { v => vote(user, v.nominee.obj.get, 0) }
     VoteMap.refresh()
   }
+
+  /** Delete nominee */ 
+  def deleteVotable(nominee : Votable) = {
+    for (vote <- Vote.findAll(By(Vote.nominee, nominee)))
+      vote.delete_!
+    for (comment <- Comment.findAll(By(Comment.nominee, nominee)))
+      comment.delete_!
+    nominee.delete_!
+    nominee match {
+      case VotableQuery(query) => query.delete_!
+      case _ =>
+    }
+  }
 }

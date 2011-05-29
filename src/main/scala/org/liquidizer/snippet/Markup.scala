@@ -13,8 +13,6 @@ import org.liquidizer.model._
 
 object Markup {
 
-  val url= "(http:/[^\\s\"]*[^\\s!?&.<>])".r
- 
   def renderComment(in : String) : NodeSeq = {
     if (in==null || in.length==0)
       NodeSeq.Empty
@@ -52,7 +50,7 @@ object Markup {
     in match {
       case Nil => Nil
       case List(line, _*) if line.matches(" *[*-] .*") => {
-	val li = <li>{ renderLine(line.replaceAll("^ *[*#]","")) }</li>
+	val li = <li>{ renderLine(line.replaceAll("^ *[*-#]","")) }</li>
 	tail match {
 	  case <ul>{ c @ _* }</ul> :: t => <ul>{ li ++ c }</ul> :: t
 	  case t => <ul>{ li }</ul> :: t
@@ -78,26 +76,19 @@ object Markup {
 
   /** render a header replacing links with a generic short cut */
   def renderHeader(in : String, link : Node=>Node, short : String=>String) : NodeSeq = {
-    url.findFirstMatchIn(in) match {
+    val URL_R = "(http:/[^\\s\"]*[^\\s!?&.<>])".r
+    URL_R.findFirstMatchIn(in) match {
       case Some(m) =>
-        link(Text(m.before.toString)) ++ 
-        <a href={m.matched} title={m.matched} target="_blank" class="extern">{short(m.matched)}</a> ++ 
+        link(Text(m.before.toString)) ++ eLink(m.matched, short(m.matched)) ++ 
         renderHeader(m.after.toString, link, short)
       case _ =>
 	link(Text(in))
     }
   }
 
-  /** format a time relative to now */
-  def formatRelTime(time : Long) : String = {
-    val dt= Tick.now - time
-    if (dt <= Tick.min) S.?("time.secs").format(dt/Tick.sec)
-    else if (dt <= Tick.h) S.?("time.mins").format(dt/Tick.min)
-    else if (dt < 2*Tick.h) S.?("time.one.hour")
-    else if (dt <= Tick.day) S.?("time.hours").format(dt/Tick.h)
-    else if (dt < 2*Tick.day) S.?("time.one.day")
-    else S.?("time.days").format(dt/Tick.day)
-  }
+  /** make an external link */
+  def eLink(url : String, display : String) =
+    <a href={url} title={url} target="_blank" class="extern">{display}</a>
 }
 
 class CategoryView(val keys : List[String], rootLink:String)  {

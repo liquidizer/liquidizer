@@ -127,7 +127,7 @@ class VotingHelper extends InRoom {
 	  Comment.getLatest(nominee) match {
 	    case Some(comment) => 
 	      Text(S.?("time.commented")+" "+ 
-		   Markup.formatRelTime(comment.date.is)+" (") ++
+		   TimeUtil.formatRelTime(comment.date.is)+" (") ++
 		   comment.author.obj.map { formatUser(_) }
 		   .openOr { Text("-") } ++ Text(")")
 	    case _ => Nil }
@@ -170,6 +170,16 @@ class VotingHelper extends InRoom {
 	nominee match {
 	  case VotableQuery(query) => tag match { 
 	    case "creator" => query.creator.obj.map (formatUser(_)).getOrElse(Text("---"))
+	    case "delete" => 
+	      def canDelete = VoteMap.getActiveVoters(nominee).isEmpty
+	      if (currentUser==query.creator.obj && canDelete)
+		SHtml.ajaxButton(S?"query.delete", () => {
+		  if (canDelete) {
+		    PollingBooth.deleteVotable(nominee)
+		    RedirectTo(home()+"/queries.html")
+		  } else Noop
+		})
+	      else NodeSeq.Empty
 	    case "time" => Text(Tick.format(query.creation.is))
 	    case "keys" => getKeyTags(nominee)
 	    case "numVoters" => 
@@ -269,7 +279,7 @@ class VotingHelper extends InRoom {
 	  buttonFactory.toggleText ++
 	  // add comment time
 	  Comment.get(user, nominee).map { c => 
-	    <span class="keys">{ Markup.formatRelTime( c.date.is) }</span> }
+	    <span class="keys">{ TimeUtil.formatRelTime( c.date.is) }</span> }
 	  .getOrElse(Nil)
 	}
 	case _ => Elem("user", label, attribs, scope, rec(true) : _*)

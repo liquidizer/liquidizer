@@ -211,8 +211,7 @@ class UserReset extends StatefulSnippet {
       User.logUserOut()
       // delete all delegations to the deleted user
       for (nominee <- Votable.findAll(By(Votable.user, user)))
-	for (vote <- Vote.findAll(By(Vote.nominee, nominee)))
-	  vote.delete_!
+	PollingBooth.deleteVotable(nominee)
       // delete identity
       user.profile("").email("").nick("---").validated(false)
       user.save
@@ -277,7 +276,7 @@ class UserSignUp extends StatefulSnippet {
 
 	  User.logUserIn(user)
 	  this.unregisterThisSnippet
-	  redirectTo("/queries.html")
+	  redirectTo("/index.html")
 	}
     }
   }
