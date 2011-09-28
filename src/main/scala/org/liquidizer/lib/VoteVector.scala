@@ -53,11 +53,13 @@ class VoteVector(val userID : Long) {
   var maxIdolPref = 0
   var denom = 0
 
+  def tresh(x : Double) = if (x.abs < 0.01) 0.0 else x
+
   def normalize() : Unit = {
     val norm= votes.norm
     if (norm > 1e-8) {
-      votes.elements.foreach { case (i,e) => e.set(e.value/norm) }
-      idols.elements.foreach { case (i,e) => e.set(0.0 max e.value/denom) }
+      votes.elements.foreach { case (i,e) => e.set(tresh(e.value/norm)) }
+      idols.elements.foreach { case (i,e) => e.set(tresh(0.0 max e.value/denom)) }
     }
     idols.elements.foreach { case (i,e) => maxD = maxD max e.value }
     idols.set(userID, 1.0)
