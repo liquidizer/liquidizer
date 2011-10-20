@@ -177,13 +177,13 @@ textarea {
 }
 .sort li {
     float: left;
-    border: 1px solid #660099;
-    margin: 2px;
 }
 .sort .active {
+    border: 2px solid #660099;
+    margin: 0px 6px 0 0;
 }
 .sort .inactive {
-    background-color: gray;
+    margin: 2px 4px 2px 2px;
 }
 .toprow {
     margin: 0 0 30px 10%; 
