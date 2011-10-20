@@ -105,11 +105,14 @@ object VoteMap {
     while (!proc.isEmpty) {
       val votes= proc.flatMap{ n => Vote.findAll(By(Vote.nominee, n)) }
       val next= votes
-      .filter{ _.weight.is!=0 }.map{ _.owner.obj.get }
+      .filter{ _.weight.is!=0 }
+      .map{ _.owner.obj.get }
+      .filter{ _.validated.is }
       .removeDuplicates -- list
       proc= Votable.get(next, room)
       list ++= next
     }
+    list= list.filter { getWeight(_,nominee).abs>0.01 }
     list ++ (
       Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get } -- 
       list

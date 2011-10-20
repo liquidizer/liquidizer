@@ -143,14 +143,16 @@ class Solver(val room : Room) {
   /** process the list of votes in the voteList */
   def preprocessVotes() = {
     for (vote <- voteList) {
-      // update activity time for user
-      val uHead= getUserHead(vote.owner.is)
-      uHead.update(vote.date.is)
-      time = time max vote.date.is
-      if (vote.weight.is==0 && uHead.latestVote > vote.date.is)
-	vote.delete_!
-      else
-	getNomineeHead(vote.nominee.is)
+      if (vote.owner.obj.get.validated.is) {
+	// update activity time for user
+	val uHead= getUserHead(vote.owner.is)
+	uHead.update(vote.date.is)
+	time = time max vote.date.is
+	if (vote.weight.is==0 && uHead.latestVote > vote.date.is)
+	  vote.delete_!
+	else
+	  getNomineeHead(vote.nominee.is)
+      }
     }
   }
 
@@ -167,24 +169,26 @@ class Solver(val room : Room) {
 			       ByList(Vote.nominee, nominees.keySet.toList))
 
       for (vote <- newVotes) {
-	val userId= vote.owner.is
-	val nominee= getNomineeHead(vote.nominee.is).nominee
+	if (vote.owner.obj.get.validated.is) {
+	  val userId= vote.owner.is
+	  val nominee= getNomineeHead(vote.nominee.is).nominee
 
-	// prepare result vector for that user
-	val vec= results.get(userId).getOrElse {
-	  results+= userId -> new VoteVector(userId)
-	  results.get(userId).get
-	}
+	  // prepare result vector for that user
+	  val vec= results.get(userId).getOrElse {
+	    results+= userId -> new VoteVector(userId)
+	    results.get(userId).get
+	  }
 
-	if (vote.weight.is != 0) {
-	  if (nominee.isUser) {
-	    // the vote is a delegation, mix in delegate's voting weights
-	    users.get(nominee.user.is).foreach {
-	      uHead=> vec.addDelegate(vote.weight.is, uHead.vec)
+	  if (vote.weight.is != 0) {
+	    if (nominee.isUser) {
+	      // the vote is a delegation, mix in delegate's voting weights
+	      users.get(nominee.user.is).foreach {
+		uHead=> vec.addDelegate(vote.weight.is, uHead.vec)
+	      }
+	    } else {
+	      // the vote is cast on a query
+	      vec.addVote(vote.weight.is, nominee.query.is)
 	    }
-	  } else {
-	    // the vote is cast on a query
-	    vec.addVote(vote.weight.is, nominee.query.is)
 	  }
 	}
       }
@@ -199,7 +203,7 @@ class Solver(val room : Room) {
       // normalize voting weight
       val head= getUserHead(userId)
       val vec= results.get(userId).get
-      vec.normalize()
+      vec.normalize();
       
       if (vec.distanceTo(head.vec) > EPS) {
 	head.latestUpdate= time
