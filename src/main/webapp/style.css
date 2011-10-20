@@ -71,6 +71,12 @@ h3 a {
     list-style-type: none;
     padding: 0px;
 }
+.keys a.tag:hover {
+    color: #660099;
+}
+.keys .tag {
+    color: gray;
+}
 .keys .inactive {
     padding: 4px;
     margin: 5px;
@@ -103,7 +109,7 @@ h3 a {
 }
 input.searchSubmit {
   color: transparent;
-  margin: 1px 1px 1px 10px;
+  margin: 0 0 0 10px;
   border: 0px;
   height: 25px;
   width: 14px;
@@ -119,7 +125,7 @@ input.searchText:hover {
 }
 input {
     border: 1px #660099 solid;
-    margin: 1px;
+    margin: 0 0 0 10px;
 }
 textarea {
     border: 1px #660099 solid;

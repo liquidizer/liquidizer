@@ -13,6 +13,8 @@ import org.liquidizer.model._
 
 object Markup {
 
+  val URL_R= "(https?:/[^\\s\"]*[^\\s!?&.<>])".r
+ 
   def renderComment(in : String) : NodeSeq = {
     if (in==null || in.length==0)
       NodeSeq.Empty
@@ -63,7 +65,13 @@ object Markup {
   def renderLine(in : String) = renderHeader(in, x=>x, x=>x)
 
   def renderTagList(in:List[String]) : Node = {
-    <span class="keys">{in.mkString(", ")}</span>
+    <span class="keys">{
+      var isFirst= true
+      in.map { key =>
+	val suff= if (isFirst) NodeSeq.Empty else Text(", ")
+        isFirst= false
+	suff ++ <a class="tag" href={Helpers.appendParams("/queries.html",("search",key) :: Nil)}>{key}</a>
+    }}</span>
   }
 
   def renderHeader(in : String, link : String) : NodeSeq =
@@ -76,7 +84,6 @@ object Markup {
 
   /** render a header replacing links with a generic short cut */
   def renderHeader(in : String, link : Node=>Node, short : String=>String) : NodeSeq = {
-    val URL_R = "(http:/[^\\s\"]*[^\\s!?&.<>])".r
     URL_R.findFirstMatchIn(in) match {
       case Some(m) =>
         link(Text(m.before.toString)) ++ eLink(m.matched, short(m.matched)) ++ 

@@ -110,8 +110,10 @@ object VoteMap {
       proc= Votable.get(next, room)
       list ++= next
     }
-    val comments= Comment.findAll(By(Comment.nominee, nominee))
-    list ++ (comments.map{ _.author.obj.get } -- list)
+    list ++ (
+      Comment.findAll(By(Comment.nominee, nominee)).map { _.author.obj.get } -- 
+      list
+    )
   }
 
   /** Find all queries a user is actively or indirectly voting for */
