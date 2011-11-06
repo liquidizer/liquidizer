@@ -177,8 +177,8 @@ class MenuMarker extends InRoom {
       case Elem("menu", "a", attribs, scope, children @ _*) =>
 	// determine target and current link
 	var href= toUrl(attribs.get("href"))
-
-        var active= href == (if (href.startsWith("/")) S.uri else S.uri.replaceAll(".*/",""))
+	var current= S.uri
+        var active= href.replaceAll("(.*/)*","") == current.replaceAll("(.*/)*","")
 	val isDefault= attribs.get("default").exists{ _.text=="true" }
 
         // set up parameters
