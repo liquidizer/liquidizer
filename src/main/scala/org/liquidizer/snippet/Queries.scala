@@ -14,29 +14,34 @@ import Helpers._
 import _root_.org.liquidizer.lib._
 import _root_.org.liquidizer.model._
 
+/** Snippet code to show all discussed queries */
 class Queries extends MultipageSnippet {
   
+  /** load all queries form the current room */
   def getData() = {
-    if (data.isEmpty) loadData()
+    if (data.isEmpty && !room.isEmpty) {
+      data = Votable.findAll(By_>(Votable.query, 0), By(Votable.room, room.get))
+      tags.load(data)
+      data= data.filter { searchFilter _ }
+      sortData()
+    }
     data
   }
-    
-  def loadData() = {
-    data = Query.findAll
-    .filter { searchFilter _ }
-    .map { VotableQuery(_) }
-    sortData()
-  }
 
+  /** Render a list of category tags */
   override def categories(in:NodeSeq) : NodeSeq = {
-    val markup= new CategoryView(search, "/queries.html")
+    val markup= new CategoryView(search, "queries.html")
     <span>{
-      markup.renderTagList(TaggedUtils.sortedTags(getData()), 10)
+      markup.renderTagList(tags.sortedTags(data), 10)
     }</span>
   }
 
+  /** Render a list of all queries */
   def render(in: NodeSeq) : NodeSeq = {
-    val helper= new VotingHelper
+    val helper= new VotingHelper {
+      override def getKeyTags(nominee : Votable) = 
+	Text(tags.keyList(nominee).mkString(" "))
+    }
     helper.no= from
     getData()
     .slice(from, to)
@@ -46,34 +51,34 @@ class Queries extends MultipageSnippet {
   }
 }
 
-class QueryDetails extends MultipageSnippet {
-  val query= Query.get(S.param("query").openOr("-1"))
+/** Snippet code to show details on a query's voters */
+class QueryDetails extends MultipageSnippet with InRoom {
+  val quid= S.param("query").get.toLong
+  val query= Votable.getQuery(quid.toLong, room.get)
   var hasMe= true;
 
   def loadData() = {
-    data=  VoteMap.getAllVoters(VotableQuery(query.get))
-    .filter { searchFilter _ }
-    .map { VotableUser(_) }
-
-    sortData(VotableQuery(query.get))
+    data=  Votable.get(
+      VoteMap.getAllVoters(query.get)
+      .filter{ u => searchFilter( u.toString ) }, room.get)
+    sortData(query.get)
 
     // check if my own vote is registered. 
     // If not a page update should show it after the first vote is cast
     val me= User.currentUser
-    hasMe= !me.isEmpty && data.contains(VotableUser(me.get))
+    hasMe= !me.isEmpty && data.exists { _.user.is == me.get.id.is }
   }
 
-  val helper= new VotingHelper {
-    override def getSupporters() : List[User] = {
-      if (data.isEmpty)
-	loadData()
-      data.slice(from,to).map { case VotableUser(user) => user }
+  val helper= new VotingHelper with MultiPageHelper {
+    override def getData(src : String) = {
+      if (data.isEmpty) loadData()
+      data
     }
     override def ajaxUpdate(votedNominee : Votable) : JsCmd = {
       val update= super.ajaxUpdate(votedNominee)
-      if (!hasMe && votedNominee==VotableQuery(query.get)) {
+      if (!hasMe && votedNominee==query.get) {
 	hasMe= true
-	update & RedirectTo(VotableQuery(query.get).uri+"/index.html")
+	update & RedirectTo(uri(query.get))
       }
       else update
     }
@@ -83,11 +88,11 @@ class QueryDetails extends MultipageSnippet {
     if (query.isEmpty)
       <div class="error">Error: query does not exist</div>
     else
-      helper.bind(in, VotableQuery(query.get))
+      helper.bind(in, query.get)
   }
 }
 
-class AddQuery extends StatefulSnippet {
+class AddQuery extends StatefulSnippet with InRoom {
 
   var dispatch : DispatchIt = { 
     case "create" => create _ 
@@ -95,14 +100,15 @@ class AddQuery extends StatefulSnippet {
   }
 
   var what= ""
-  var keys= S.param("search").getOrElse("")
+  var keys= S.param("search").getOrElse("").replaceAll("#","")
 
   def create(in:NodeSeq) : NodeSeq = {
     Helpers.bind("addquery", in,
 		 "what" -> SHtml.textarea(what, what = _, "rows"-> "3", "cols"-> "40", "placeholder" -> S ? "new.query"),
 		 "keys" -> SHtml.text(keys, keys = _, 
 				      "size"-> "40", "id" -> "keys"),
-		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>verifyQuery),
+		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>
+		   verifyQuery.getOrElse { redirectTo("add_query_confirm")} ),
 		 "keyset" -> 
 		 new CategoryView(keys, "") {
 		   override def renderTag(tag : String) : Node = {
@@ -110,38 +116,48 @@ class AddQuery extends StatefulSnippet {
 		     id={"key_"+tag}
 		     onclick={"toggleTag('"+tag+"')"}>{tag}</div>
 		   }
-		 }.renderTagList(TaggedUtils.sortedQueryTags(), 20)
+		 }.renderTagList(TaggedUtils.tagList(room.get).map { _.replaceAll("^#","") }, 20)
 	       )
   }
 
   def confirm(in:NodeSeq) : NodeSeq = {
+    keys= keys.split("[, ]").mkString(", ")
     Helpers.bind("addquery", in,
 		 "what" -> Markup.renderHeader(what, link("/add_query", {()=>}, _)),
-		 "keys" -> Markup.renderTagList(TaggedUtils.getTags(keys)),
+		 "keys" -> Text(keys),
 		 "cancel" -> SHtml.submit(S ? "new.query.cancel", ()=>redirectTo("/add_query")),
 		 "submit" -> SHtml.submit(S ? "new.query.confirm", ()=>saveQuery))
   }
 
-  def isValid() = what.trim.length>0 && Query.find(By(Query.what, what)).isEmpty
-
-  def verifyQuery() =
-    if (isValid) redirectTo("/add_query_confirm") else redirectTo("/add_query")
+  def verifyQuery() : Option[JsCmd] = {
+    if (what.trim.length==0)
+      redirectTo(home()+"/add_query")
+    else {
+      val exists= Query.findAll(By(Query.what, what))
+      .map { q => Votable.find(By(Votable.query, q)) }
+      .filter { _.exists { _.room.obj == room }}
+      if (!exists.isEmpty) redirectTo(uri(exists.head.get))
+      else 
+	None
+    }
+  }
 
   def saveQuery() = {
-    if (isValid) {
-      val query= 
-	Query.create
+    verifyQuery.getOrElse {
+      val query= Query.create
       .what(what)
-      .keys(keys)
       .creator(User.currentUser.get)
       .creation(Tick.now)
       query.save
-
+      val nominee=Votable.create
+      .query(query)
+      .room(room.get)
+      nominee.save
+      if (keys.trim.length>0)
+	PollingBooth.comment(User.currentUser.get, nominee, 
+			     keys.split("[, ]").mkString("#"," #",""))
       unregisterThisSnippet
-      S.redirectTo("/queries/"+query.id+"/index.html")
-    } else {
-      what=""
-      redirectTo("/add_query")
+      S.redirectTo(uri(query))
     }
   }
 }

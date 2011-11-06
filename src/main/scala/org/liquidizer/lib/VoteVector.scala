@@ -41,8 +41,8 @@ class SparseVec {
   }
 
   override def toString() = 
-    data.keySet.toList.sort{_ < _}
-    .map{ i => "%d -> %2.2f".format(i,get(i)) }.mkString("(",",",")")
+    elements.toList.sort { _._1 < _._1 }.filter { _._2.value != 0.0 }
+    .map{ case (i,v) => "%d : %2.2f".format(i,v.value) }.mkString("(",", ",")")
 }
 
 /** This class keeps track of voting weights and delegation influences */
@@ -53,11 +53,13 @@ class VoteVector(val userID : Long) {
   var maxIdolPref = 0
   var denom = 0
 
+  def tresh(x : Double) = if (x.abs < 0.01) 0.0 else x
+
   def normalize() : Unit = {
     val norm= votes.norm
     if (norm > 1e-8) {
-      votes.elements.foreach { case (i,e) => e.set(e.value/norm) }
-      idols.elements.foreach { case (i,e) => e.set(0.0 max e.value/denom) }
+      votes.elements.foreach { case (i,e) => e.set(tresh(e.value/norm)) }
+      idols.elements.foreach { case (i,e) => e.set(tresh(0.0 max e.value/denom)) }
     }
     idols.elements.foreach { case (i,e) => maxD = maxD max e.value }
     idols.set(userID, 1.0)

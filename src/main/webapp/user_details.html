@@ -17,7 +17,7 @@
 	    <th class="vote_result">$vote.weight</th>
 	  </lift:UserInfo.out>
 	</tr>
-	<user:votes>
+	<data:votes>
 	  <tr>
 	    <td><span class="rank"><poll:no/></span></td>
 	    <td class="votable">
@@ -53,7 +53,7 @@
 	      </user:notme>
 	    </lift:UserInfo.in>
 	  </tr>
-	</user:votes>
+	</data:votes>
       </table>
   </lift:bind-at>
   <lift:bind-at name="selection">
@@ -62,6 +62,7 @@
 	<ul class="sort">
 	  <menu:a action="sort" value="weight" default="true" icon="weight" title="$sort.weight"/>
 	  <menu:a action="sort" value="comment_age" icon="comment" title="$sort.comment_age"/>
+	  <menu:a action="sort" value="alpha" icon="alpha" title="$sort.alpha"/>
 	  <menu:a action="sort" value="approval" icon="pro" title="$sort.pro"/>
 	  <menu:a action="sort" value="objection" icon="contra" title="$sort.contra"/>
 	</ul>

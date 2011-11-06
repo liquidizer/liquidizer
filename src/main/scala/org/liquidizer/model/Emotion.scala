@@ -4,6 +4,7 @@ import _root_.net.liftweb.mapper._
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 
+/** Parametric emotion for the generation of emoticons */
 class Emotion extends LongKeyedMapper[Emotion] with IdPK {
   def getSingleton = Emotion
 
@@ -15,6 +16,7 @@ class Emotion extends LongKeyedMapper[Emotion] with IdPK {
   object avg_potency extends MappedDouble(this) 
   object user1 extends MappedLongForeignKey(this, User) with DBIndexed
   object user2 extends MappedLongForeignKey(this, User) with DBIndexed
+  object room extends MappedLongForeignKey(this, Room) with DBIndexed
   
   /** Set a new time value and compute the new arousal */
   def update(newTime : Long, decay : Double) = {
@@ -30,14 +32,15 @@ class Emotion extends LongKeyedMapper[Emotion] with IdPK {
   }
 }
 
+/** Parametric emotion for the generation of emoticons */
 object Emotion extends Emotion with LongKeyedMetaMapper[Emotion] {
   override def dbTableName = "emotions"
 
-  def get(u1 : User, u2 : User) : Emotion = {
+  def get(u1 : User, u2 : User, room : Room) : Emotion = {
     val id1= u1.id.is min u2.id.is    
     val id2= u1.id.is max u2.id.is
-    find(By(user1, id1), By(user2, id2)).getOrElse (
-      Emotion.create.user1(id1).user2(id2)
+    find(By(user1, id1), By(user2, id2), By(this.room, room)).getOrElse (
+      Emotion.create.user1(id1).user2(id2).room(room)
     )
   }
 }

@@ -25,9 +25,9 @@
       <lift:MenuMarker eager_eval="true">
       <ul id="topmenu">
 	<li>
-	  <a href="/index.html" title="$home.index">
+	  <local:a href="#/index.html" title="$home.index">
 	    <img src="/images/logo.png" alt="Startseite" class="top"/>
-	  </a>
+	  </local:a>
 	</li>
 	<lift:UserInfo.in>
 	  <li>
@@ -36,29 +36,33 @@
 	    </a>
 	    <div>
 	      <ul class="popup" id="usermenu">
-		<menu:a href="/index.html" icon="view">$home.index</menu:a>
-		<menu:a href="/profile.html" icon="profile">$home.profile</menu:a>
-		<menu:a href="/users/~/index.html" icon="weight">$home.votes</menu:a>
-		<menu:a href="/users/~/delegates.html" icon="distance">$home.delegates</menu:a>
-		<menu:a href="/users/~/support.html" icon="follow">$home.supporters</menu:a>
+		<menu:a href="#/index.html" icon="view">$home.index</menu:a>
+		<menu:a href="#/profile.html" icon="profile">$home.profile</menu:a>
+		<lift:Rooms.in>
+		  <menu:a href="#/users/~/index.html" icon="weight">$home.votes</menu:a>
+		  <menu:a href="#/users/~/delegates.html" icon="distance">$home.delegates</menu:a>
+		  <menu:a href="#/users/~/support.html" icon="follow">$home.supporters</menu:a>
+		</lift:Rooms.in>
 	      </ul>
 	    </div>
 	  </li>
 	</lift:UserInfo.in>
-	<li>
-	  <a href="/queries.html" title="$home.all.queries">
-	    <img src="/images/queries.png" alt="$home.all.queries" class="top"/>
-	  </a>
-	</li>
-	<li>
-	  <a href="/users.html" title="$home.all.users">
+	<lift:Rooms.in>
+	  <li>
+	    <local:a href="#/queries.html" title="$home.all.queries">
+	      <img src="/images/queries.png" alt="$home.all.queries" class="top"/>
+	    </local:a>
+	  </li>
+	  <li>
+	    <local:a href="#/users.html" title="$home.all.users">
 	    <img src="/images/users.png" alt="$home.all.users" class="top"/>
-	  </a>
-	</li>
+	    </local:a>
+	  </li>
+	</lift:Rooms.in>
 	<li>
-	  <a href="/help.html" title="$home.help">
+	  <local:a href="#/help.html" title="$home.help">
 	    <img src="/images/help.png" alt="$home.help" class="top"/>
-	  </a>
+	  </local:a>
 	</li>
       </ul>
       </lift:MenuMarker>

@@ -8,10 +8,13 @@ import net.liftweb.common._
 
 import org.liquidizer.lib._
 import org.liquidizer.model._
+import org.liquidizer.snippet.InRoom
 
-case class Edge(val from: User, val to: Votable)
+case class Edge(val from: Votable, val to: Votable)
 
-class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
+/** Control graphviz to plot a dependency graph centered around a root node */
+class GraphvizAPI(root : Votable) 
+extends CommandAPI("dot -Tsvg") with InRoom {
 
   var nodes= List[Votable]()
   var edges= Set[Edge]()
@@ -20,8 +23,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     def compare(x: Votable, y: Votable) = -(weight(x).abs compare weight(y).abs)
   })
 
-  def formatDouble(value : Double)= String.format("%3.2f",double2Double(value))
-
+  /** Compute the priority with which a node should be added to the graph */
   def computeWeight(node : Votable) = {
     if (!weight.contains(node)) {
       def sqr(x:Double)= x*x
@@ -29,8 +31,8 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
 	case VotableUser(user1) => node match {
 	  case VotableQuery(_) =>  sqr(VoteMap.getWeight(user1, node))
 	  case VotableUser(user2) => 
-	    VoteMap.getWeight(user1, VotableUser(user2)) +
-	    VoteMap.getWeight(user2, VotableUser(user1))
+	    VoteMap.getWeight(user1, node) +
+	    VoteMap.getWeight(user2, root)
 	}
 	case _ => node match {
 	  case VotableUser(user) => sqr(VoteMap.getWeight(user, root))
@@ -40,23 +42,26 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     }
   }
 
+  /** add an entry to the queue of connected nodes */
   def addEntry(node : Votable) = {
     computeWeight(node)
     queue.add(node)
   }
 
+  /** continue searching for connected nodes */
   def process(node : Votable) = {
-    for (user <- VoteMap.getActiveVoters(node)) {
-      val edge= Edge(user, node)
-      if (!edges.contains(edge)) {
-	edges+=edge
-      }
-      if (!nodes.contains(VotableUser(user))) addEntry(VotableUser(user))
+    // find followers
+    val voters= VoteMap.getActiveVoters(node)
+    val vnodes= Votable.get(voters, room.get)
+    vnodes.foreach { other =>
+      edges += Edge(other, node)
+      if (!nodes.contains(other)) addEntry(other)
     }
+
     node match {
       case VotableUser(user) => 
-	for (nominee <- VoteMap.getActiveVotes(user)) {
-	  val edge= Edge(user, nominee)
+	for (nominee <- VoteMap.getActiveVotes(user, room.get)) {
+	  val edge= Edge(node, nominee)
 	  if (!edges.contains(edge)) {
 	    edges+= edge
 	  }
@@ -66,6 +71,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     }
   }
 
+  /** build the graph centered around nominee with a maximum number of nodes */
   def build(nominee : Votable, size : Int) : Unit = {
     nodes::= nominee
     process(nominee)
@@ -79,6 +85,7 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
     nodes= nodes.reverse
   }
   
+  /** Write dot code and run graphviz */
   def runGraphviz() : NodeSeq = {
     out("digraph delegationMap {")
     out("size=\"12,12\"")
@@ -91,21 +98,20 @@ class GraphvizAPI(root : Votable) extends CommandAPI("dot -Tsvg") {
       node match {
 	case node @ VotableUser(user) => 
 	  val label= user.toString.replaceAll(" ","\\\\n")
-	out("\""+node.uri+"\" ["+opt+" label=\""+label+"\" shape=\"circle\"]")
+	out("\""+uri(node)+"\" ["+opt+" label=\""+label+"\" shape=\"circle\"]")
 	case node @ VotableQuery(query) => 
 	  no+= 1
-	  out("\""+node.uri+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
+	  out("\""+uri(node)+"\" ["+opt+" label=\""+no+"\" shape=\"box\"]")
       }}
     edges
-    .filter{ e=>nodes.contains(VotableUser(e.from)) && nodes.contains(e.to)}
+    .filter{ e => nodes.contains(e.from) && nodes.contains(e.to)}
     .foreach{ e=>
       var opt=""
       if (e.to.isQuery) {
-	val w= VoteMap.getWeight(e.from, e.to)
+	val w= VoteMap.getWeight(e.from.user.obj.get, e.to)
 	opt= "[color=\""+(if (w>=0) "black" else "red")+"\"]"
       }
-      out("\""+VotableUser(e.from).uri+
-	  "\" -> \""+e.to.uri+"\" "+opt)
+      out("\"" + uri(e.from) + "\" -> \"" + uri(e.to) + "\" " + opt)
     }
     out("}")
     getSVG()

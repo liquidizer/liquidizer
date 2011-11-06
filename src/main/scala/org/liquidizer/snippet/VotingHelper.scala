@@ -18,8 +18,8 @@ import org.liquidizer.view.EmotionView
 /** The VotingHelper provides a number of snippet tags for rendering
  *  The details of any votable, e.g. voters, results, names etc.
  */
-class VotingHelper {
-  val currentUser= User.currentUser
+class VotingHelper extends InRoom {
+  lazy val currentUser= User.currentUser
   var no= 0
 
   val buttonFactory = new EditButtonToggler
@@ -65,12 +65,15 @@ class VotingHelper {
   def formatWeight(user: User, nominee : Votable):Node =
     formatResult(VoteMap.getWeight(user,nominee))
 
-  def formatUser(user : User) : NodeSeq = formatNominee(VotableUser(user))
+  def formatUser(user : User) : NodeSeq = 
+    Markup.renderHeader(user.toString, uri(user))
+
   def formatNominee(nominee : Votable) : NodeSeq = 
-    Markup.renderHeader(nominee.toString, nominee.uri+"/index.html")
+    Markup.renderHeader(nominee.toString, uri(nominee))
   
   /** Update the voting preferences */
   def vote(nominee : Votable, newVote : Int) : JsCmd = {
+    if (myNominee.isEmpty) PollingBooth.activate(currentUser.get, room)
     PollingBooth.vote(currentUser.get, nominee, newVote)
     VoteMap.refresh()
     ajaxUpdate(nominee)
@@ -98,10 +101,9 @@ class VotingHelper {
     in.flatMap(bind(_, nominee))
   }
 
-  /** bind the input html segment to a given nominee, either a query or a user */
+  /** Bind the input html to a given nominee, either a query or a user */
   def bind(in : Node, nominee:Votable) : NodeSeq = {
     in match {
-
       // The poll name space for tags that apply for all kind of nominees
       case Elem("poll", tag, attribs, scope, children @ _*) => tag match {
 	case "name" => formatNominee(nominee)
@@ -119,18 +121,15 @@ class VotingHelper {
 	      case "volume" => VoteMap.getCurrentResult(nominee).pro
 	      case _ => VoteMap.getCurrentResult(nominee).value
 	    })))
-	case "chart" => chart(nominee.uri, "chart", in.attributes)
-	case "hist" => chart(nominee.uri, "histogram", in.attributes)
-	case "supporters" =>
-	  getSupporters().flatMap {
-	    user => bind(bind(children, user, nominee), VotableUser(user))
-	  }
+	case "chart" => chart(uri(nominee), "chart", in.attributes)
+        case "hist" => chart(uri(nominee), "histogram", in.attributes)
 	case "aboutLastComment" => 
 	  Comment.getLatest(nominee) match {
 	    case Some(comment) => 
 	      Text(S.?("time.commented")+" "+ 
-		   Markup.formatRelTime(comment.date.is)+" (") ++
-		   formatUser(comment.getAuthor) ++ Text(")")
+		   TimeUtil.formatRelTime(comment.date.is)+" (") ++
+		   comment.author.obj.map { formatUser(_) }
+		   .openOr { Text("-") } ++ Text(")")
 	    case _ => Nil }
 
 	case "graph-nodes" => 
@@ -150,21 +149,17 @@ class VotingHelper {
 	    case "weight" => renderVote(() => formatWeight(me, nominee))
 	    case "vote" =>
 	      val isUser= nominee.isUser
-	      new VoteControl(VoteMap.getPreference(me, nominee),
-			      displayedVotes.size, 
-			      if (isUser) 0 else -3, 3) {
-		override def updateValue(newValue : Int) : JsCmd = 
+	      if (nominee.user.is==me.id.is) <span class="pass">−</span> 
+	      else {
+		new VoteControl(VoteMap.getPreference(me, nominee),
+				displayedVotes.size, 
+				if (isUser) 0 else -3, 3) {
+		  override def updateValue(newValue : Int) : JsCmd = 
 		  super.updateValue(newValue) & vote(nominee, newValue) }
 	      .render(children)
-	    case "a" =>
-	      val href= attribs.get("href").get.text
-	      <a href={VotableUser(me).uri+"/"+href}>{ children }</a>
+	      }
 	    case "editButton" =>
 	      buttonFactory.toggleButton
-	    case "isDelegated" => if (nominee match {
-	      case VotableUser(other) => VoteMap.isDelegated(other, me)
-	      case VotableQuery(q) => q.creator.obj.exists{ VoteMap.isDelegated(_, me)}})
-	      bind(children,nominee) else NodeSeq.Empty
 	    case _ => in
 	  }
 	  case _ => NodeSeq.Empty
@@ -175,16 +170,23 @@ class VotingHelper {
 	nominee match {
 	  case VotableQuery(query) => tag match { 
 	    case "creator" => query.creator.obj.map (formatUser(_)).getOrElse(Text("---"))
+	    case "delete" => 
+	      def canDelete = VoteMap.getActiveVoters(nominee).isEmpty
+	      if (currentUser==query.creator.obj && canDelete)
+		SHtml.ajaxButton(S?"query.delete", () => {
+		  if (canDelete) {
+		    PollingBooth.deleteVotable(nominee)
+		    RedirectTo(home()+"/queries.html")
+		  } else Noop
+		})
+	      else NodeSeq.Empty
 	    case "time" => Text(Tick.format(query.creation.is))
-	    case "keys" => 
-	      buttonFactory.newKeyListRecord(() => query.keyList,
-					     list => query.keys(list).save )
-	      buttonFactory.toggleText
+	    case "keys" => getKeyTags(nominee)
 	    case "numVoters" => 
 	      val sign= attribs.get("weight").get.text.toInt
 	      renderVote(() => 
 		Text(VoteMap
-		     .getAllVoters(VotableQuery(query))
+		     .getAllVoters(nominee)
 		     .filter{ sign*VoteMap.getWeight(_, nominee)>0 } 
 		     .size.toString))
 	    case _ => in
@@ -207,17 +209,13 @@ class VotingHelper {
 	    case "sympathy" =>  
 	      renderVote(() => formatPercent(
 		currentUser.map {
-		VoteMap.getSympathy(_, user) }.getOrElse(0.0)))
+		VoteMap.getSympathy(_, user, room.get) }.getOrElse(0.0)))
 	    case "popularity" =>  
-	      renderVote(() => formatPercent(VoteMap.getCurrentResult(VotableUser(user)).value))
+	      renderVote(() => formatPercent(VoteMap.getCurrentResult(nominee).value))
 	    case "itsme" => if (Full(user)==currentUser) bind(children, nominee) else NodeSeq.Empty
 	    case "notme" => if (Full(user)!=currentUser) bind(children, nominee) else NodeSeq.Empty
-	    case "votes" => getVotes().flatMap { vote => bind(bind(children, user, vote), vote) }
-	    case "delegates" => getDelegates().flatMap { 
-	      delegate => bind(bind(children, user, VotableUser(delegate)), VotableUser(delegate))
-	    }
 	    case "emoticon" => 
-		renderVote(() => EmotionView.emoticon(user, attribs))
+		renderVote(() => EmotionView.emoticon(nominee, attribs))
 	    case _ => in
 	  }
 	  case _ => tag match {
@@ -225,6 +223,18 @@ class VotingHelper {
 	    case "notme" => bind(children, nominee)
 	    case _ => in
 	  }
+	}
+      
+      // sub lists of dependent entries
+      case Elem("data", tag, attribs, scope, children @ _*) => 
+	val src= attribs.get("src").map { _.text }.getOrElse(tag)
+        val data= getData(src)
+        tag match {
+	  case "size" => Text(data.size.toString)
+	  case "votes"|"delegates" => slice(data).flatMap { 
+	    item => bind(bind(children, nominee.user.obj.get, item), item) }
+	  case "supporters" => slice(data).flatMap {
+	    item => bind(bind(children, item.user.obj.get, nominee), item) }
 	}
 
       // Default treatment of unknown tags
@@ -269,7 +279,7 @@ class VotingHelper {
 	  buttonFactory.toggleText ++
 	  // add comment time
 	  Comment.get(user, nominee).map { c => 
-	    <span class="keys">{ Markup.formatRelTime( c.date.is) }</span> }
+	    <span class="keys">{ TimeUtil.formatRelTime( c.date.is) }</span> }
 	  .getOrElse(Nil)
 	}
 	case _ => Elem("user", label, attribs, scope, rec(true) : _*)
@@ -277,8 +287,8 @@ class VotingHelper {
 
       case Elem("poll", label, attribs, scope, _*) => label match {
 	case "name" => formatNominee(nominee)
-	case "notme" => rec(currentUser.isEmpty || VotableUser(currentUser.get)!=nominee)
-	case "itsme" => rec(!currentUser.isEmpty && VotableUser(currentUser.get)==nominee) 
+	case "notme" => rec(currentUser.isEmpty || !nominee.is(currentUser.get))
+	case "itsme" => rec(!currentUser.isEmpty && nominee.is(currentUser.get))
 	case _ =>  Elem("poll", label, attribs, scope, rec(true) : _*)
       }
 
@@ -288,7 +298,7 @@ class VotingHelper {
 	    renderVote(() => formatWeight(user,nominee))
 	  case "sympathy" => renderVote(() => {nominee match {
 	    case VotableUser(other) =>
-	      formatPercent(VoteMap.getSympathy(user, other))
+	      formatPercent(VoteMap.getSympathy(user, other, room.get))
 	    case _ => Text("0.0")
 	  }})
 	  case "delegation" => 
@@ -321,7 +331,7 @@ class VotingHelper {
       result= list.filter { p => VoteMap.getPreference( p.head, nominee)!=0 }
       if (result.isEmpty) {
 	list= list.flatMap { 
-	  path => VoteMap.getActiveVotes(path.head).map { _ match {
+	  path => VoteMap.getActiveVotes(path.head, room.get).map { _ match {
 	    case VotableUser(user)
 	      if (!visited.contains(user) && VoteMap.getWeight(user, nominee)!=0) 
 		=> 
@@ -338,17 +348,12 @@ class VotingHelper {
   }
 
   /** returns a list of votes as defined by the overriding class */
-  def getVotes() : List[Votable] = {
-    throw new Exception("No votes for this item")
-  }
+  def getData(src : String) : List[Votable] = Nil
 
-  /** returns a list of delegates as defined by the overriding class */
-  def getDelegates() : List[User] = {
-    throw new Exception("No delegates for this item")
-  }
+  /** Select the items of the current view */
+  def slice(data : List[Votable]) : List[Votable] = data
 
-  /** returns a list of voters as defined by the overriding class */
-  def getSupporters() : List[User] = {
-    throw new Exception("No supporters for this item")
-  }
+  /** Get the tags for a nominee */
+  def getKeyTags(nominee : Votable) : NodeSeq = 
+    Text(TaggedUtils.keyList(nominee).mkString(" "))
 }

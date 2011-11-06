@@ -9,13 +9,12 @@
 	  <menu:a action="sort" value="swing" icon="swing" title="$sort.swing"/>
 	  <menu:a action="sort" value="conflict" icon="conflict" title="$sort.conflict"/>
 	  <menu:a action="sort" value="comment" icon="comment" title="$sort.comment"/>
+	  <menu:a action="sort" value="alpha" icon="alpha" title="$sort.alpha"/>
 	  <menu:a action="sort" value="age" icon="new" title="$sort.age"/>
 	</ul>
       </lift:MenuMarker>
       <div style="float:right">
-	<lift:Queries.view form="POST" eager_eval="true">
-	  <search:input/>
-	</lift:Queries.view>
+	<lift:Queries.search form="POST"/>
       </div>
       <div style="clear:both"/>
     </div>
@@ -27,7 +26,9 @@
 	<td><span class="rank"><poll:no/></span></td>
 	<td class="votable">
 	  <poll:name/><br/>
-	  <query:keys/>
+	  <span class="keys">
+	    <query:keys/>
+	  </span>
 	  <br/>
 	  <span class="keys">
 	  <poll:aboutLastComment/>
@@ -53,10 +54,12 @@
 
   <lift:UserInfo.in>
     <lift:Queries.lastpage>
-      <lift:Queries.addQuery>
+      <lift:MenuMarker>
+	<local:a href="add_query.html" keep="search">
 	  <img src="/images/addquery.png" alt="new.query"/>
 	  <lift:loc>new.query</lift:loc>
-      </lift:Queries.addQuery>
+	</local:a>
+      </lift:MenuMarker>
     </lift:Queries.lastpage>
   </lift:UserInfo.in>
   </lift:bind-at>
@@ -68,12 +71,12 @@
     </div>
     <div style="clear:both"/>
     <lift:UserInfo.in>
-      <lift:Queries.view>
-	<lift:Queries.addQuery>
+      <lift:MenuMarker>
+	<local:a href="add_query.html" keep="search">
 	  <p style="margin: 50px 0px 5px 0"><lift:loc>new.query</lift:loc></p>
 	  <img src="/images/addquery.png" alt="new.query"/>
-	</lift:Queries.addQuery>
-      </lift:Queries.view>
+	</local:a>
+      </lift:MenuMarker>
     </lift:UserInfo.in>
   </lift:bind-at>
 </lift:surround>

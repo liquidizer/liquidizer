@@ -12,18 +12,56 @@ import Helpers._
 import org.liquidizer.model._
 import org.liquidizer.lib._
 
-abstract class MultipageSnippet extends StatefulSnippet {
+/** Gets the room id and provides room related convenience functions */
+trait InRoom {
+  /** Prefix to indicate that rooms are hidden from the links */
+  val SINGLE_ROOM_PRFIX= "_"
+
+  val showRoomInUrl= S.param("room").exists ( !_.startsWith(SINGLE_ROOM_PRFIX) )
+  val roomName= S.param("room").getOrElse("").replaceAll("^"+SINGLE_ROOM_PRFIX+"?","")
+  lazy val room= Room.get(roomName)
+
+  /** searches the votable for user in the current room */
+  def toNominee(user : User) : Option[Votable] =
+    Votable.find(By(Votable.user, user), By(Votable.room, room.get))
+
+  /** searches the current users votable */
+  lazy val myNominee= if (User.currentUser.isEmpty) None else
+    toNominee(User.currentUser.get)
+
+  /** formats the URL prefix for the current room */
+  def home() = if (showRoomInUrl) "/room/"+roomName else ""
+  def uri(user : User) = home() + "/users/" + user.id.is + "/index.html"
+  def uri(query : Query) = home() + "/queries/" + query.id.is + "/index.html"
+  def uri(nominee : Votable) : String = nominee match {
+    case VotableUser(user) => uri(user)
+    case VotableQuery(query) => uri(query)
+  }
+
+  /** formats the URL by replacing # and ~ place holders */
+  def uri(rel : String) = {
+    var u= rel.replaceAll("^#", home())
+    if (u.contains("~"))
+      u= u.replaceAll("~", User.currentUser.get.id.is.toString)
+    if (!showRoomInUrl)
+      u= u.replaceAll("^/room/[^/]+","")
+    u
+  }
+}
+
+/** Base class for searched and sorted multi-page views of votables */
+abstract class MultipageSnippet extends StatefulSnippet with InRoom {
   var dispatch : DispatchIt = { 
     case "render" => render _ 
     case "navigator" => navigator _
     case "lastpage" => lastpage _
     case "categories" => categories _
-    case "view" => view _
-    case "addQuery" => addQuery _
+    case "search" => search _
   }
 
   def size= data.size
   var data : List[Votable] = Nil
+  val tags= new TaggedUtil()
 
   def render(in:NodeSeq) : NodeSeq
   def categories(in:NodeSeq) : NodeSeq = NodeSeq.Empty
@@ -38,6 +76,10 @@ abstract class MultipageSnippet extends StatefulSnippet {
   
   def from = pagesize * page
   def to = Math.min(pagesize * (page+1), size)
+  trait MultiPageHelper extends VotingHelper {
+    no= from
+    override def slice(list : List[Votable]) = list.slice(from, to)
+  }
 
   /** Create a sort ordering function for users voting on a fixed nominee */
   def sortFunction(order: String, nominee:Votable) : (Votable => Double) = {
@@ -55,7 +97,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "comment_age" => isUser(_, Comment.getTime(_, nominee))
       case _ => 
 	val superSorter= sortFunction(order)
-	isUser(_, u => bonus(u) + superSorter(VotableUser(u)))
+	nominee => isUser(nominee, u => bonus(u) + superSorter(nominee))
     }
   }
 
@@ -75,8 +117,8 @@ abstract class MultipageSnippet extends StatefulSnippet {
   def sortFunction(order : String) : (Votable => Double) = {
     def result(q:Votable)= VoteMap.getCurrentResult(q)
     def isUser(q:Votable, f:(User=>Double)) = 
-      q match { 
-	case VotableUser(u) if VoteMap.isActive(u)=> f(u) 
+      q match {
+	case VotableUser(u) if VoteMap.isActive(u, q.room.obj.get)=> f(u) 
 	case _ => -1e10 }
     def withMe(f : (User, Votable) => Double) : Votable => Double =
       nominee => User.currentUser match {
@@ -87,7 +129,7 @@ abstract class MultipageSnippet extends StatefulSnippet {
 
     order match {
       case "value" => isActive(result(_).value.abs)
-      case "age" => q => q.baseId
+      case "age" => q => q.id.is
       case "pro" => isActive(result(_).value)
       case "contra" => isActive(-result(_).value)
       case "conflict" => isActive(v => { val r=result(v); r.pro min r.contra })
@@ -97,34 +139,39 @@ abstract class MultipageSnippet extends StatefulSnippet {
       case "comment" => 
 	Comment.getLatest(_).map{ _.date.is.toDouble }.getOrElse(0.0)
       case "valence" => 
-	withMe((me,v) => isUser(v,VoteMap.getSympathy(me,_)))
+	withMe((me,v) => isUser(v, VoteMap.getSympathy(me, _, v.room.obj.get)))
       case "avalence" =>
-	withMe((me,v) => isUser(v,- VoteMap.getSympathy(me,_)))
+	withMe((me,v) => isUser(v,-VoteMap.getSympathy(me, _,  v.room.obj.get)))
       case "arousal" =>
-	withMe((me,v) => isUser(v,VoteMap.getArousal(me,_)))
+	withMe((me,v) => isUser(v,VoteMap.getArousal(me, _,  v.room.obj.get)))
     }
   }
 
   def defaultOrder= S.get("defaultOrder").getOrElse("value")
   def sortData(): Unit = 
-    sortData(sortFunction(order.getOrElse(defaultOrder)))
+    sortData(() => sortFunction(order.getOrElse(defaultOrder)))
   def sortData(nominee: Votable) : Unit = 
-    sortData(sortFunction(order.getOrElse(defaultOrder), nominee))
+    sortData(() => sortFunction(order.getOrElse(defaultOrder), nominee))
   def sortData(user : User): Unit = 
-    sortData(sortFunction(order.getOrElse(defaultOrder), user))
+    sortData(() => sortFunction(order.getOrElse(defaultOrder), user))
 
   /** Sort data according to the sort order in request parameter */
-  def sortData(f : Votable => Double): Unit = {
-    data = data
-    .map { item => (f(item), item) }
-    .sort { (a,b) =>  
-      if (a._1 > b._1) 
-	true
-      else 
-	 if (a._1 < b._1) 
-	   false
-	 else a._2.id > b._2.id }
-    .map { _._2 }
+  def sortData(f : () => Votable => Double): Unit = {
+    if (order.exists(_=="alpha")) {
+      data = data.sort { _.toString.toLowerCase < _.toString.toLowerCase }
+    } else {
+      val f_ = f()
+      data = data
+      .map { item => (f_(item), item) }
+      .sort { (a,b) =>  
+	if (a._1 > b._1) 
+	  true
+	else 
+	  if (a._1 < b._1) 
+	    false
+	  else a._2.id > b._2.id }
+      .map { _._2 }
+    }
   }
   
   /** Display a navigation bar to access each page directly */
@@ -140,9 +187,10 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	  link(-1,Text("...")) else NodeSeq.Empty) ++
 	(2 max (page-SPAN+1) to numPages.min(page+SPAN+1)).flatMap {
 	  index => link(index-1, Text(index.toString)) } ++
-	(if (page+SPAN < numPages-1) 
-	  link(-1,Text("..."))++link(numPages-1, Text(numPages.toString)) 
-	 else NodeSeq.Empty) ++
+	(if (page+SPAN < numPages-2) 
+	  link(-1,Text("...")) else NodeSeq.Empty)++
+	(if (page+SPAN < numPages-1)
+	  link(numPages-1, Text(numPages.toString)) else NodeSeq.Empty) ++
 	link(page+1, Text(">>>"))
       } </div>
     }
@@ -159,69 +207,49 @@ abstract class MultipageSnippet extends StatefulSnippet {
 	     <div>{text}</div>)
   }
 
-  def lastpage(in:NodeSeq) : NodeSeq = if (page>=numPages-1) view(in) else Nil
+  def lastpage(in:NodeSeq) : NodeSeq = if (page>=numPages-1) in else Nil
 
-  def view(in : NodeSeq) : NodeSeq = in.flatMap(view(_))
-
+  /** Format a link with parameters that persists current search and sort */
   def attribUri(params : (String,String)*) = {
-    S.uri + {
-      (Map("sort" -> order.getOrElse(""), "search" -> search) ++ Map(params:_*))
-      .filter { case (key, value) => value.length>0 }
-      .map { case (key,value) => key+"="+value }
-      .mkString("?","&","")
+    uri(Helpers.appendParams(S.uri, {
+      order.map { o => Map("sort" -> o) }.getOrElse(Map()) ++
+      Map("search" -> search) ++ Map(params:_*) }.toList))
+  }
+
+  def search(in : NodeSeq) : NodeSeq = {
+    SHtml.text(search, search = _ , 
+	       "width" -> "20", 
+	       "placeholder" -> "search", "class" -> "searchText") ++
+    SHtml.ajaxSubmit("Search", { () =>
+      this.unregisterThisSnippet
+      S.redirectTo(attribUri("search"-> search)) },
+      "class" -> "searchSubmit") ++
+    {
+      // Display a clear search text button if applicable
+      if (search.length==0) Nil else
+	SHtml.ajaxSubmit("X", { () =>
+	this.unregisterThisSnippet
+	S.redirectTo(attribUri("search"->"")) },
+	"class" -> "searchClear")
     }
   }
 
-  def view(in : Node) : NodeSeq = {
-    in match {
-      case <search:input/> => 
-	SHtml.text(search, search = _ , 
-		   "width" -> "20", 
-		   "placeholder" -> "search", "class" -> "searchText") ++
-	SHtml.ajaxSubmit("Search", { () =>
-	  this.unregisterThisSnippet
-	  S.redirectTo(attribUri("search"-> search)) },
-		       "class" -> "searchSubmit") ++
-        {
-	  // Display a clear search text button if applicable
-	  if (search.length==0) Nil else
-	    SHtml.ajaxSubmit("X", { () =>
-	      this.unregisterThisSnippet
-	      S.redirectTo(attribUri("search"->"")) },
-				 "class" -> "searchClear")
-	}
-
-      case Elem(prefix, label, attribs, scope, children @ _*) =>
-	Elem(prefix, label, attribs, scope, view(children) : _*)
-
-      case _ => in
-    }
-  }
-
-  def searchFilter : String => Boolean = {
+  def searchFilter(text : String) : Boolean = {
     val keys= search.split(" +").map { _.toUpperCase }
-    val f= {
-      text:String =>
-	val uText= if (text==null) "" else text.toUpperCase
-      keys.isEmpty || keys.filter { key => !uText.contains(key) }.size==0
+    var pass= true;
+    for (key <- keys) pass &&= text.toUpperCase.contains(key)
+    pass
+  }
+
+  def searchFilter(nominee : Votable) : Boolean = {
+    val keys= search.split(" +").map { _.toUpperCase }
+    var pass= true;
+    for (key <- keys) {
+      pass &&=
+	nominee.toString.toUpperCase.contains(key) || (
+	  key.startsWith("#") &&
+	  tags.keyList(nominee).map{ _.toUpperCase }.contains(key))
     }
-    f
-  }
-
-  def searchFilter(query : Query) : Boolean = {
-    searchFilter(query.what.is) || searchFilter(query.keys.is)
-  }
-
-  def searchFilter(user : User) : Boolean = {
-    searchFilter(user.nick.is) || searchFilter(user.profile.is)
-  }
-
-  def searchFilter(nominee : Votable) : Boolean = nominee match {
-    case VotableUser(user) => searchFilter(user)
-    case VotableQuery(query) => searchFilter(query)
-  }
-
-  def addQuery(in: NodeSeq) : NodeSeq = {
-    <a href={"/add_query?search="+search}>{in}</a>
+    pass
   }
 }

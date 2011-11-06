@@ -24,30 +24,29 @@ object HistogramView {
   }
 
   def hist(queryId : String) : Box[LiftResponse] = {
-    val query= Query.get(queryId)
+    val query= Votable.find(By(Votable.query, queryId.toLong))
     hist(query.get)
   }
 
-  def hist(query : Query) : Box[LiftResponse] = {
+  def hist(nominee : Votable) : Box[LiftResponse] = {
     val options= getOptions()
     cache.get(S.uri, options, () => {
       val dx = options.get("dx").get.toDouble
-      val data = getData(query, dx)
+      val data = getData(nominee, dx)
       val node= (new GnuplotAPI).hist(data.reverse, options)
       Full(XmlResponse(node, "image/svg+xml"))
     })
   }
 
-  def getData(query : Query, dx : Double): List[(Double,Double)] = {
-
+  def getData(nominee: Votable, dx : Double): List[(Double,Double)] = {
     var histMap= Map[Int, Double]()
     
     VoteMap
-    .getAllVoters(VotableQuery(query))
+    .getAllVoters(nominee)
     .foreach { user => 
-      val w= VoteMap.getCurrentWeight(user)
+      val w= VoteMap.getCurrentWeight(user, nominee.room.obj.get)
       if (w>5e-3) {
-	val v= VoteMap.getWeight(user, VotableQuery(query))
+	val v= VoteMap.getWeight(user, nominee)
 	if (v.abs > 5e-3) {      
 	  val x= Math.round((1-1e-10)*(v/w/dx-0.5)).toInt
 	  histMap+= x -> (histMap.get(x).getOrElse(0.)+w)

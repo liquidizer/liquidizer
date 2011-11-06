@@ -8,7 +8,7 @@
 	  <th  class="vote_user">$vote.delegate</th>
 	</lift:UserInfo.in>
       </tr>
-      <user:delegates>
+      <data:delegates>
 	<tr>
 	  <td class="emo_thumb">
 	    <user:emoticon size="60"/>
@@ -29,11 +29,11 @@
 	  </td>
 	  <lift:UserInfo.in>
 	    <td class="vote_user">
-	      <poll:notme><me:vote/></poll:notme>
+	      <me:vote/>
 	    </td>
 	  </lift:UserInfo.in>
 	</tr>
-      </user:delegates>
+      </data:delegates>
     </table>
   </lift:bind-at>
   <lift:bind-at name="selection">
@@ -42,6 +42,7 @@
 	<ul class="sort">
 	  <menu:a action="sort" value="weight" default="true" icon="weight" title="$sort.weight"/>
 	  <menu:a action="sort" value="comment_age" icon="comment" title="$sort.comment_age"/>
+	  <menu:a action="sort" value="alpha" icon="alpha" title="$sort.alpha"/>
 	  <lift:UserInfo.in>
 	    <menu:a action="sort" value="valence" icon="sympathy" title="$sort.sympathy"/>
 	    <menu:a action="sort" value="avalence" icon="apathy" title="$sort.apathy"/>

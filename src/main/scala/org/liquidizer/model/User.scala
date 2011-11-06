@@ -6,9 +6,7 @@ import _root_.net.liftweb.common._
 
 import org.liquidizer.lib.ssl._
 
-/**
- * The singleton that has methods for accessing the database
- */
+/** Representation of a user of the Liquidizer system */
 object User extends User
 	with LongKeyedMetaMapper[User]
 	with MetaMegaProtoUser[User]  {
@@ -31,30 +29,16 @@ object User extends User
         }
 }
 
-class User extends LongKeyedMapper[User] 
-with MegaProtoUser[User] {
+/** Representation of a user of the Liquidizer system */
+class User extends LongKeyedMapper[User] with MegaProtoUser[User] {
   
   def getSingleton = User
 
   object nick extends MappedString(this,32)
   object profile extends MappedText(this)
 
-  def getUser(id : String) : Option[User] = User.find(By(User.id,id.toLong))
-  
   def getUserByNick(nick : String) : Option[User] = {
     User.find(By(User.nick, nick))
-  }
-
-  def loadNominee= Votable.find(By(Votable.user,this))
-  lazy val nominee= loadNominee.getOrElse { 
-    throw new Exception("No Votable found for user "+toString) }
-
-  override def save() = {
-    if (loadNominee.isEmpty) {
-      super.save
-      Votable.create.user(this).save
-    }
-    super.save
   }
 
   override def toString() : String = nick.is

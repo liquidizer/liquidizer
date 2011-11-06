@@ -1,20 +1,22 @@
-<lift:UserInfo.votes>
+<lift:UserOverview>
   <div class="balance">
     <h3>
-      <me:a href="index.html">
-	<img src="/images/menu/weight.png" alt=""/>
-	<lift:loc>menu.votes</lift:loc>
-	(<lift:UserInfo.bind><me:numVotes/></lift:UserInfo.bind>)
-      </me:a>
+      <lift:MenuMarker>
+	<local:a href="#/users/~/index.html">
+	  <img src="/images/menu/weight.png" alt=""/>
+	  <lift:loc>menu.votes</lift:loc>
+	  (<data:size src="votes"/>)
+	</local:a>
+      </lift:MenuMarker>
     </h3>
     <hr/>
     <table>
-      <user:votes>
+      <data:votes>
 	<tr>
 	  <td align="center"><vote:result format="weight"/></td>
 	  <td><poll:name/></td>
 	</tr>
-      </user:votes>
+      </data:votes>
     </table>
   </div>
   <div class="balance">
@@ -22,42 +24,46 @@
       <tr>
 	<td>
 	  <h3>
-	    <img src="/images/menu/follow.png" alt=""/>
-	    <me:a href="support.html">
+	    <lift:MenuMarker>
+	      <local:a href="#/users/~/support.html">
+		<img src="/images/menu/follow.png" alt=""/>
 		<lift:loc>menu.supporters</lift:loc>
-		(<lift:UserInfo.bind><me:numSupporters/></lift:UserInfo.bind>)
-	    </me:a>
+		(<data:size src="supporters"/>)
+	      </local:a>
+	    </lift:MenuMarker>
 	  </h3>
 	</td>
 	<td/>
 	<td>
 	  <h3>
-	    <img src="/images/menu/distance.png" alt=""/>
-	    <me:a href="delegates.html">
-	      <lift:loc>menu.delegates</lift:loc>
-	      (<lift:UserInfo.bind><me:numDelegates/></lift:UserInfo.bind>)
-	    </me:a>
+	    <lift:MenuMarker>
+	      <local:a href="#/users/~/delegates.html">
+		<img src="/images/menu/distance.png" alt=""/>
+		<lift:loc>menu.delegates</lift:loc>
+		(<data:size src="delegates"/>)
+	      </local:a>
+	    </lift:MenuMarker>
 	  </h3>
 	</td>
       </tr>
       <tr><td colspan="3"><hr/></td></tr>
       <td>
-	<poll:supporters>
+	<data:supporters>
 	  <tr class="votable">
 	    <td align="right"><user:emoticon size="20"/></td>
 	    <td><user:name/></td>
 	  </tr>
-	</poll:supporters>
+	</data:supporters>
       </td>
       <td width="20px"/>
       <td>
-	<user:delegates>
+	<data:delegates>
 	  <tr>
 	    <td align="right"><user:emoticon size="20"/></td>
 	    <td><poll:name/></td>
 	  </tr>
-	</user:delegates>
+	</data:delegates>
       </td>
     </table>
   </div>
-</lift:UserInfo.votes>
+</lift:UserOverview>

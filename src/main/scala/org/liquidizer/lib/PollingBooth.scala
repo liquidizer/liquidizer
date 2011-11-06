@@ -35,6 +35,16 @@ object PollingBooth {
     vote.save
   }
 
+  /** Refresh the users voting weight */
+  def activate(user : User, room : Option[Room]) = {
+    if (!room.isEmpty) {
+      val n= Votable.find(By(Votable.user, user), By(Votable.room, room.get))
+      .getOrElse {
+	Votable.create.user(user).room(room.get).saveMe }
+      PollingBooth.vote(user, n, 0)
+    }
+  }
+
   /** Clear all comments given by a user */
   def clearComments(owner : User) = {
     for(comment <- Comment.findAll(By(Comment.author, owner))) {
@@ -44,8 +54,21 @@ object PollingBooth {
 
   /** Clear all active votes cast by a user */
   def clearVotes(user : User) = {
-    val votes= VoteMap.getActiveVotes(user)
-    votes.foreach { vote(user, _, 0) }
+    val votes= Vote.findAll(By(Vote.owner, user))
+    votes.foreach { v => vote(user, v.nominee.obj.get, 0) }
     VoteMap.refresh()
+  }
+
+  /** Delete nominee */ 
+  def deleteVotable(nominee : Votable) = {
+    for (vote <- Vote.findAll(By(Vote.nominee, nominee)))
+      vote.delete_!
+    for (comment <- Comment.findAll(By(Comment.nominee, nominee)))
+      comment.delete_!
+    nominee.delete_!
+    nominee match {
+      case VotableQuery(query) => query.delete_!
+      case _ =>
+    }
   }
 }

@@ -13,7 +13,7 @@ import org.liquidizer.model._
 
 object Markup {
 
-  val url= "(http:/[^\\s\"]*[^\\s!?&.<>])".r
+  val URL_R= "(https?:/[^\\s\"]*[^\\s!?&.<>])".r
  
   def renderComment(in : String) : NodeSeq = {
     if (in==null || in.length==0)
@@ -51,8 +51,8 @@ object Markup {
     def tail= renderBlock(in.tail)
     in match {
       case Nil => Nil
-      case List(line, _*) if line.matches(" *[*#].*") => {
-	val li = <li>{ renderLine(line.replaceAll("^ *[*#]","")) }</li>
+      case List(line, _*) if line.matches(" *[*-] .*") => {
+	val li = <li>{ renderLine(line.replaceAll("^ *[*-#]","")) }</li>
 	tail match {
 	  case <ul>{ c @ _* }</ul> :: t => <ul>{ li ++ c }</ul> :: t
 	  case t => <ul>{ li }</ul> :: t
@@ -65,7 +65,13 @@ object Markup {
   def renderLine(in : String) = renderHeader(in, x=>x, x=>x)
 
   def renderTagList(in:List[String]) : Node = {
-    <span class="keys">{in.mkString(", ")}</span>
+    <span class="keys">{
+      var isFirst= true
+      in.map { key =>
+	val suff= if (isFirst) NodeSeq.Empty else Text(", ")
+        isFirst= false
+	suff ++ <a class="tag" href={Helpers.appendParams("/queries.html",("search",key) :: Nil)}>{key}</a>
+    }}</span>
   }
 
   def renderHeader(in : String, link : String) : NodeSeq =
@@ -78,29 +84,21 @@ object Markup {
 
   /** render a header replacing links with a generic short cut */
   def renderHeader(in : String, link : Node=>Node, short : String=>String) : NodeSeq = {
-    url.findFirstMatchIn(in) match {
+    URL_R.findFirstMatchIn(in) match {
       case Some(m) =>
-        link(Text(m.before.toString)) ++ 
-        <a href={m.matched} title={m.matched} target="_blank" class="extern">{short(m.matched)}</a> ++ 
+        link(Text(m.before.toString)) ++ eLink(m.matched, short(m.matched)) ++ 
         renderHeader(m.after.toString, link, short)
       case _ =>
 	link(Text(in))
     }
   }
 
-  /** format a time relative to now */
-  def formatRelTime(time : Long) : String = {
-    val dt= Tick.now - time
-    if (dt <= Tick.min) S.?("time.secs").format(dt/Tick.sec)
-    else if (dt <= Tick.h) S.?("time.mins").format(dt/Tick.min)
-    else if (dt < 2*Tick.h) S.?("time.one.hour")
-    else if (dt <= Tick.day) S.?("time.hours").format(dt/Tick.h)
-    else if (dt < 2*Tick.day) S.?("time.one.day")
-    else S.?("time.days").format(dt/Tick.day)
-  }
+  /** make an external link */
+  def eLink(url : String, display : String) =
+    <a href={url} title={url} target="_blank" class="extern">{display}</a>
 }
 
-class CategoryView(val keys : List[String], rootLink:String) {
+class CategoryView(val keys : List[String], rootLink:String)  {
 
   def this(keyStr : String, rootLink : String) = 
     this(keyStr.toLowerCase.split(",| ").distinct.toList, rootLink)
@@ -108,7 +106,8 @@ class CategoryView(val keys : List[String], rootLink:String) {
   def isActive(tag : String) = keys.contains(tag.toLowerCase)
 
   def link(node : Node, keys : List[String]) = {
-    val uri= rootLink+"?search="+keys.mkString(" ")
+    val sort= S.param("sort").map { v => List(("sort", v)) }.getOrElse(Nil)
+    val uri= Helpers.appendParams(rootLink, ("search" -> keys.mkString(" ")) :: sort)
     <a href={uri}>{node}</a>
   }
 
@@ -166,16 +165,18 @@ object Localizer {
 }
 
 /** Create menu item elements with links and automatic styles */
-class MenuMarker {
+class MenuMarker extends InRoom {
+  val user= User.currentUser.map { _.id.is }.getOrElse(0L)
+
+  def toUrl(url : Option[Seq[Node]]) =
+    uri(url.map { _.text }.getOrElse(S.uri))
 
   def bind(in :NodeSeq) : NodeSeq = in.flatMap(bind(_))
-
   def bind(in :Node) : NodeSeq = {
     in match {
       case Elem("menu", "a", attribs, scope, children @ _*) =>
 	// determine target and current link
-	var href= attribs.get("href").map { _.text }.getOrElse(S.uri).
-	    replaceAll("~", User.currentUser.map { _.id.is }.getOrElse(1).toString)
+	var href= toUrl(attribs.get("href"))
 
         var active= href == (if (href.startsWith("/")) S.uri else S.uri.replaceAll(".*/",""))
 	val isDefault= attribs.get("default").exists{ _.text=="true" }
@@ -186,8 +187,9 @@ class MenuMarker {
 	  val field= action.text
 	  if (isDefault && field=="sort") S.set("defaultOrder", value)
 	  active &&= S.param(field).map { value == _ }.getOrElse(isDefault)
-	  href += "?"+field+"="+value
-	}
+	  val search= S.param("search").map { v => List(("search",v))}.getOrElse(Nil)
+	  href = Helpers.appendParams(href, (field, value) :: search)
+      }
 
         // make menu entry
 	val entry= attribs.get("icon").map { url =>
@@ -198,6 +200,14 @@ class MenuMarker {
         val style= if (active) "active" else "inactive" 
         val title= attribs.get("title").map( Localizer.loc(_) )
         <li><a href={href} title={title} alt={title}><div class={style}>{entry}</div></a></li>
+
+      case Elem("local", "a", attribs, scope, children @ _*) =>
+	// keep a number of current request attributes in the target url
+        val keep= attribs.get("keep").map{_.text}.getOrElse("")
+        val para= S.param(keep).map { v => List((keep,v))}.getOrElse(Nil)
+        val url= Helpers.appendParams(toUrl(attribs.get("href")), para )
+        val title= attribs.get("title").map( Localizer.loc(_) )
+        <a href={url} alt={title} title={title}>{ children }</a>
 
       case Elem(prefix, label, attribs, scope, children @ _*) =>
 	Elem(prefix, label, Localizer.loc(attribs), scope, bind(children) : _*)

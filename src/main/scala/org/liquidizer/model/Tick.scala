@@ -58,7 +58,7 @@ object Tick extends Tick with LongKeyedMetaMapper[Tick] {
       var space= List(1*min, 5*min, 10*min, 20*min, 1*h, 2*h, 4*h, 12*h, 24*h)
       ts.filter { tick =>
 	// coursen resultion for older ticks
-	if (space.size>1 && t0-tick.time.is > 10*space.head) space=space.tail
+	if (space.size>1 && t0-tick.time.is > 100*space.head) space=space.tail
 	// lock to fixed time grid
 	tick.time((tick.time.is / space.head)*space.head)
 	// merge ticks

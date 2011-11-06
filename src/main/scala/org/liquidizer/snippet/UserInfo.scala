@@ -14,9 +14,9 @@ import org.liquidizer.model._
 import org.liquidizer.lib._
 import org.liquidizer.lib.ssl._
 
-class UserInfo {
+/** User related snippet code */
+class UserInfo extends InRoom {
   val buttonFactory = new EditButtonToggler()
-
   var username=""
   var passwd=""
 
@@ -45,14 +45,6 @@ class UserInfo {
 	    buttonFactory.newLineRecord(() => me.email.is, value => { me.email(value); me.save })
 	  buttonFactory.toggleText
 	  case "editButton" => buttonFactory.toggleButton
-
-	  // user statistics
-	  case "numVotes" => 
-	    Text(VoteMap.getActiveVotes(me).filter { _.isQuery }.size.toString)
-	  case "numDelegates" =>
-	    Text(VoteMap.getActiveVotes(me).filter { _.isUser }.size.toString)
-	  case "numSupporters" =>
-	    Text(VoteMap.getActiveVoters(VotableUser(me)).size.toString)
 
 	  case _ => Elem("me", label, attribs, scope, bind(children) : _*)
 
@@ -83,8 +75,8 @@ class UserInfo {
       case Some(user) if user.validated && user.password.match_?(password) =>  
 	User.logUserIn(user)
         // restore voting weight to 1.00
-        PollingBooth.vote(user, VotableUser(user), 0)
-        S.redirectTo("/index.html")
+        PollingBooth.activate(user, room)
+        S.redirectTo(home() + "/index.html")
       case Some(user) if !user.validated =>  
 	S.error(S.??("account.validation.error"))  
       case Some(user) =>
@@ -94,7 +86,7 @@ class UserInfo {
     }  
   }  
   
-  /** Show this content only if the user is logged out */
+
   def in(in:NodeSeq) : NodeSeq =
     if (User.currentUser.isEmpty) NodeSeq.Empty else bind(in)
 
@@ -106,51 +98,6 @@ class UserInfo {
   /** Show this content only if the user is logged in */
   def out(in:NodeSeq) : NodeSeq = 
     if (User.currentUser.isEmpty) bind(in) else NodeSeq.Empty
-
-  /** List of recent votes by the current user, to be shown in the index page */
-  def votes(in : NodeSeq) : NodeSeq = {
-    val length= 10
-    User.currentUser match {
-      case Full(me) => 
-	val helper= new VotingHelper {
-	  override def getVotes() : List[Votable] =
-	    VoteMap.getActiveVotes(me)
-	    .filter { _.isQuery }
-	    .sort { _.id.is > _.id.is }
-	    .slice(0,length)
-
-	  override def getSupporters() : List[User] =
-	    VoteMap.getActiveVoters(VotableUser(me))
-	    .sort { _.id.is > _.id.is }
-	    .slice(0,length)
-
-	  override def getDelegates() : List[User] =
-	    VoteMap.getActiveVotes(me)
-	    .filter { _.isUser }
-	    .sort { _.id.is > _.id.is }
-	    .map { _.user.obj.get }
-	    .slice(0,length)
-	}
-      helper.bind(in, VotableUser(me))
-      case _ => NodeSeq.Empty
-    }
-  }
-
-  /** List of new users to be shown in the sidebar */
-  def newUsers(in : NodeSeq) : NodeSeq = {
-    val helper= new VotingHelper
-    User
-    .findAll(By(User.validated, true), OrderBy(User.id,Descending)).slice(0,5)
-    .flatMap { user => helper.bind(in, VotableUser(user)) }
-  }
-
-  /** List of new queries to be shown in the sidebar */
-  def newQueries(in : NodeSeq) : NodeSeq = {
-    val helper= new VotingHelper
-    Query
-    .findAll(OrderBy(Query.id, Descending)).slice(0,4)
-    .flatMap { query => helper.bind(in, VotableQuery(query)) }
-  }
 
   /** change the password */
   def passwd(in : NodeSeq) : NodeSeq = {
@@ -250,18 +197,25 @@ class UserReset extends StatefulSnippet {
   def process() = {
     val user= User.currentUser.get
     if (deleteVotes || deleteAccount) {
+      // delete all votes cast by the current user
       PollingBooth.clearVotes(user)
       S.notice(S ? "data.delete.votes.succ")
     }
     if (deleteComments || deleteAccount) {
+      // delete all comments placed by the current user
       PollingBooth.clearComments(user)
       S.notice(S ? "data.delete.comment.succ")
     }
     if (deleteAccount) {
+      // completely delete all private information
       User.logUserOut()
-      Vote.findAll(By(Vote.nominee, VotableUser(user))).foreach { _.delete_! }
+      // delete all delegations to the deleted user
+      for (nominee <- Votable.findAll(By(Votable.user, user)))
+	PollingBooth.deleteVotable(nominee)
+      // delete identity
       user.profile("").email("").nick("---").validated(false)
       user.save
+      // success message
       S.notice(S ? "data.delete.account.succ")
     }
     this.unregisterThisSnippet
