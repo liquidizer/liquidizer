@@ -63,6 +63,7 @@ class Boot {
     
     // dynamic pages
     LiftRules.dispatch.append {
+      case Req("rss" :: _, _, GetRequest) => () => RSSFeeder.renderRSS
       case Req(List("queries",query,"chart.svg"),_,_) => () => TimeseriesView.queryChart(query)
       case Req(List("queries",query,"delegation.svg"),_,_) => () => DelegationGraphView.queryGraph(query)
       case Req(List("queries",query,"histogram.svg"),_,_) => () => HistogramView.hist(query)
