@@ -63,7 +63,7 @@ class RSSData extends InRoom {
       (<item>
        <title>{ 
 	 index += 1
-	 "#"+index+": "+entry.toString 
+	 "#"+index+" "+entry.toString 
        }</title>
        <description></description>
        <link>{ S.hostAndPath+uri(entry) }</link>
