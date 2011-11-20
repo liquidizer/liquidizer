@@ -44,6 +44,7 @@ class Boot {
       Emotion.findAll.foreach { _.room(room).save }
     }
 
+    LadeAntragsDaten.ladeDaten()
 
     println("Starting LIQUIDIZER")
     VoteMap.refresh(false)
