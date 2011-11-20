@@ -13,7 +13,9 @@ import org.liquidizer.model._
 
 object Markup {
 
-  val URL_R= "(https?:/[^\\s\"]*[^\\s!?&.<>])".r
+  val URL1= "(https?:/[^\\s\"]*[^\\s!?&.<>])"
+  val URL2= "\\["+URL1+" ([^]]*)\\]"
+  val URL_R= (URL1+"|"+URL2).r
  
   def renderComment(in : String) : NodeSeq = {
     if (in==null || in.length==0)
@@ -86,7 +88,13 @@ object Markup {
   def renderHeader(in : String, link : Node=>Node, short : String=>String) : NodeSeq = {
     URL_R.findFirstMatchIn(in) match {
       case Some(m) =>
-        link(Text(m.before.toString)) ++ eLink(m.matched, short(m.matched)) ++ 
+        link(Text(m.before.toString)) ++ {
+          if (m.group(1)==null) {
+	    eLink(m.group(2), "["+m.group(3)+"]")
+	  } else {
+	    eLink(m.matched, short(m.matched))
+	  }
+	} ++
         renderHeader(m.after.toString, link, short)
       case _ =>
 	link(Text(in))
