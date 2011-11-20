@@ -7,7 +7,7 @@ import org.liquidizer.model._
 object TaggedUtils {
 
   /** Pattern tomatch a hash tag in a comment */
-  val HASHTAG_R= "#(\\p{L}|\\d)+".r
+  val HASHTAG_R= "#(\\p{L}|\\d|[_§])+".r
 
   /** Extract all hash keys #..... from a string */
   def tagList(content : String) = {
