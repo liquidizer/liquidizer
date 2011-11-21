@@ -53,8 +53,8 @@ class Queries extends MultipageSnippet {
 
 /** Snippet code to show details on a query's voters */
 class QueryDetails extends MultipageSnippet with InRoom {
-  val quid= S.param("query").get.toLong
-  val query= Votable.getQuery(quid.toLong, room.get)
+  lazy val quid= S.param("query").get.toLong
+  lazy val query= Votable.getQuery(quid.toLong, room.get)
   var hasMe= true;
 
   def loadData() = {
@@ -85,7 +85,11 @@ class QueryDetails extends MultipageSnippet with InRoom {
   }
 
   def render(in : NodeSeq) : NodeSeq = {
-    if (query.isEmpty)
+    if (room.isEmpty) {
+       println("URL without room: "+S.uri)
+       <span>Invalid Room</span>
+    } 
+    else if (query.isEmpty)
       <div class="error">Error: query does not exist</div>
     else
       helper.bind(in, query.get)
