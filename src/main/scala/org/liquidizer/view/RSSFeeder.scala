@@ -1,6 +1,8 @@
 package org.liquidizer.view
 
-import scala.xml.{NodeSeq,Node}
+import scala.xml.{NodeSeq,Node,Text}
+import java.text.SimpleDateFormat
+import java.util.Date
 
 import net.liftweb.util._
 import net.liftweb.common._
@@ -23,7 +25,7 @@ val xmlHead = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
   }
 
   private def headers(length: String) = {
-    ("Content-type" -> "text/rss+xml; charset=utf-8") ::
+    ("Content-type" -> "application/rss+xml; charset=utf-8") ::
     ("Content-length" -> length) :: Nil
   }
 
@@ -52,21 +54,32 @@ class RSSData extends InRoom {
     .map { _.query.obj.get }
   }
 
+  val dformat= new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z")
+  def dateStr() = dformat.format(new Date())
+
   def createFeed = {
     <rss version="2.0">
     <channel>
     <title>Liquidizer RSS Feed</title>
     <link>http://liquidizer.org</link>
+    <description>Liqidizer</description>
     <language>de-de</language>
+    <pubDate>{ dateStr }</pubDate>
+    <lastBuildDate>{ dateStr }</lastBuildDate>
+    <ttl>10</ttl>
+    <link xmlns="http://www.w3.org/2005/Atom" 
+          href={ S.hostAndPath+"/room/1/feed.rss" } rel="self"
+          type="application/rss+xml"/>
     {
       getData().slice(0,10).map { entry =>
       (<item>
        <title>{ 
 	 index += 1
-	 "#"+index+" "+entry.toString 
+	 Text(index.toString+". "+entry.toString)
        }</title>
        <description></description>
        <link>{ S.hostAndPath+uri(entry) }</link>
+       <guid isPermaLink="true">{ S.hostAndPath+uri(entry) }</guid>
        </item>)
 	      }
     }
