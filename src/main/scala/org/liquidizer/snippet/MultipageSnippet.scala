@@ -14,6 +14,9 @@ import org.liquidizer.lib._
 
 /** Gets the room id and provides room related convenience functions */
 trait InRoom {
+  /** Access code for rooms */
+  object code extends SessionVar[String](S.param("code").getOrElse(""))
+
   /** Prefix to indicate that rooms are hidden from the links */
   val SINGLE_ROOM_PRFIX= "_"
 

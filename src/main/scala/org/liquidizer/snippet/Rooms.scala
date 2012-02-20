@@ -35,22 +35,57 @@ class Rooms extends InRoom {
   /** Controls for the creation of a new room */
   def create(in : Node) : NodeSeq = {
     var name= ""
+    var decay= "0.01"
+    var codes= ""
+    var restrict= false;
     if (User.currentUser.isEmpty) NodeSeq.Empty else {
       Helpers.bind("room", in,
 		   "name" -> SHtml.text(name, name = _),
-		   "submit" -> SHtml.ajaxSubmit(S ? "create", () => createRoom(name.trim)))
+		   "decay" -> SHtml.text(decay, decay = _),
+		   "decay" -> SHtml.text(decay, decay = _),
+		   "codes" -> <div id="inviteCodes"></div>,
+		   "restrict" -> SHtml.ajaxCheckbox(restrict, show => {
+		     restrict=show
+		     if (restrict) 
+		       SetHtml("inviteCodes",
+			       SHtml.textarea(codes, codes = _, 
+					      "id"->"inviteCodes",
+					      "rows"->"15", "cols"->"30"))
+		     else 
+		       SetHtml("inviteCodes", NodeSeq.Empty)
+		   }),
+		   "submit" ->
+		   SHtml.ajaxSubmit(S ? "create", () => {
+		     val codeOpt= if (restrict) Some(codes) else None
+		     createRoom(name.trim, decay, codeOpt)
+		   })
+		 )
     }
   }
 
   /** create a new room with the given name */
-  def createRoom(name : String) = {
+  def createRoom(name : String, decay : String, codes : Option[String]) = {
     if (name.length == 0) {
       Noop
     } 
     else {
       if (Room.get(name).isEmpty) {
-	val room= Room.create.name(name).saveMe
+	val room= Room.create.name(name)
+	room.owner(User.currentUser.get)
+	room.decay(decay.toDouble)
+	room.needsCode(!codes.isEmpty)
+	room.save
+	if (!codes.isEmpty) {
+	  val list= codes.get.split("\n").map { _.trim }.filter{ _.length > 0 }
+	  for (code <- list) {
+	    val codeItem= InviteCode.create
+	    codeItem.room(room)
+	    codeItem.code(code)
+	    codeItem.save
+	  }
+	}
 	PollingBooth.activate(User.currentUser.get, Some(room))
+	
       }
       RedirectTo("/room/"+name+"/index.html")
     } 

@@ -43,12 +43,10 @@
 	      <li><room:name/></li>
 	    </lift:Rooms.list>
 	  </ol>
-	  <hr/>
-	  <lift:form>
-	    <lift:Rooms.create>
-	      <room:name/> <room:submit/>
-	    </lift:Rooms.create>
-	  </lift:form>
+	  <lift:UserInfo.in>
+	    <hr/>
+	    <a href="createRoom.html"><lift:loc>create.room</lift:loc></a>
+	  </lift:UserInfo.in>
 	</td>
       </tr>
     </lift:Rooms.out>

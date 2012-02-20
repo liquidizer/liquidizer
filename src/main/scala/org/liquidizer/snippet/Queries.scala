@@ -159,7 +159,7 @@ class AddQuery extends StatefulSnippet with InRoom {
       nominee.save
       if (keys.trim.length>0)
 	PollingBooth.comment(User.currentUser.get, nominee, 
-			     keys.split("[, ]").mkString("#"," #",""))
+			     keys.split("[, ]+").mkString("#"," #",""))
       unregisterThisSnippet
       S.redirectTo(uri(query))
     }

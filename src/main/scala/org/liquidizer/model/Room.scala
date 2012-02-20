@@ -7,7 +7,10 @@ import _root_.net.liftweb.common._
 class Room extends LongKeyedMapper[Room] with IdPK {
   def getSingleton = Room
 
-  object name extends MappedString(this,32)
+  object name extends MappedString(this, 32)
+  object owner extends MappedLongForeignKey(this, User)
+  object needsCode extends MappedBoolean(this)
+  object decay extends MappedDouble(this)
 
   override def toString() = name.is
 }

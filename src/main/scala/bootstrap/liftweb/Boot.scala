@@ -35,13 +35,23 @@ class Boot {
       DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
     }
     Schemifier.schemify(true, Schemifier.infoF _, Votable, User, Query, 
-			Vote, Comment, Room, Certificate, Emotion, Tick)
+			Vote, Comment, Room, Certificate, Emotion, Tick,
+		        InviteCode)
 
     // convert the data base
     if (Room.findAll.isEmpty) {
       lazy val room= Room.create.name("default").saveMe
       Votable.findAll.foreach { _.room(room).save }
       Emotion.findAll.foreach { _.room(room).save }
+    }
+
+    // update Rooms
+    val user= User.getUserByNick("Dadim").get
+    for (room <- Room.findAll) {
+      room.owner(user)
+      room.needsCode(false)
+      room.decay(0.01)
+      room.save()
     }
 
     println("Starting LIQUIDIZER")
