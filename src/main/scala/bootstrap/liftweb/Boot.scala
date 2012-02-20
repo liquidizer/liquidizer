@@ -48,10 +48,12 @@ class Boot {
     // update Rooms
     val user= User.getUserByNick("Dadim").get
     for (room <- Room.findAll) {
-      room.owner(user)
-      room.needsCode(false)
-      room.decay(0.01)
-      room.save()
+      if (room.owner.isEmpty) {
+	room.owner(user)
+	room.needsCode(false)
+	room.decay(0.01)
+	room.save()
+      }
     }
 
     println("Starting LIQUIDIZER")

@@ -7,7 +7,7 @@ import _root_.net.liftweb.common._
 class InviteCode extends LongKeyedMapper[InviteCode] with IdPK {
   def getSingleton = InviteCode
 
-  object user extends MappedLongForeignKey(this, User)
+  object owner extends MappedLongForeignKey(this, User)
   object room extends MappedLongForeignKey(this, Room)
   object code extends MappedString(this,255)
 

@@ -73,7 +73,9 @@ class VotingHelper extends InRoom {
   
   /** Update the voting preferences */
   def vote(nominee : Votable, newVote : Int) : JsCmd = {
-    if (myNominee.isEmpty) PollingBooth.activate(currentUser.get, room)
+    if (myNominee.isEmpty) 
+      if (!activateRoom())
+	return;
     PollingBooth.vote(currentUser.get, nominee, newVote)
     VoteMap.refresh()
     ajaxUpdate(nominee)

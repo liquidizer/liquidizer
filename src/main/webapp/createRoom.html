@@ -1,0 +1,35 @@
+<lift:surround with="default">
+  <lift:bind-at name="title"><lift:loc>create.room</lift:loc></lift:bind-at>
+  <lift:bind-at name="content">
+    <lift:form>
+      <h1><lift:loc>create.room</lift:loc></h1>
+      <lift:UserInfo.in>
+	<lift:Rooms.create>
+	  <table>
+	    <tr>
+	      <td><lift:loc>room.name</lift:loc></td>
+	      <td><room:name/></td>
+	    </tr>
+	    <tr>
+	      <td><lift:loc>vote.decay</lift:loc></td>
+	      <td><room:decay/></td>
+	    </tr>
+	    <tr>
+	      <td><lift:loc>require.codes</lift:loc></td>
+	      <td><room:restrict/></td>
+	    </tr>
+	    <tr>
+	      <td><lift:loc>room.codes</lift:loc></td>
+	      <td><room:codes/></td>
+	    </tr>
+	    <tr>
+	      <td colspan="2" align="center">
+		<room:submit/>
+	      </td>
+	    </tr>
+	  </table> 
+	</lift:Rooms.create>
+      </lift:UserInfo.in>
+    </lift:form>
+  </lift:bind-at>
+</lift:surround>

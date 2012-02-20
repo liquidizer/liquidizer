@@ -27,8 +27,8 @@ class UserInfo extends InRoom {
   /** Standard profile settings of the user */
   def bind(in : Node) : NodeSeq = {
     // check if user is logged in
-    User.currentUser match {
-      case Full(me) =>
+    if (!User.currentUser.isEmpty) {
+      val me= User.currentUser.get
       in match { 
 	case Elem("me", label, attribs, scope, children @ _*) => label match {
 	  // session info
@@ -54,18 +54,19 @@ class UserInfo extends InRoom {
 
 	case _ => in
       }
-      case _ =>
-	in match {
-	  case <me:name/> => SHtml.text(username, username = _)
-	  case <me:password/> => SHtml.password(passwd, passwd = _)
-	  case <me:submit/> => SHtml.ajaxSubmit(S?"system.login", () => {
-	    login(username, passwd)
-	    S.redirectTo(S.uri) 
+    }
+    else {
+      in match {
+	case <me:name/> => SHtml.text(username, username = _)
+	case <me:password/> => SHtml.password(passwd, passwd = _)
+	case <me:submit/> => SHtml.ajaxSubmit(S?"system.login", () => {
+	  login(username, passwd)
+	  S.redirectTo(home()+"/index.html") 
 	  })
-	  case Elem(prefix, label, attribs, scope, children @ _*) =>
+	case Elem(prefix, label, attribs, scope, children @ _*) =>
 	  Elem(prefix, label, attribs, scope, bind(children) : _*)
-	  case _ => in
-	}
+	case _ => in
+      }
     }
   }
 
@@ -75,7 +76,7 @@ class UserInfo extends InRoom {
       case Some(user) if user.validated && user.password.match_?(password) =>  
 	User.logUserIn(user)
         // restore voting weight to 1.00
-        PollingBooth.activate(user, room)
+        activateRoom()
         S.redirectTo(home() + "/index.html")
       case Some(user) if !user.validated =>  
 	S.error(S.??("account.validation.error"))  
@@ -86,18 +87,33 @@ class UserInfo extends InRoom {
     }  
   }  
   
+  def isMember() : Boolean = {
+    if (User.currentUser.isEmpty)
+      return false
+    if (room.isEmpty || !room.get.needsCode.is)
+      return true
+    return activateRoom()
+  }
+
+  def inAsGuest(in:NodeSeq) : NodeSeq =
+    if (!User.currentUser.isEmpty) bind(in) else NodeSeq.Empty
+
+  def outAsGuest(in:NodeSeq) : NodeSeq =
+    if (User.currentUser.isEmpty) bind(in) else NodeSeq.Empty
 
   def in(in:NodeSeq) : NodeSeq =
-    if (User.currentUser.isEmpty) NodeSeq.Empty else bind(in)
+    if (isMember) bind(in) else NodeSeq.Empty
 
   /** Assert that the user is logged in, else show error */
   def assertIn(in : NodeSeq) : NodeSeq =
-    if (User.currentUser.isEmpty) 
-      Text(S ? "error.not.logged.in") else bind(in)
+    if (isMember) 
+      bind(in)
+    else
+      Text(S ? "error.not.logged.in")
 
   /** Show this content only if the user is logged in */
   def out(in:NodeSeq) : NodeSeq = 
-    if (User.currentUser.isEmpty) bind(in) else NodeSeq.Empty
+    if (isMember) NodeSeq.Empty else bind(in)
 
   /** change the password */
   def passwd(in : NodeSeq) : NodeSeq = {

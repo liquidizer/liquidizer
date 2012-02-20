@@ -2,7 +2,7 @@
   <lift:bind-at name="title"><lift:loc>system.homepage</lift:loc></lift:bind-at>
   <lift:bind-at name="content">
     <lift:form>
-      <lift:UserInfo.in eager_eval="true">
+      <lift:UserInfo.inAsGuest eager_eval="true">
 	<div class="balance">
 	  <h2>
 	    <lift:loc>welcome.to.liquidizer</lift:loc>,
@@ -11,9 +11,9 @@
 	  <div style="color:red"><lift:Msgs showAll="true"/></div>
 	</div>
 	<lift:embed what="overview"/>
-      </lift:UserInfo.in>
+      </lift:UserInfo.inAsGuest>
     </lift:form>
-    <lift:UserInfo.out form="POST">
+    <lift:UserInfo.outAsGuest form="POST">
       <table>
 	<tr>
 	  <td>
@@ -50,7 +50,7 @@
 	  </td>
 	</tr>
       </table>
-    </lift:UserInfo.out>
+    </lift:UserInfo.outAsGuest>
   </lift:bind-at>
   <lift:bind-at name="sidebar">
     <lift:embed what="infopane"/>

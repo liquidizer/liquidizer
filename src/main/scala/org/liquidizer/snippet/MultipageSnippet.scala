@@ -12,10 +12,13 @@ import Helpers._
 import org.liquidizer.model._
 import org.liquidizer.lib._
 
+object SessionCode {
+  /** Access code for rooms */
+  object code extends SessionVar[String]("")
+}
+
 /** Gets the room id and provides room related convenience functions */
 trait InRoom {
-  /** Access code for rooms */
-  object code extends SessionVar[String](S.param("code").getOrElse(""))
 
   /** Prefix to indicate that rooms are hidden from the links */
   val SINGLE_ROOM_PRFIX= "_"
@@ -23,6 +26,9 @@ trait InRoom {
   val showRoomInUrl= S.param("room").exists ( !_.startsWith(SINGLE_ROOM_PRFIX) )
   val roomName= S.param("room").getOrElse("").replaceAll("^"+SINGLE_ROOM_PRFIX+"?","")
   lazy val room= Room.get(roomName)
+
+  if (!S.param("code").isEmpty)
+    SessionCode.code.set(S.param("code").get)
 
   /** searches the votable for user in the current room */
   def toNominee(user : User) : Option[Votable] =
@@ -49,6 +55,15 @@ trait InRoom {
     if (!showRoomInUrl)
       u= u.replaceAll("^/room/[^/]+","")
     u
+  }
+
+  /** Activate a users membership in the current room */
+  def activateRoom() : Boolean= {
+    val code= SessionCode.code.get
+    val result= PollingBooth.activate(User.currentUser.get, room, code)
+    if (result)
+      SessionCode.code.set("")
+    result
   }
 }
 

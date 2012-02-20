@@ -1,6 +1,7 @@
 package org.liquidizer.lib
 
 import net.liftweb.mapper._
+import net.liftweb.common.Logger
 import org.liquidizer.model._
 
 import VoteMap.EPS
@@ -61,12 +62,13 @@ class UserHead(val user : User, val nominee : Votable) {
     .find(By(Vote.owner, user), OrderBy(Vote.date, Descending))
     .map { _.date.is }.getOrElse(0L)
   var active = true
-  def weight(time : Long) = Math.exp(WEIGHT_DECAY*(latestVote-time))
+  var factor = 1.0
+  def weight(time : Long) = factor * Math.exp(WEIGHT_DECAY*(latestVote-time))
   def update(time : Long) = { latestVote = latestVote max time }
 }
 
 /** This class contains the code for solving the voting weight equation */
-class Solver(val room : Room) {
+class Solver(val room : Room) extends Logger {
   var users= Map[Long, UserHead]()
   var nominees= Map[Long, NomineeHead]()
   var voteList= List[Vote]()
@@ -74,6 +76,8 @@ class Solver(val room : Room) {
 
   /** Recompute all results following the latest votes */
   def recompute() : Unit = if (!voteList.isEmpty) {
+    info("Recomputing room "+room+" with "+voteList.size+" updated votes")
+
     // iterative matrix solving
     preprocessVotes()
     sweep(100)
@@ -115,6 +119,7 @@ class Solver(val room : Room) {
       }
       setResult(uHead.nominee, pop*denom)
     }
+    voteList=Nil
   }
 
   /** Store the new result, trigger save to disk if necessary */
@@ -147,6 +152,13 @@ class Solver(val room : Room) {
 	// update activity time for user
 	val uHead= getUserHead(vote.owner.is)
 	uHead.update(vote.date.is)
+	// recount voting weight
+	if (room.needsCode.is) {
+	  uHead.factor= InviteCode.findAll(
+	    By(InviteCode.room, room),
+	    By(InviteCode.owner, uHead.user)).size
+	}
+	// delete old votes
 	time = time max vote.date.is
 	if (vote.weight.is==0 && uHead.latestVote > vote.date.is)
 	  vote.delete_!

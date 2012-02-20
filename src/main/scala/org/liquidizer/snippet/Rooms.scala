@@ -75,7 +75,7 @@ class Rooms extends InRoom {
 	room.decay(decay.toDouble)
 	room.needsCode(!codes.isEmpty)
 	room.save
-	if (!codes.isEmpty) {
+	if (room.needsCode.is) {
 	  val list= codes.get.split("\n").map { _.trim }.filter{ _.length > 0 }
 	  for (code <- list) {
 	    val codeItem= InviteCode.create
@@ -83,9 +83,9 @@ class Rooms extends InRoom {
 	    codeItem.code(code)
 	    codeItem.save
 	  }
+	} else {
+	  PollingBooth.activate(User.currentUser.get, Some(room), "")
 	}
-	PollingBooth.activate(User.currentUser.get, Some(room))
-	
       }
       RedirectTo("/room/"+name+"/index.html")
     } 

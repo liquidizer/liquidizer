@@ -36,13 +36,34 @@ object PollingBooth {
   }
 
   /** Refresh the users voting weight */
-  def activate(user : User, room : Option[Room]) = {
+  def activate(user : User, room : Option[Room], code : String) : Boolean = {
     if (!room.isEmpty) {
-      val n= Votable.find(By(Votable.user, user), By(Votable.room, room.get))
-      .getOrElse {
-	Votable.create.user(user).room(room.get).saveMe }
-      PollingBooth.vote(user, n, 0)
+      var n= Votable.find(By(Votable.user, user), 
+			  By(Votable.room, room.get));
+      if (room.get.needsCode.is) {
+	if (code.isEmpty && n.isEmpty)
+	  return false
+	if (!code.isEmpty) {
+	  val codeItem= InviteCode.find(By(InviteCode.room, room.get),
+					By(InviteCode.code, code))
+	  if (codeItem.isEmpty) {
+	    if (n.isEmpty)
+	      return false
+	  } else {
+	    if (codeItem.get.owner.is!=user.id.is) {
+	      if (!codeItem.get.owner.isEmpty)
+		return false;
+	      codeItem.get.owner(user);
+	      codeItem.get.save
+	    }
+	  }
+	}
+      }
+      if (n.isEmpty)
+	n= Some(Votable.create.user(user).room(room.get).saveMe)
+      PollingBooth.vote(user, n.get, 0)
     }
+    return true;
   }
 
   /** Clear all comments given by a user */
