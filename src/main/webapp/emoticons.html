@@ -1,46 +1,41 @@
 <lift:surround with="default" at="content">
   <head>
-    <link type="text/css" href="/common/css/ui-lightness/jquery-ui-1.8.1.custom.css" rel="stylesheet" />	
-    <script type="text/javascript" src="/common/js/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="/common/js/jquery-ui-1.8.1.custom.min.js"></script>
-
     <script type="text/javascript">
-      $(function(){
-      $("#sliders div").slider();
-      $("#slider-valence").slider("value", 50);
-      $("#slider-arousal").slider("value", 50);
-      $("#slider-potency").slider("value", 50);
-      $("#slider-scale").slider("value", 50);
-      $("#slider-weight").slider("value", 50);
-      $("#sliders div").bind("slidechange", function(event,ui) { refresh(); });
-      refresh();
-      });
-
+      $(function(){ refresh(); });
       function refresh() {
-      var v= $("#slider-valence").slider("value");
-      var a= $("#slider-arousal").slider("value");
-      var p= $("#slider-potency").slider("value");
-      var s= $("#slider-scale").slider("value");
-      var w= $("#slider-weight").slider("value");
+      var v= $("#slider-valence").val();
+      var a= $("#slider-arousal").val();
+      var p= $("#slider-potency").val();
+      var s= $("#slider-scale").val();
+      var w= $("#slider-weight").val();
       $("#label-valence").text(v);
       $("#label-arousal").text(a);
       $("#label-potency").text(p);
       $("#label-scale").text(s);
       $("#label-weight").text(w);
 
-      var emoticon= $("#emoticon");
-      emoticon.html(emoticon.html()
-      .replace(/v=[-0-9\.]*/,"v="+v/100.0)
-      .replace(/a=[-0-9\.]*/,"a="+a/100.0)
-      .replace(/p=[-0-9\.]*/,"p="+p/100.0)
-      .replace(/w=[-0-9\.]*/,"w="+w/50.0)
-      .replace(/scale=[-0-9\.]*/,"scale="+(75.0/(s+25))))
+      var newElt= document.createElement("embed");
+      newElt.setAttribute("src", "/emoticons/face.svg?"+
+      "v="+(v/100.0)+
+      "&amp;a="+(a/100.0)+
+      "&amp;p="+(p/100.0)+
+      "&amp;w="+(w/50.0)+
+      "&amp;scale="+(100.0/(50.0+s/1.0)));
+      newElt.setAttribute("width","250");
+      newElt.setAttribute("height","250");
+      newElt.setAttribute("style","position:absolute; left:0px; top:0px");
+      var emoticon= document.getElementById("emoticon");
+      emoticon.appendChild(newElt);
+      newElt.onload= function() {
+      while (emoticon.childNodes.length>1)
+      emoticon.removeChild(emoticon.firstChild);
+      }
       }
 
       function setParam(v,a,p) {
-      $("#slider-valence").slider("value", v);
-      $("#slider-arousal").slider("value", a);
-      $("#slider-potency").slider("value", p);
+      $("#slider-valence").val(v);
+      $("#slider-arousal").val(a);
+      $("#slider-potency").val(p);
       refresh();
       }
     </script>
@@ -76,33 +71,53 @@
     <table id="sliders">
       <tr>
 	<td>Valence</td>
-	<td width="80%"><div id="slider-valence"/></td>
+	<td width="80%">
+	  <input id="slider-valence" type="range"
+		 style="width:90%;min:0;max:100;value:50"
+		 onchange="refresh()"/>
+	</td>
 	<td><span id="label-valence">0</span></td>
       </tr>
       <tr>
 	<td>Arousal</td>
-	<td width="80%"><div id="slider-arousal"/></td>
+	<td width="80%">
+	  <input id="slider-arousal" type="range" 
+		 style="width:90%;min:0;max:100;value:50"
+		 onchange="refresh()"/>
+	</td>
 	<td><span id="label-arousal">0</span></td>
       </tr>
       <tr>
 	<td>Potency</td>
-	<td width="80%"><div id="slider-potency"/></td>
+	<td width="80%">
+	  <input id="slider-potency" type="range"
+		 style="width:90%;min:0;max:100;value:50"
+		 onchange="refresh()"/>
+	</td>
 	<td><span id="label-potency">0</span></td>
       </tr>
       <tr>
 	<td>Distance</td>
-	<td width="80%"><div id="slider-scale"/></td>
+	<td width="80%">
+	  <input id="slider-scale" type="range"
+		 style="width:90%;min:0;max:100;value:50"
+		 onchange="refresh()"/>
+	</td>
 	<td><span id="label-scale">0</span></td>
       </tr>
       <tr>
 	<td>Weight</td>
-	<td width="80%"><div id="slider-weight"/></td>
+	<td width="80%">
+	  <input id="slider-weight" type="range"
+		 style="width:90%;min:0;max:100;value:50"
+		 onchange="refresh()"/>
+	</td>
 	<td><span id="label-weight">0</span></td>
       </tr>
     </table>
-    <div id="emoticon">
-      <embed src="/emoticons/face.svg?v=0.5&amp;a=0.5&amp;p=0.5&amp;scale=1.0&amp;w=1.0&amp;size=250" width="250" height="250"/>
-    </div>
+    <div id="emoticon" style="position:absolute;margin:0 50px 0 50px"></div>
+    <div style="margin:125px">&nbsp;</div>
+
     <div id="links">
       <p>
       <a href="javascript:setParam(50,50,50)">Normal</a>
