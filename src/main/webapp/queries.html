@@ -52,7 +52,7 @@
     <lift:Queries.navigator/>
   </div>
 
-  <lift:UserInfo.in>
+  <lift:UserInfo.canAddQueries>
     <lift:Queries.lastpage>
       <lift:MenuMarker>
 	<local:a href="add_query.html" keep="search">
@@ -61,7 +61,7 @@
 	</local:a>
       </lift:MenuMarker>
     </lift:Queries.lastpage>
-  </lift:UserInfo.in>
+  </lift:UserInfo.canAddQueries>
   </lift:bind-at>
 
   <lift:bind-at name="sidebar">
@@ -70,14 +70,14 @@
       <lift:Queries.categories/>
     </div>
     <div style="clear:both"/>
-    <lift:UserInfo.in>
+    <lift:UserInfo.canAddQueries>
       <lift:MenuMarker>
 	<local:a href="add_query.html" keep="search">
 	  <p style="margin: 50px 0px 5px 0"><lift:loc>new.query</lift:loc></p>
 	  <img src="/images/addquery.png" alt="new.query"/>
 	</local:a>
       </lift:MenuMarker>
-    </lift:UserInfo.in>
+    </lift:UserInfo.canAddQueries>
   </lift:bind-at>
 </lift:surround>
 

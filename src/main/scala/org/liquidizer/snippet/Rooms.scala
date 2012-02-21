@@ -38,12 +38,13 @@ class Rooms extends InRoom {
     var decay= "0.01"
     var codes= ""
     var restrict= false;
+    var	allowAQ= true;
     if (User.currentUser.isEmpty) NodeSeq.Empty else {
       Helpers.bind("room", in,
 		   "name" -> SHtml.text(name, name = _),
 		   "decay" -> SHtml.text(decay, decay = _),
-		   "decay" -> SHtml.text(decay, decay = _),
 		   "codes" -> <div id="inviteCodes"></div>,
+		   "allowAddQuery" -> SHtml.checkbox(allowAQ, allowAQ= _),
 		   "restrict" -> SHtml.ajaxCheckbox(restrict, show => {
 		     restrict=show
 		     if (restrict) 
@@ -57,14 +58,16 @@ class Rooms extends InRoom {
 		   "submit" ->
 		   SHtml.ajaxSubmit(S ? "create", () => {
 		     val codeOpt= if (restrict) Some(codes) else None
-		     createRoom(name.trim, decay, codeOpt)
+		     createRoom(name.trim, decay, allowAQ, codeOpt)
 		   })
 		 )
     }
   }
 
   /** create a new room with the given name */
-  def createRoom(name : String, decay : String, codes : Option[String]) = {
+  def createRoom(name : String, decay : String, 
+		 allowAddQueries : Boolean,
+		 codes : Option[String]) = {
     if (name.length == 0) {
       Noop
     } 
@@ -74,6 +77,7 @@ class Rooms extends InRoom {
 	room.owner(User.currentUser.get)
 	room.decay(decay.toDouble)
 	room.needsCode(!codes.isEmpty)
+	room.fixedQueries(!allowAddQueries)
 	room.save
 	if (room.needsCode.is) {
 	  val list= codes.get.split("\n").map { _.trim }.filter{ _.length > 0 }

@@ -107,6 +107,8 @@ class AddQuery extends StatefulSnippet with InRoom {
   var keys= S.param("search").getOrElse("").replaceAll("#","")
 
   def create(in:NodeSeq) : NodeSeq = {
+    if (! (new UserInfo).canAddQueries)
+      return NodeSeq.Empty
     Helpers.bind("addquery", in,
 		 "what" -> SHtml.textarea(what, what = _, "rows"-> "3", "cols"-> "40", "placeholder" -> S ? "new.query"),
 		 "keys" -> SHtml.text(keys, keys = _, 
