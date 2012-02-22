@@ -105,6 +105,13 @@ class UserInfo extends InRoom {
     return activateRoom()
   }
 
+  def hasValidCode(in:NodeSeq) : NodeSeq = {
+    val c= if (SessionCode.code.isEmpty) Empty else
+      InviteCode.find(By(InviteCode.code, SessionCode.code.get),
+			   NullRef(InviteCode.owner))
+    if (!c.isEmpty) bind(in) else NodeSeq.Empty
+  }
+
   def inAsGuest(in:NodeSeq) : NodeSeq =
     if (!User.currentUser.isEmpty) bind(in) else NodeSeq.Empty
 
