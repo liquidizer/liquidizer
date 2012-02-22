@@ -88,7 +88,6 @@ class UserInfo extends InRoom {
   }  
   
   def canAddQueries() : Boolean = {
-    println("cann add queries "+room.get.fixedQueries.is)
     !room.isEmpty && (
       (!room.get.fixedQueries.is && isMember) || 
       User.currentUser.exists { _.id.is == room.get.owner.is })
