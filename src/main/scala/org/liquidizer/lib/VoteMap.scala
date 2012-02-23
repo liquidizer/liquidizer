@@ -9,7 +9,6 @@ import org.liquidizer.model._
  */
 object VoteMap {
   val SWING_DECAY= 0.05 / Tick.day
-  val WEIGHT_DECAY= 0.01 / Tick.day
   val EPS= 1e-5
   var latestUpdate = 0L
 

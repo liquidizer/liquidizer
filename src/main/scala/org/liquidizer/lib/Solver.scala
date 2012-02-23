@@ -5,42 +5,45 @@ import net.liftweb.common.Logger
 import org.liquidizer.model._
 
 import VoteMap.EPS
-import VoteMap.WEIGHT_DECAY
 import VoteMap.SWING_DECAY
 
-/** In memory representation for the latest tick */
-class NomineeHead(val nominee : Votable) {
-  var smooth = 0.0
-  var tick : Option[Tick] = None
+class Solver(val room : Room) extends Logger {
 
-  /** Get the smooth average from the history */
-  {
-    val t0= Tick.now
-    var t= t0
-    val ts = Tick.getTimeSeries(nominee)
-    if (!ts.isEmpty) tick=Some(ts.head)
-    for (tick <- ts) {
+  val WEIGHT_DECAY= room.decay.is / Tick.day
+
+  /** In memory representation for the latest tick */
+  class NomineeHead(val nominee : Votable) {
+    var smooth = 0.0
+    var tick : Option[Tick] = None
+
+    /** Get the smooth average from the history */
+    {
+      val t0= Tick.now
+      var t= t0
+      val ts = Tick.getTimeSeries(nominee)
+      if (!ts.isEmpty) tick=Some(ts.head)
+      for (tick <- ts) {
 	def h(time : Long) = Math.exp(- SWING_DECAY*(t0-time))
 	smooth += tick.quote.value * (h(t) - h(tick.time.is))
 	t= tick.time.is
+      }
     }
-  }
-  
-  /** Return the current result */
-  def result() = tick.map(_.quote).getOrElse(Quote(0.0, 0.0))
-  
-  /** Get the current decayed result */
-  def result(time : Long) = tick.map { v =>
-    v.quote * Math.exp(WEIGHT_DECAY*(v.time.is-time))}.getOrElse(Quote(0,0))
+    
+    /** Return the current result */
+    def result() = tick.map(_.quote).getOrElse(Quote(0.0, 0.0))
+    
+    /** Get the current decayed result */
+    def result(time : Long) = tick.map { v =>
+      v.quote * Math.exp(WEIGHT_DECAY*(v.time.is-time))}.getOrElse(Quote(0,0))
 
-  /** Set the new Result */
-  def update(time : Long, quote : Quote) = {
-    // update smoothed value for trend indication
-    val tickTime= tick.map { _.time.is }.getOrElse(time)
-    val factor= Math.exp(SWING_DECAY*(tickTime-time))
-    smooth= factor*smooth + (1-factor) * result(time).value
+    /** Set the new Result */
+    def update(time : Long, quote : Quote) = {
+      // update smoothed value for trend indication
+      val tickTime= tick.map { _.time.is }.getOrElse(time)
+      val factor= Math.exp(SWING_DECAY*(tickTime-time))
+      smooth= factor*smooth + (1-factor) * result(time).value
 
-    if (!tick.exists( _.quote.distanceTo(quote)<EPS)) {
+      if (!tick.exists( _.quote.distanceTo(quote)<EPS)) {
 	// record a new tick every minute
 	if (tickTime/Tick.min < time/Tick.min) tick=None
 	// otherwise update the existing tick
@@ -50,25 +53,24 @@ class NomineeHead(val nominee : Votable) {
 	  .quote(quote))
 	// persist result
 	tick.get.save
+      }
     }
   }
-}
 
-/** In memory representation of user related data */
-class UserHead(val user : User, val nominee : Votable) {
-  var vec = new VoteVector(user.id.is)
-  var latestUpdate = 0L
-  var latestVote = Vote
+  /** In memory representation of user related data */
+  class UserHead(val user : User, val nominee : Votable) {
+    var vec = new VoteVector(user.id.is)
+    var latestUpdate = 0L
+    var latestVote = Vote
     .find(By(Vote.owner, user), OrderBy(Vote.date, Descending))
     .map { _.date.is }.getOrElse(0L)
-  var active = true
-  var factor = 1.0
-  def weight(time : Long) = factor * Math.exp(WEIGHT_DECAY*(latestVote-time))
-  def update(time : Long) = { latestVote = latestVote max time }
-}
+    var active = true
+    var factor = 1.0
+    def weight(time : Long) = factor * Math.exp(WEIGHT_DECAY*(latestVote-time))
+    def update(time : Long) = { latestVote = latestVote max time }
+  }
 
-/** This class contains the code for solving the voting weight equation */
-class Solver(val room : Room) extends Logger {
+  /** This class contains the code for solving the voting weight equation */
   var users= Map[Long, UserHead]()
   var nominees= Map[Long, NomineeHead]()
   var voteList= List[Vote]()

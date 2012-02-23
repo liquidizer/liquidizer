@@ -2,7 +2,6 @@ package org.liquidizer.view
 
 import scala.xml._
 
-import org.liquidizer.lib.VoteMap.WEIGHT_DECAY
 import org.liquidizer.model.Tick
 import org.liquidizer.model.Quote
 
@@ -123,7 +122,7 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
     }
   }
 
-  def formatData(data : List[Tick], f:(Quote => Double)) = {
+  def formatData(data : List[Tick], decay: Double, f:(Quote => Double)) = {
     var lastX= now
     run(formatX(lastX)+" 0")
     if (!data.isEmpty) {
@@ -132,7 +131,7 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
 	val newX= tick.time.is
 	if (lastX>minX) {
 	  val y= f(tick.quote)
-	  val dy= y * Math.exp(WEIGHT_DECAY * (newX - lastX))
+	  val dy= y * Math.exp(decay * (newX - lastX))
 	  run(formatX(lastX)+" "+dy)
 	  run(formatX(Math.max(newX,minX))+" "+y)
 	}
@@ -145,6 +144,7 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
 
   /** Plot a time series */
   def plotTS(data : List[Tick], options : Map[String, String], shade : Boolean) : Node = {
+    val decay= options.get("decay").get.toDouble / Tick.day
     setOptions(options)
     run("plot "+ (if (shade)
 	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro_light+"', "+
@@ -152,11 +152,11 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
 	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.contra+"', " +
 	  "'-' using 1:2 with filledcurve title '' lt rgb '"+LiquidColors.pro+"' ")
     if (shade) {
-      formatData(data, quote => quote.pro);
-      formatData(data, quote => -quote.contra);
+      formatData(data, decay, quote => quote.pro);
+      formatData(data, decay, quote => -quote.contra);
     }
-    formatData(data, quote => Math.min(quote.pro-quote.contra,0))
-    formatData(data, quote => Math.max(quote.pro-quote.contra,0));
+    formatData(data, decay, quote => Math.min(quote.pro-quote.contra,0))
+    formatData(data, decay, quote => Math.max(quote.pro-quote.contra,0));
     
     getSVG.first
   }
