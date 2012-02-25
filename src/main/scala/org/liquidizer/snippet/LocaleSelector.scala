@@ -11,7 +11,7 @@ import java.util.Locale
 
 class LocaleSelector {
   def render(in : NodeSeq) : NodeSeq = {
-    val uri= S.uri
+    val uri= S.uri.replaceAll("^/room/_[^/]+","")
     for (loc <- LocaleSelector.locales) yield {
       SHtml.a(() => {
 	LocaleSelector.setLocale(loc)
