@@ -1,6 +1,8 @@
 package org.liquidizer.snippet
 
 import scala.xml.{Node,NodeSeq,Elem,Text}
+import scala.util.Random
+
 import net.liftweb.util._
 import net.liftweb.http._
 import net.liftweb.http.js._
@@ -145,11 +147,12 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
     def isActive(f : Votable => Double) : Votable => Double = 
       q => if (result(q).volume==0) -1e5 else f(q)
 
+    var rnd= new Random()
     order match {
-      case "value" => isActive(result(_).value.abs)
+      case "value" => isActive(result(_).value.abs + 1e-10*rnd.nextDouble())
       case "age" => q => q.id.is
-      case "pro" => isActive(result(_).value)
-      case "contra" => isActive(-result(_).value)
+      case "pro" => isActive(result(_).value + 1e-10*rnd.nextDouble())
+      case "contra" => isActive(-result(_).value + 1e-10*rnd.nextDouble())
       case "conflict" => isActive(v => { val r=result(v); r.pro min r.contra })
       case "myweight" => withMe(VoteMap.getWeight(_ , _))
       case "swing" => isActive(q => (VoteMap.getSwing(q)/(1+result(q).value.abs)).abs)
@@ -162,6 +165,8 @@ abstract class MultipageSnippet extends StatefulSnippet with InRoom {
 	withMe((me,v) => isUser(v,-VoteMap.getSympathy(me, _,  v.room.obj.get)))
       case "arousal" =>
 	withMe((me,v) => isUser(v,VoteMap.getArousal(me, _,  v.room.obj.get)))
+      case "random" => 
+	q => rnd.nextDouble()
     }
   }
 

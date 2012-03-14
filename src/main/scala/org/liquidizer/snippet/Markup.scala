@@ -185,15 +185,22 @@ class MenuMarker extends InRoom {
       case Elem("menu", "a", attribs, scope, children @ _*) =>
 	// determine target and current link
 	var href= toUrl(attribs.get("href"))
-	var current= S.uri
-        var active= href.replaceAll("(.*/)*","") == current.replaceAll("(.*/)*","")
+	var active= 
+	   if (href.startsWith("/"))
+	    S.uri.replaceAll("^/room/[^/]*","") == href.replaceAll("^/room/[^/]+","")
+	   else
+	    S.uri.replaceAll(".*/","") == href
+
 	val isDefault= attribs.get("default").exists{ _.text=="true" }
 
         // set up parameters
         attribs.get("action").foreach { action =>
 	  val value= attribs.get("value").get.text
 	  val field= action.text
-	  if (isDefault && field=="sort") S.set("defaultOrder", value)
+	  // set the default order if action is sorting
+	  if (isDefault && field=="sort" && S.get("defaultOrder").isEmpty) 
+	    S.set("defaultOrder", value)
+	  // Link leads to the currently viewed page
 	  active &&= S.param(field).map { value == _ }.getOrElse(isDefault)
 	  val search= S.param("search").map { v => List(("search",v))}.getOrElse(Nil)
 	  href = Helpers.appendParams(href, (field, value) :: search)
