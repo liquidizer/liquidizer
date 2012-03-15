@@ -2,9 +2,9 @@ package bootstrap.liftweb
 
 import net.liftweb.util._
 import net.liftweb.common._
+import net.liftweb.mapper._
 import net.liftweb.http._
 import net.liftweb.http.provider._
-import net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import Helpers._
 
 import java.sql._
@@ -174,16 +174,12 @@ object AntragsImporter {
       */
     }
     val room= Room.get("lptby121").get
-    val doc=scala.xml.XML.load(scala.xml.Source.fromFile("/home/stefan/bpt/antraege.xml"))
-    for (antrag <- doc \\ "antrag") {
-      val name=  antrag.attribute("name").get.text.replaceAll("_"," ")
-      val url=  antrag.attribute("url").get.text
-      println("antrag= "+name)
-      val query= Query.create
-      query.what(name+" "+url)
-      .creation(System.currentTimeMillis)
-      query.save
-      Votable.create.query(query).room(room).save
+    /*
+    for (nominee <- Votable.findAll(By(Votable.room, room))) {
+      val query= nominee.query.obj.get
+      query.delete_!
+      nominee.delete_!
     }
+    */
   }
 }

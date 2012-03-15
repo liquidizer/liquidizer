@@ -17,10 +17,10 @@ class Rooms extends InRoom {
 
   /** Show this content only if the user entered a room */
   def in(in : NodeSeq) : NodeSeq = {
-    if (S.attr("name").isEmpty)
+    if (S.attr("room-name").isEmpty)
       if (room.isEmpty) NodeSeq.Empty else in
     else
-      if (room.exists( _.name.is==S.attr("name").get)) in else NodeSeq.Empty
+      if (room.exists( _.name.is==S.attr("room-name").get)) in else NodeSeq.Empty
   }
 
   /** Show this content only if the user has not entered a room */
