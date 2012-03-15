@@ -2,8 +2,11 @@
   <lift:bind-at name="title"><lift:loc>title.queries</lift:loc></lift:bind-at>
   <lift:bind-at name="toprow">
     <div class="toprow">
-      <lift:MenuMarker>
+      <lift:MenuMarker eager_eval="true">
 	<ul class="sort">
+	  <lift:Rooms.in name="lptby121" eager_eval="true">
+	    <menu:a action="sort" value="random" icon="random" title="$sort.random" default="true"/>
+	  </lift:Rooms.in>
 	  <menu:a action="sort" value="pro" icon="pro" default="true" title="$sort.pro"/>
 	  <menu:a action="sort" value="contra" icon="contra" title="$sort.contra"/>
 	  <menu:a action="sort" value="swing" icon="swing" title="$sort.swing"/>
@@ -11,7 +14,6 @@
 	  <menu:a action="sort" value="comment" icon="comment" title="$sort.comment"/>
 	  <menu:a action="sort" value="alpha" icon="alpha" title="$sort.alpha"/>
 	  <menu:a action="sort" value="age" icon="new" title="$sort.age"/>
-	  <menu:a action="sort" value="random" icon="random" title="$sort.random"/>
 	</ul>
       </lift:MenuMarker>
       <div style="float:right">

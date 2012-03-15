@@ -16,8 +16,12 @@ import org.liquidizer.lib._
 class Rooms extends InRoom {
 
   /** Show this content only if the user entered a room */
-  def in(in : NodeSeq) : NodeSeq =
-    if (room.isEmpty) NodeSeq.Empty else in
+  def in(in : NodeSeq) : NodeSeq = {
+    if (S.attr("name").isEmpty)
+      if (room.isEmpty) NodeSeq.Empty else in
+    else
+      if (room.exists( _.name.is==S.attr("name").get)) in else NodeSeq.Empty
+  }
 
   /** Show this content only if the user has not entered a room */
   def out(in : NodeSeq) : NodeSeq =
@@ -39,11 +43,13 @@ class Rooms extends InRoom {
     var codes= ""
     var restrict= false;
     var	allowAQ= true;
+    var	allowMulti= true;
     if (User.currentUser.isEmpty) NodeSeq.Empty else {
       Helpers.bind("room", in,
 		   "name" -> SHtml.text(name, name = _),
 		   "decay" -> SHtml.text(decay, decay = _),
 		   "codes" -> <div id="inviteCodes"></div>,
+		   "allowMulti" -> SHtml.checkbox(allowMulti, allowMulti= _),
 		   "allowAddQuery" -> SHtml.checkbox(allowAQ, allowAQ= _),
 		   "restrict" -> SHtml.ajaxCheckbox(restrict, show => {
 		     restrict=show
@@ -58,7 +64,7 @@ class Rooms extends InRoom {
 		   "submit" ->
 		   SHtml.ajaxSubmit(S ? "create", () => {
 		     val codeOpt= if (restrict) Some(codes) else None
-		     createRoom(name.trim, decay, allowAQ, codeOpt)
+		     createRoom(name.trim, decay, allowAQ, allowMulti, codeOpt)
 		   })
 		 )
     }
@@ -67,6 +73,7 @@ class Rooms extends InRoom {
   /** create a new room with the given name */
   def createRoom(name : String, decay : String, 
 		 allowAddQueries : Boolean,
+		 allowMultiCodes : Boolean,
 		 codes : Option[String]) = {
     if (name.length == 0) {
       Noop
@@ -77,6 +84,7 @@ class Rooms extends InRoom {
 	room.owner(User.currentUser.get)
 	room.decay(decay.toDouble)
 	room.needsCode(!codes.isEmpty)
+	room.singleCode(!allowMultiCodes)
 	room.fixedQueries(!allowAddQueries)
 	room.save
 	if (room.needsCode.is) {

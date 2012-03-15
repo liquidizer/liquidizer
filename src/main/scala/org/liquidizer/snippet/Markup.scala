@@ -175,6 +175,7 @@ object Localizer {
 /** Create menu item elements with links and automatic styles */
 class MenuMarker extends InRoom {
   val user= User.currentUser.map { _.id.is }.getOrElse(0L)
+  var isFirst= true
 
   def toUrl(url : Option[Seq[Node]]) =
     uri(url.map { _.text }.getOrElse(S.uri))
@@ -191,20 +192,19 @@ class MenuMarker extends InRoom {
 	   else
 	    S.uri.replaceAll(".*/","") == href
 
-	val isDefault= attribs.get("default").exists{ _.text=="true" }
-
         // set up parameters
         attribs.get("action").foreach { action =>
 	  val value= attribs.get("value").get.text
 	  val field= action.text
 	  // set the default order if action is sorting
-	  if (isDefault && field=="sort" && S.get("defaultOrder").isEmpty) 
+	  if (isFirst && field=="sort")
 	    S.set("defaultOrder", value)
 	  // Link leads to the currently viewed page
-	  active &&= S.param(field).map { value == _ }.getOrElse(isDefault)
+	  active &&= S.param(field).map { value == _ }.getOrElse(isFirst)
 	  val search= S.param("search").map { v => List(("search",v))}.getOrElse(Nil)
 	  href = Helpers.appendParams(href, (field, value) :: search)
-      }
+	  isFirst= false
+        }
 
         // make menu entry
 	val entry= attribs.get("icon").map { url =>

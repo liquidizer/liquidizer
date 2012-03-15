@@ -40,7 +40,7 @@ object PollingBooth {
     if (!room.isEmpty) {
       var n= Votable.find(By(Votable.user, user), 
 			  By(Votable.room, room.get));
-      if (room.get.needsCode.is) {
+      if (!room.isEmpty && room.get.needsCode.is) {
 	if (code.isEmpty && n.isEmpty)
 	  return false
 	if (!code.isEmpty) {
@@ -53,8 +53,10 @@ object PollingBooth {
 	    if (codeItem.get.owner.is!=user.id.is) {
 	      if (!codeItem.get.owner.isEmpty)
 		return false;
-	      codeItem.get.owner(user);
-	      codeItem.get.save
+	      if (n.isEmpty || room.get.singleCode.is) {
+		codeItem.get.owner(user);
+		codeItem.get.save
+	      }
 	    }
 	  }
 	}
