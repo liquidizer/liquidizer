@@ -123,7 +123,7 @@ class CommandAPI(command : String) {
     stdOutput.close()
   }
 
-  def getSVG() : NodeSeq = {
+  def getSVG() : Node = {
     val buf= new java.lang.StringBuilder
     stdOutput.flush()
     stdOutput.close()
@@ -140,6 +140,10 @@ class CommandAPI(command : String) {
 
     val src=scala.io.Source.fromString(buf.toString)
     val doc=scala.xml.parsing.XhtmlParser.apply(src)
-    (doc)
+    try {
+      doc.first
+    } catch {
+      case _ => <svg/>
+    }
   }
 }

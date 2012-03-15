@@ -108,7 +108,7 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
     super.out(cmd)
   }
 
-  override def getSVG() : NodeSeq = {
+  override def getSVG() : Node = {
     run("unset output")
     run("exit")
     super.getSVG()
@@ -158,7 +158,7 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
     formatData(data, decay, quote => Math.min(quote.pro-quote.contra,0))
     formatData(data, decay, quote => Math.max(quote.pro-quote.contra,0));
     
-    getSVG.first
+    getSVG
   }
 
   def hist(data : List[(Double,Double)], 
@@ -174,6 +174,6 @@ class GnuplotAPI extends CommandAPI("gnuplot") {
     data.filter { _._1 > 0 }.foreach { row => run(row._1+" "+row._2) }
     run("e")
     
-    getSVG.first
+    getSVG
   }
 }
