@@ -24,8 +24,12 @@ class Rooms extends InRoom {
   }
 
   /** Show this content only if the user has not entered a room */
-  def out(in : NodeSeq) : NodeSeq =
-    if (room.isEmpty) in else NodeSeq.Empty
+  def out(in : NodeSeq) : NodeSeq = {
+    if (S.attr("room-name").isEmpty)
+      if (room.isEmpty) in else NodeSeq.Empty
+    else
+      if (room.exists( _.name.is==S.attr("room-name").get)) NodeSeq.Empty else in
+  }
 
   /** Show a list of all available rooms */
   def list(in : Node) : NodeSeq = {
