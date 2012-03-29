@@ -37,7 +37,7 @@ class Boot {
     Schemifier.schemify(true, Schemifier.infoF _, Votable, User, Query, 
 			Vote, Comment, Room, Certificate, Emotion, Tick,
 		        InviteCode)
-    AntragsImporter.run
+    //AntragsImporter.run
 
     // convert the data base
     if (Room.findAll.isEmpty) {
@@ -174,12 +174,21 @@ object AntragsImporter {
       */
     }
     val room= Room.get("lptby121").get
-    /*
     for (nominee <- Votable.findAll(By(Votable.room, room))) {
       val query= nominee.query.obj.get
       query.delete_!
       nominee.delete_!
     }
-    */
+    val doc=scala.xml.XML.load(scala.xml.Source.fromFile("/home/stefan/bpt/antraege.xml"))
+    for (antrag <- doc \\ "antrag") {
+      val name=  antrag.attribute("name").get.text.replaceAll("_"," ")
+      val url=  antrag.attribute("url").get.text
+      println("antrag= "+name)
+      val query= Query.create
+      query.what(name+" "+url)
+      .creation(System.currentTimeMillis)
+      query.save
+      Votable.create.query(query).room(room).save
+    }
   }
 }
