@@ -53,7 +53,7 @@ object TimeseriesView {
       "axis" -> S.param("axis").getOrElse("log"),
       "width" -> S.param("width").getOrElse("640"),
       "height" -> S.param("height").getOrElse("400"),
-      "decay" -> S.param("room").map { 
+      "decay" -> S.param("room").map {
 	Room.get(_).get.decay.is.toString 
       }.getOrElse("0.01")
     )

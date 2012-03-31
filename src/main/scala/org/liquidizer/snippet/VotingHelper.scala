@@ -252,7 +252,7 @@ class VotingHelper extends InRoom {
     val options = attribs.elements.map ( a=> a.key+"="+a.value).mkString("&")
     <embed
     alt="Chart"
-    src={uri+"/"+chartType+".svg?"+options}
+    src={uri.replaceAll("[^/]*$","")+chartType+".svg?"+options}
     width={attribs.get("width").getOrElse(Text("640"))}
     height={attribs.get("height").getOrElse(Text("480"))}/>
   }
