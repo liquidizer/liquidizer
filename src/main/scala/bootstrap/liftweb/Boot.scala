@@ -46,17 +46,6 @@ class Boot {
       Emotion.findAll.foreach { _.room(room).save }
     }
 
-    // update Rooms
-    val user= User.getUserByNick("Dadim").get
-    for (room <- Room.findAll) {
-      if (room.owner.isEmpty) {
-	room.owner(user)
-	room.needsCode(false)
-	room.decay(0.01)
-	room.save()
-      }
-    }
-
     println("Starting LIQUIDIZER")
     VoteMap.refresh(false)
 
